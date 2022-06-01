@@ -6,5 +6,6 @@ author:
   orcid: "https://orcid.org/0000-0003-2216-0702"
 title: "Research work OpenVQE package with myqlm-fermion tools"
 version: 2.0.4
+doi: xxx/xxxx
 date-released: 2022-06-01
 url: "https://github.com/OpenVQE/OpenVQE.git"
