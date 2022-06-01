@@ -4,7 +4,7 @@ author:
 - family-names: "Haidar"
   given-names: "Mohammad"
   orcid: "https://orcid.org/0000-0003-2216-0702"
-title: "Research work about OpenVQE package using myqlm-fermion tools"
+title: "Research work OpenVQE package with myqlm-fermion tools"
 version: 2.0.4
 date-released: 2022-06-01
 url: "https://github.com/OpenVQE/OpenVQE.git"
