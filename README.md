@@ -61,7 +61,7 @@ For more information, please refer to our paper that wil be published soon (the 
 
 License
 -----------
-The code is published under the GNU General Public License v3.0.
+The code is published under the MIT License.
 
 References
 -----------
