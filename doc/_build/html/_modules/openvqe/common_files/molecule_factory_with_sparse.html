@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>openvqe.common_files.molecule_factory_with_sparse &mdash; OpenVQE 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OpenVQE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started with OpenVQE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../openvqe.html">openvqe modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenVQE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>openvqe.common_files.molecule_factory_with_sparse</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for openvqe.common_files.molecule_factory_with_sparse</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">binary_repr</span>
+<span class="kn">from</span> <span class="nn">qat.fermion</span> <span class="kn">import</span> <span class="n">ElectronicStructureHamiltonian</span>
+<span class="kn">from</span> <span class="nn">qat.fermion.chemistry.pyscf_tools</span> <span class="kn">import</span> <span class="n">perform_pyscf_computation</span>
+<span class="kn">from</span> <span class="nn">qat.fermion.chemistry.ucc</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">convert_to_h_integrals</span><span class="p">,</span>
+    <span class="n">transform_integrals_to_new_basis</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">qat.fermion.chemistry.ucc_deprecated</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_active_space_hamiltonian</span><span class="p">,</span>
+    <span class="n">get_cluster_ops_and_init_guess</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">qat.fermion.transforms</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_bk_code</span><span class="p">,</span>
+    <span class="n">get_jw_code</span><span class="p">,</span>
+    <span class="n">get_parity_code</span><span class="p">,</span>
+    <span class="n">recode_integer</span><span class="p">,</span>
+    <span class="n">transform_to_bk_basis</span><span class="p">,</span>
+    <span class="n">transform_to_jw_basis</span><span class="p">,</span>
+    <span class="n">transform_to_parity_basis</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">.generator_excitations</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">singlet_gsd</span><span class="p">,</span>
+    <span class="n">singlet_sd</span><span class="p">,</span>
+    <span class="n">singlet_upccgsd</span><span class="p">,</span>
+    <span class="n">spin_complement_gsd</span><span class="p">,</span>
+    <span class="n">spin_complement_gsd_twin</span><span class="p">,</span>
+    <span class="n">uccsd</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="MoleculeFactory"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.molecule_factory_with_sparse.MoleculeFactory">[docs]</a><span class="k">class</span> <span class="nc">MoleculeFactory</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class used to represent the molecule  which consists of several main methods: get_parameters, generate_hamiltonian, calculate_uccsd, generate_cluster_ops.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MoleculeFactory.get_parameters"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.molecule_factory_with_sparse.MoleculeFactory.get_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule_symbol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is responsible for representing the molecule returning its characteristics.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        molecule_symbol : string</span>
+<span class="sd">            the sumbol of the molecule</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        r: float</span>
+<span class="sd">            bone length</span>
+<span class="sd">        geometry: list&lt;Tuple&gt;</span>
+<span class="sd">            geometry representation of a molecule (x,y,z) format.</span>
+<span class="sd">        charge: int</span>
+<span class="sd">            charge of the molecule</span>
+<span class="sd">        spin: int</span>
+<span class="sd">            spin of the molecule</span>
+<span class="sd">        basis: string</span>
+<span class="sd">            chemical basis set of the molecule</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;LIH&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.45</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">))]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;H2&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">0.75</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">))]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1">#             basis = &#39;cc-pVDZ&#39;</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;6-31g&quot;</span>
+
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;HeH+&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;he&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">))]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;6-31g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;HD+&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">0.75</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">))]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;6-31g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;H4&quot;</span><span class="p">:</span>
+            <span class="c1"># h4</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">0.85</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+            <span class="p">]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;H6&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.5</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+            <span class="p">]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;H8&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">7</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+            <span class="p">]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;H10&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">7</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">9</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+            <span class="p">]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;BeH2&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.4</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;Be&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">r</span><span class="p">))]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;H2O&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0285</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="mf">0.538</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">theta</span><span class="p">),</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">theta</span><span class="p">))),</span>
+            <span class="p">]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;NH3&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0703</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="p">(</span><span class="mf">100.107</span> <span class="o">/</span> <span class="mi">180</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;h&quot;</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="mi">0</span><span class="p">,</span>
+                        <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;h&quot;</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span>
+                        <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;h&quot;</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span>
+                        <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;HF&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">))]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;HO&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.8</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">r</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">r</span><span class="p">))]</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+        <span class="k">elif</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;CO2&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.22</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">8.261342997000753e-07</span><span class="p">]],</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;O&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="mf">1.0990287608769004e-18</span><span class="p">,</span>
+                        <span class="mf">2.7114450405987004e-19</span><span class="p">,</span>
+                        <span class="mf">1.2236575813458745</span><span class="p">,</span>
+                    <span class="p">],</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;O&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="mf">2.696319376811295e-22</span><span class="p">,</span>
+                        <span class="mf">2.4247676462727696e-23</span><span class="p">,</span>
+                        <span class="o">-</span><span class="mf">1.2236561920609494</span><span class="p">,</span>
+                    <span class="p">],</span>
+                <span class="p">],</span>
+            <span class="p">]</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;sto-3g&quot;</span>
+            <span class="n">spin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">r</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">basis</span></div>
+
+<div class="viewcode-block" id="MoleculeFactory.generate_hamiltonian"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.molecule_factory_with_sparse.MoleculeFactory.generate_hamiltonian">[docs]</a>    <span class="k">def</span> <span class="nf">generate_hamiltonian</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">molecule_symbol</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="s2">&quot;JW&quot;</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is responsible for generating the hamiltonian of the molecule in the fermionic and the spin representation.</span>
+<span class="sd">        It operates in the active and non-active space selections.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        molecule_symbol : string</span>
+<span class="sd">            the sumbol of the molecule</span>
+<span class="sd">        active: bool</span>
+<span class="sd">            False if the non-active space is considered</span>
+<span class="sd">            True if the active space is considered</span>
+<span class="sd">        transform: string</span>
+<span class="sd">            type of transformation</span>
+<span class="sd">        display: bool</span>
+<span class="sd">            False if no need to print the steps for debugging</span>
+<span class="sd">            True if debugging is needed (so print the steps)</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        In case of active space:</span>
+<span class="sd">            h_active: Hamiltonian</span>
+<span class="sd">                electronic structure hamiltonian in the active space selection</span>
+<span class="sd">            h_active_sparse: np.array</span>
+<span class="sd">                Active space hamiltonian matrix in the sparse representation</span>
+<span class="sd">            h_active_sp: Hamiltonian</span>
+<span class="sd">                Active space hamiltonian in the spin representation</span>
+<span class="sd">            h_active_sp_sparse: Hamiltonian</span>
+<span class="sd">                Active space sparsed hamiltonian in the spin representation</span>
+<span class="sd">            nb_active_els: int</span>
+<span class="sd">                number of electrons in the active space</span>
+<span class="sd">            active_noons: list[float]</span>
+<span class="sd">                list of noons in the active space</span>
+<span class="sd">            active_orb_energies: list[float]</span>
+<span class="sd">                list of orbital energies in the active space</span>
+<span class="sd">            info: dict (dict of str: float)</span>
+<span class="sd">                dictionary of HF, CCSD, FCI</span>
+
+<span class="sd">        In case of non-active space:</span>
+<span class="sd">            h: Hamiltonian</span>
+<span class="sd">                electronic structure hamiltonian</span>
+<span class="sd">            hamiltonian_sparse: np.array</span>
+<span class="sd">                Hamiltonian matrix in the sparse representation</span>
+<span class="sd">            hamiltonian_sp: Hamiltonian</span>
+<span class="sd">                Hamiltonian in the spin representation</span>
+<span class="sd">            hamiltonian_sp_sparse: Hamiltonian</span>
+<span class="sd">                Sparse hamiltonian in the spin representation</span>
+<span class="sd">            n_elec: int</span>
+<span class="sd">                number of electrons</span>
+<span class="sd">            noons_full: list[float]</span>
+<span class="sd">                list of noons</span>
+<span class="sd">            orb_energies_full: list[float]</span>
+<span class="sd">                list of orbital energies</span>
+<span class="sd">            info: dict (dict of str:float)</span>
+<span class="sd">                dictionary of HF, CCSD, FCI</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">basis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">(</span><span class="n">molecule_symbol</span><span class="p">)</span>
+        <span class="p">(</span>
+            <span class="n">rdm1</span><span class="p">,</span>
+            <span class="n">orbital_energies</span><span class="p">,</span>
+            <span class="n">nuclear_repulsion</span><span class="p">,</span>
+            <span class="n">n_elec</span><span class="p">,</span>
+            <span class="n">one_body_integrals</span><span class="p">,</span>
+            <span class="n">two_body_integrals</span><span class="p">,</span>
+            <span class="n">info</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">perform_pyscf_computation</span><span class="p">(</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">basis</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of electrons = &quot;</span><span class="p">,</span> <span class="n">n_elec</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Number of qubits before active space selection = &quot;</span><span class="p">,</span> <span class="n">rdm1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+            <span class="p">)</span>
+            <span class="c1"># print(&quot;rdm1&quot;, rdm1)</span>
+            <span class="c1"># print(info)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Orbital energies = &quot;</span><span class="p">,</span> <span class="n">orbital_energies</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Nuclear repulsion = &quot;</span><span class="p">,</span> <span class="n">nuclear_repulsion</span><span class="p">)</span>
+
+        <span class="c1"># nuclear_repulsion = molbasis.nuclear_repulsion</span>
+
+        <span class="n">hpq</span><span class="p">,</span> <span class="n">hpqrs</span> <span class="o">=</span> <span class="n">convert_to_h_integrals</span><span class="p">(</span><span class="n">one_body_integrals</span><span class="p">,</span> <span class="n">two_body_integrals</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">active</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+
+            <span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">ElectronicStructureHamiltonian</span><span class="p">(</span>
+                <span class="n">hpq</span><span class="p">,</span> <span class="n">hpqrs</span><span class="p">,</span> <span class="n">constant_coeff</span><span class="o">=</span><span class="n">nuclear_repulsion</span>
+            <span class="p">)</span>
+            <span class="n">noons</span><span class="p">,</span> <span class="n">basis_change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">rdm1</span><span class="p">)</span>
+            <span class="n">noons</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">noons</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Noons = &quot;</span><span class="p">,</span> <span class="n">noons</span><span class="p">)</span>
+            <span class="n">noons_full</span><span class="p">,</span> <span class="n">orb_energies_full</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">noons</span><span class="p">)):</span>
+                <span class="n">noons_full</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">noons</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">noons</span><span class="p">[</span><span class="n">ind</span><span class="p">]])</span>
+                <span class="n">orb_energies_full</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">orbital_energies</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">orbital_energies</span><span class="p">[</span><span class="n">ind</span><span class="p">]])</span>
+            <span class="n">hamiltonian_sp</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">transform</span> <span class="o">==</span> <span class="s2">&quot;JW&quot;</span><span class="p">:</span>
+                <span class="n">trafo</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="n">transform_to_jw_basis</span><span class="p">,</span> <span class="n">get_jw_code</span>
+                <span class="n">hamiltonian_sp</span> <span class="o">=</span> <span class="n">trafo</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">transform</span> <span class="o">==</span> <span class="s2">&quot;Bravyi-Kitaev&quot;</span><span class="p">:</span>
+                <span class="n">trafo</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="n">transform_to_bk_basis</span><span class="p">,</span> <span class="n">get_bk_code</span>
+                <span class="n">hamiltonian_sp</span> <span class="o">=</span> <span class="n">trafo</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">transform</span> <span class="o">==</span> <span class="s2">&quot;parity_basis&quot;</span><span class="p">:</span>
+                <span class="n">trafo</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="n">transform_to_parity_basis</span><span class="p">,</span> <span class="n">get_parity_code</span>
+                <span class="n">hamiltonian_sp</span> <span class="o">=</span> <span class="n">trafo</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">)</span>
+            <span class="n">hamiltonian_sparse</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">hamiltonian_sp_sparse</span> <span class="o">=</span> <span class="n">hamiltonian_sp</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">hamiltonian</span><span class="p">,</span>
+                <span class="n">hamiltonian_sparse</span><span class="p">,</span>
+                <span class="n">hamiltonian_sp</span><span class="p">,</span>
+                <span class="n">hamiltonian_sp_sparse</span><span class="p">,</span>
+                <span class="n">n_elec</span><span class="p">,</span>
+                <span class="n">noons_full</span><span class="p">,</span>
+                <span class="n">orb_energies_full</span><span class="p">,</span>
+                <span class="n">info</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">noons</span><span class="p">,</span> <span class="n">basis_change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">rdm1</span><span class="p">)</span>
+        <span class="n">noons</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">noons</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Noons = &quot;</span><span class="p">,</span> <span class="n">noons</span><span class="p">)</span>
+
+        <span class="n">basis_change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">basis_change</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">one_body_integrals</span><span class="p">,</span> <span class="n">two_body_integrals</span> <span class="o">=</span> <span class="n">transform_integrals_to_new_basis</span><span class="p">(</span>
+            <span class="n">one_body_integrals</span><span class="p">,</span> <span class="n">two_body_integrals</span><span class="p">,</span> <span class="n">basis_change</span>
+        <span class="p">)</span>
+
+        <span class="n">threshold_1</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">noons</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">noons</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">threshold_2</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">threshold_2</span> <span class="o">=</span> <span class="n">noons</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;threshold_1 chosen = &quot;</span><span class="p">,</span> <span class="n">threshold_1</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;threshold_2 chosen = &quot;</span><span class="p">,</span> <span class="n">threshold_2</span><span class="p">)</span>
+        <span class="n">hamiltonian_active</span><span class="p">,</span> <span class="n">active_inds</span><span class="p">,</span> <span class="n">occ_inds</span> <span class="o">=</span> <span class="n">get_active_space_hamiltonian</span><span class="p">(</span>
+            <span class="n">one_body_integrals</span><span class="p">,</span>
+            <span class="n">two_body_integrals</span><span class="p">,</span>
+            <span class="n">noons</span><span class="p">,</span>
+            <span class="n">n_elec</span><span class="p">,</span>
+            <span class="n">nuclear_repulsion</span><span class="p">,</span>
+            <span class="n">threshold_1</span><span class="o">=</span><span class="n">threshold_1</span><span class="p">,</span>
+            <span class="n">threshold_2</span><span class="o">=</span><span class="n">threshold_2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Number of qubits after active space selection =&quot;</span><span class="p">,</span>
+                <span class="n">hamiltonian_active</span><span class="o">.</span><span class="n">nbqbits</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">active_noons</span><span class="p">,</span> <span class="n">active_orb_energies</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">active_inds</span><span class="p">:</span>
+            <span class="n">active_noons</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">noons</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">noons</span><span class="p">[</span><span class="n">ind</span><span class="p">]])</span>
+            <span class="n">active_orb_energies</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">orbital_energies</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">orbital_energies</span><span class="p">[</span><span class="n">ind</span><span class="p">]])</span>
+        <span class="n">nb_active_els</span> <span class="o">=</span> <span class="n">n_elec</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">occ_inds</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;length of active noons: &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_noons</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;length of orbital energies: &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_orb_energies</span><span class="p">))</span>
+        <span class="c1"># import numpy as np</span>
+        <span class="c1"># eigen,_ = np.linalg.eigh(hamiltonian_active.get_matrix())</span>
+        <span class="c1"># print(&quot;eigen&quot;,eigen)</span>
+
+        <span class="c1"># print(&quot;eigen&quot;,min(eigen))</span>
+        <span class="n">hamiltonian_active_sp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">transform</span> <span class="o">==</span> <span class="s2">&quot;JW&quot;</span><span class="p">:</span>
+            <span class="n">trafo</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="n">transform_to_jw_basis</span><span class="p">,</span> <span class="n">get_jw_code</span>
+            <span class="n">hamiltonian_active_sp</span> <span class="o">=</span> <span class="n">trafo</span><span class="p">(</span><span class="n">hamiltonian_active</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">transform</span> <span class="o">==</span> <span class="s2">&quot;Bravyi-Kitaev&quot;</span><span class="p">:</span>
+            <span class="n">trafo</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="n">transform_to_bk_basis</span><span class="p">,</span> <span class="n">get_bk_code</span>
+            <span class="n">hamiltonian_active_sp</span> <span class="o">=</span> <span class="n">trafo</span><span class="p">(</span><span class="n">hamiltonian_active</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">transform</span> <span class="o">==</span> <span class="s2">&quot;parity_basis&quot;</span><span class="p">:</span>
+            <span class="n">trafo</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="n">transform_to_parity_basis</span><span class="p">,</span> <span class="n">get_parity_code</span>
+            <span class="n">hamiltonian_active_sp</span> <span class="o">=</span> <span class="n">trafo</span><span class="p">(</span><span class="n">hamiltonian_active</span><span class="p">)</span>
+        <span class="n">hamiltonian_active_sparse</span> <span class="o">=</span> <span class="n">hamiltonian_active</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">hamiltonian_active_sp_sparse</span> <span class="o">=</span> <span class="n">hamiltonian_active_sp</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">hamiltonian_active</span><span class="p">,</span>
+            <span class="n">hamiltonian_active_sparse</span><span class="p">,</span>
+            <span class="n">hamiltonian_active_sp</span><span class="p">,</span>
+            <span class="n">hamiltonian_active_sp_sparse</span><span class="p">,</span>
+            <span class="n">nb_active_els</span><span class="p">,</span>
+            <span class="n">active_noons</span><span class="p">,</span>
+            <span class="n">active_orb_energies</span><span class="p">,</span>
+            <span class="n">info</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MoleculeFactory.calculate_uccsd"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.molecule_factory_with_sparse.MoleculeFactory.calculate_uccsd">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_uccsd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule_symbol</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">active</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is responsible for constructing the cluster operators, the MP2 initial guesses variational parameters of the UCCSD ansatz. It computes the cluster operators in the spin representation and the size of the pool.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        molecule_symbol : string</span>
+<span class="sd">            the sumbol of the molecule</span>
+<span class="sd">        transform : string</span>
+<span class="sd">            type of transformation. Either &#39;JW&#39;, &#39;Bravyi-Kitaev&#39;, or &#39;parity_basis&#39;</span>
+<span class="sd">        active : bool</span>
+<span class="sd">            False if the non-active space is considered</span>
+<span class="sd">            True if the active space is considered</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pool_size: int</span>
+<span class="sd">            The number of the cluster operators</span>
+<span class="sd">        cluster_ops: list[Hamiltonian]</span>
+<span class="sd">            list of fermionic cluster operators</span>
+<span class="sd">        cluster_ops_sp: list[Hamiltonian]</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        theta_MP2: list[float]</span>
+<span class="sd">            list of parameters in the MP2 pre-screening process</span>
+<span class="sd">        hf_init: int</span>
+<span class="sd">            the integer corresponding to the occupation of the Hartree-Fock solution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">active</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">hamiltonian</span><span class="p">,</span>
+                <span class="n">hamiltonian_sparse</span><span class="p">,</span>
+                <span class="n">hamiltonian_sp</span><span class="p">,</span>
+                <span class="n">hamiltonian_sp_sparse</span><span class="p">,</span>
+                <span class="n">n_elec</span><span class="p">,</span>
+                <span class="n">noons_full</span><span class="p">,</span>
+                <span class="n">orb_energies_full</span><span class="p">,</span>
+                <span class="n">info</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_hamiltonian</span><span class="p">(</span>
+                <span class="n">molecule_symbol</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+            <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">theta_MP2</span><span class="p">,</span> <span class="n">hf_init</span> <span class="o">=</span> <span class="n">uccsd</span><span class="p">(</span>
+                <span class="n">hamiltonian</span><span class="p">,</span> <span class="n">n_elec</span><span class="p">,</span> <span class="n">noons_full</span><span class="p">,</span> <span class="n">orb_energies_full</span><span class="p">,</span> <span class="n">transform</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">theta_MP2</span><span class="p">,</span> <span class="n">hf_init</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">hamiltonian_active</span><span class="p">,</span>
+                <span class="n">hamiltonian_active_sparse</span><span class="p">,</span>
+                <span class="n">hamiltonian_active_sp</span><span class="p">,</span>
+                <span class="n">hamiltonian_active_sp_sparse</span><span class="p">,</span>
+                <span class="n">nb_active_els</span><span class="p">,</span>
+                <span class="n">active_noons</span><span class="p">,</span>
+                <span class="n">active_orb_energies</span><span class="p">,</span>
+                <span class="n">info</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_hamiltonian</span><span class="p">(</span>
+                <span class="n">molecule_symbol</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span>
+            <span class="p">)</span>
+            <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">theta_MP2</span><span class="p">,</span> <span class="n">hf_init</span> <span class="o">=</span> <span class="n">uccsd</span><span class="p">(</span>
+                <span class="n">hamiltonian_active</span><span class="p">,</span>
+                <span class="n">nb_active_els</span><span class="p">,</span>
+                <span class="n">active_noons</span><span class="p">,</span>
+                <span class="n">active_orb_energies</span><span class="p">,</span>
+                <span class="n">transform</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">theta_MP2</span><span class="p">,</span> <span class="n">hf_init</span></div>
+
+<div class="viewcode-block" id="MoleculeFactory.find_hf_init"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.molecule_factory_with_sparse.MoleculeFactory.find_hf_init">[docs]</a>    <span class="k">def</span> <span class="nf">find_hf_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="p">,</span> <span class="n">n_elec</span><span class="p">,</span> <span class="n">noons_full</span><span class="p">,</span> <span class="n">orb_energies_full</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">hf_init</span> <span class="o">=</span> <span class="n">get_cluster_ops_and_init_guess</span><span class="p">(</span>
+            <span class="n">n_elec</span><span class="p">,</span> <span class="n">noons_full</span><span class="p">,</span> <span class="n">orb_energies_full</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">hpqrs</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">hf_init</span></div>
+
+<div class="viewcode-block" id="MoleculeFactory.generate_cluster_ops"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.molecule_factory_with_sparse.MoleculeFactory.generate_cluster_ops">[docs]</a>    <span class="k">def</span> <span class="nf">generate_cluster_ops</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">molecule_symbol</span><span class="p">,</span> <span class="n">type_of_generator</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function computes the cluster operators and its size in the fermionic and spin representations for UCC family ansatz in the active and non-active space selection for any molecule within its basis sets. It also generates the cluster operators in the matrix representation using sparse method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        molecule_symbol : string</span>
+<span class="sd">            the sumbol of the molecule</span>
+<span class="sd">        type_of_generator: string</span>
+<span class="sd">            the type of excitation generator the user needs</span>
+<span class="sd">        transform : string</span>
+<span class="sd">            type of transform of the molecule</span>
+<span class="sd">        active : bool</span>
+<span class="sd">            False if the non-active space is considered</span>
+<span class="sd">            True if the active space is considered</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        In the case of UCCSD:</span>
+<span class="sd">            pool_size: int</span>
+<span class="sd">                size of the pool</span>
+<span class="sd">            cluster_ops: list[Any]</span>
+<span class="sd">                list of fermionic cluster operators</span>
+<span class="sd">            cluster_ops_sp: list[Any]</span>
+<span class="sd">                list of spin cluster operators</span>
+<span class="sd">            cluster_ops_sparse: np.ndarray</span>
+<span class="sd">                matrix representation of the cluster operator</span>
+<span class="sd">            theta_MP2: list[float]</span>
+<span class="sd">                list of parameters in the MP2 screening process</span>
+<span class="sd">            hf_init: int</span>
+<span class="sd">                the integer coressponding to the occupation of the Hartree-Fock solution</span>
+<span class="sd">        </span>
+<span class="sd">        In any of the other cases:</span>
+<span class="sd">            pool_size: int</span>
+<span class="sd">                size of the pool</span>
+<span class="sd">            cluster_ops: list[Any]</span>
+<span class="sd">                list of fermionic cluster operators</span>
+<span class="sd">            cluster_ops_sp: list[Any]</span>
+<span class="sd">                list of spin cluster operators</span>
+<span class="sd">            cluster_ops_sparse: np.ndarray</span>
+<span class="sd">                matrix representation of the cluster operator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">r</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">basis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">(</span><span class="n">molecule_symbol</span><span class="p">)</span>
+        <span class="p">(</span>
+            <span class="n">rdm1</span><span class="p">,</span>
+            <span class="n">orbital_energies</span><span class="p">,</span>
+            <span class="n">nuclear_repulsion</span><span class="p">,</span>
+            <span class="n">n_elec</span><span class="p">,</span>
+            <span class="n">one_body_integrals</span><span class="p">,</span>
+            <span class="n">two_body_integrals</span><span class="p">,</span>
+            <span class="n">info</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">perform_pyscf_computation</span><span class="p">(</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">basis</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="n">orbital_number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">orbital_energies</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">active</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">hamiltonian_active</span><span class="p">,</span>
+                <span class="n">hamiltonian_active_sparse</span><span class="p">,</span>
+                <span class="n">hamiltonian_active_sp</span><span class="p">,</span>
+                <span class="n">hamiltonian_active_sp_sparse</span><span class="p">,</span>
+                <span class="n">nb_active_els</span><span class="p">,</span>
+                <span class="n">active_noons</span><span class="p">,</span>
+                <span class="n">active_orb_energies</span><span class="p">,</span>
+                <span class="n">info</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_hamiltonian</span><span class="p">(</span>
+                <span class="n">molecule_symbol</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+            <span class="c1"># print(&#39;here: &#39;, len(active_orb_energies))</span>
+            <span class="n">orbital_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">active_orb_energies</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">n_elec</span> <span class="o">=</span> <span class="n">nb_active_els</span>
+
+        <span class="c1"># orb_energies_full = orbital_energies</span>
+        <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">type_of_generator</span> <span class="o">==</span> <span class="s2">&quot;singlet_sd&quot;</span><span class="p">:</span>
+            <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span> <span class="o">=</span> <span class="n">singlet_sd</span><span class="p">(</span>
+                <span class="n">n_elec</span><span class="p">,</span> <span class="n">orbital_number</span><span class="p">,</span> <span class="n">transform</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">type_of_generator</span> <span class="o">==</span> <span class="s2">&quot;singlet_gsd&quot;</span><span class="p">:</span>
+            <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span> <span class="o">=</span> <span class="n">singlet_gsd</span><span class="p">(</span>
+                <span class="n">n_elec</span><span class="p">,</span> <span class="n">orbital_number</span><span class="p">,</span> <span class="n">transform</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">type_of_generator</span> <span class="o">==</span> <span class="s2">&quot;spin_complement_gsd&quot;</span><span class="p">:</span>
+            <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span> <span class="o">=</span> <span class="n">spin_complement_gsd</span><span class="p">(</span>
+                <span class="n">n_elec</span><span class="p">,</span> <span class="n">orbital_number</span><span class="p">,</span> <span class="n">transform</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">type_of_generator</span> <span class="o">==</span> <span class="s2">&quot;spin_complement_gsd_twin&quot;</span><span class="p">:</span>
+            <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span> <span class="o">=</span> <span class="n">spin_complement_gsd_twin</span><span class="p">(</span>
+                <span class="n">n_elec</span><span class="p">,</span> <span class="n">orbital_number</span><span class="p">,</span> <span class="n">transform</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">type_of_generator</span> <span class="o">==</span> <span class="s2">&quot;sUPCCGSD&quot;</span><span class="p">:</span>
+            <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span> <span class="o">=</span> <span class="n">singlet_upccgsd</span><span class="p">(</span>
+                <span class="n">orbital_number</span><span class="p">,</span> <span class="n">transform</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">type_of_generator</span> <span class="o">==</span> <span class="s2">&quot;UCCSD&quot;</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">pool_size</span><span class="p">,</span>
+                <span class="n">cluster_ops</span><span class="p">,</span>
+                <span class="n">cluster_ops_sp</span><span class="p">,</span>
+                <span class="n">theta_MP2</span><span class="p">,</span>
+                <span class="n">hf_init</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_uccsd</span><span class="p">(</span><span class="n">molecule_symbol</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">cluster_ops_sparse</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cluster_ops_sp</span><span class="p">:</span>
+                <span class="n">cluster_ops_sparse</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">pool_size</span><span class="p">,</span>
+                <span class="n">cluster_ops</span><span class="p">,</span>
+                <span class="n">cluster_ops_sp</span><span class="p">,</span>
+                <span class="n">cluster_ops_sparse</span><span class="p">,</span>
+                <span class="n">theta_MP2</span><span class="p">,</span>
+                <span class="n">hf_init</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># print(&#39;Result of the generate_cluster_ops: &#39;, pool_size,cluster_ops,cluster_ops_sp)</span>
+        <span class="n">cluster_ops_sparse</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cluster_ops_sp</span><span class="p">:</span>
+            <span class="n">cluster_ops_sparse</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="c1"># cluster_ops_sparse = cluster_ops_sp.get_matrix(sparse=True)</span>
+        <span class="k">return</span> <span class="n">pool_size</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">cluster_ops_sparse</span></div>
+
+    <span class="c1"># TESTING hOW TO GET ThE REFERENCE KET</span>
+<div class="viewcode-block" id="MoleculeFactory.get_reference_ket"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.molecule_factory_with_sparse.MoleculeFactory.get_reference_ket">[docs]</a>    <span class="k">def</span> <span class="nf">get_reference_ket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_init</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">,</span> <span class="n">transform</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">transform</span> <span class="o">==</span> <span class="s2">&quot;JW&quot;</span><span class="p">:</span>
+            <span class="n">hf_init_sp</span> <span class="o">=</span> <span class="n">recode_integer</span><span class="p">(</span><span class="n">hf_init</span><span class="p">,</span> <span class="n">get_jw_code</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">transform</span> <span class="o">==</span> <span class="s2">&quot;Bravyi-Kitaev&quot;</span><span class="p">:</span>
+            <span class="n">hf_init_sp</span> <span class="o">=</span> <span class="n">recode_integer</span><span class="p">(</span><span class="n">hf_init</span><span class="p">,</span> <span class="n">get_bk_code</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">transform</span> <span class="o">==</span> <span class="s2">&quot;parity_basis&quot;</span><span class="p">:</span>
+            <span class="n">hf_init_sp</span> <span class="o">=</span> <span class="n">recode_integer</span><span class="p">(</span><span class="n">hf_init</span><span class="p">,</span> <span class="n">get_parity_code</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">))</span>
+        <span class="n">ket_hf</span> <span class="o">=</span> <span class="n">binary_repr</span><span class="p">(</span><span class="n">hf_init_sp</span><span class="p">)</span>
+        <span class="n">list_ket_hf</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ket_hf</span><span class="p">]</span>
+        <span class="n">reference_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_ket_to_vector</span><span class="p">(</span><span class="n">list_ket_hf</span><span class="p">)</span>
+        <span class="n">sparse_reference_state</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span>
+            <span class="n">reference_state</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">sparse_reference_state</span><span class="p">,</span> <span class="n">hf_init_sp</span></div>
+
+<div class="viewcode-block" id="MoleculeFactory.from_ket_to_vector"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.molecule_factory_with_sparse.MoleculeFactory.from_ket_to_vector">[docs]</a>    <span class="k">def</span> <span class="nf">from_ket_to_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ket</span><span class="p">):</span>
+        <span class="n">state_vector</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ket</span><span class="p">:</span>
+            <span class="n">qubit_vector</span> <span class="o">=</span> <span class="p">[</span><span class="ow">not</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+            <span class="n">state_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">state_vector</span><span class="p">,</span> <span class="n">qubit_vector</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state_vector</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Mohammad HAIDAR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

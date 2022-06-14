@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>adapt &mdash; OpenVQE 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="ucc_family" href="ucc_family.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> OpenVQE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with OpenVQE</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="openvqe.html">openvqe modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="common_files.html">common_files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ucc_family.html">ucc_family</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">adapt</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-openvqe.adapt.fermionic_adapt_vqe">fermionic_adapt_vqe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-openvqe.adapt.qubit_adapt_vqe">qubit_adapt_vqe</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenVQE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="openvqe.html">openvqe modules</a> &raquo;</li>
+      <li>adapt</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/adapt.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-openvqe.adapt">
+<span id="adapt"></span><h1>adapt<a class="headerlink" href="#module-openvqe.adapt" title="Permalink to this heading"></a></h1>
+<section id="module-openvqe.adapt.fermionic_adapt_vqe">
+<span id="fermionic-adapt-vqe"></span><h2>fermionic_adapt_vqe<a class="headerlink" href="#module-openvqe.adapt.fermionic_adapt_vqe" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.commutators_calculations">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">commutators_calculations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#commutators_calculations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.commutators_calculations" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.compute_gradient_i">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">compute_gradient_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#compute_gradient_i"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.compute_gradient_i" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.fermionic_adapt_vqe">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">fermionic_adapt_vqe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_ket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_max_grads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_conver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_needed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_external_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#fermionic_adapt_vqe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.fermionic_adapt_vqe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.fun_fidelity">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">fun_fidelity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigenvalues</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigenvectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbqbits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#fun_fidelity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.fun_fidelity" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.get_statevector">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">get_statevector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbqbits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#get_statevector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.get_statevector" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.hf_energy">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">hf_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hf_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#hf_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.hf_energy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.prepare_hf_state">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_hf_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#prepare_hf_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.prepare_hf_state" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.prepare_state">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_ket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spmat_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#prepare_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.prepare_state" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.prepare_state_ansatz">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_state_ansatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#prepare_state_ansatz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.prepare_state_ansatz" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.print_gradient_lists_and_indices">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">print_gradient_lists_and_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_grad</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#print_gradient_lists_and_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.print_gradient_lists_and_indices" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.return_gradient_list">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">return_gradient_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#return_gradient_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.return_gradient_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.ucc_action">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">ucc_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#ucc_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.ucc_action" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-openvqe.adapt.qubit_adapt_vqe">
+<span id="qubit-adapt-vqe"></span><h2>qubit_adapt_vqe<a class="headerlink" href="#module-openvqe.adapt.qubit_adapt_vqe" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.calculate_gradient">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">calculate_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_hamiltonian</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#calculate_gradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.calculate_gradient" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.compute_commutator_i">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">compute_commutator_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#compute_commutator_i"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.compute_commutator_i" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.expm_multiply">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">expm_multiply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#expm_multiply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.expm_multiply" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.hf_energy">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">hf_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hf_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#hf_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.hf_energy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.prepare_adapt_state">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_adapt_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ansatz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#prepare_adapt_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.prepare_adapt_state" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.prepare_hf_state">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_hf_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#prepare_hf_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.prepare_hf_state" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.prepare_state">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbqbits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#prepare_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.prepare_state" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.qubit_adapt_vqe">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">qubit_adapt_vqe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_ket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nqubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_mix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chosen_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_conver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'norm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_maxiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance_sim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_sim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BFGS'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#qubit_adapt_vqe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.qubit_adapt_vqe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.term_to_matrix_sparse">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">term_to_matrix_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Poolmix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbqbits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#term_to_matrix_sparse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.term_to_matrix_sparse" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.ucc_action">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">ucc_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#ucc_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.ucc_action" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ucc_family.html" class="btn btn-neutral float-left" title="ucc_family" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Mohammad HAIDAR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

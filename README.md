@@ -32,25 +32,24 @@ pip install .
 install from the sources directly :
 ```shell
 git clone https://github.com/Haidarmm/OpenVQE.git
-git checkout update-ferm
 cd OpenVQE
+pip install .
 ```
 Move to the next section for getting started!
 
 
 Getting started
 ----------------
+### Notebooks
+
+Jupyter notebooks are available in the "notebooks" folder.
+
+### Hello world example
+
+
 ```shell
-cd python
-- to access the first module UCC family:
-cd ucc
-open with jupyter notebook: main_for_total_ucc.ipynb
-- to access module fermionic_adapt:
-cd fermionic_adapt
-open with jupyter notebook: main_without_open_fermion.ipynb
-- to access module qubit_adapt
-cd qubit_adapt
-open with jupyter notebook: main_qubit_pool_without_open_fermion.ipynb
+from openvqe.ucc import ...
+
 ```
 
 Documentation
@@ -61,7 +60,7 @@ For more information, please refer to our paper that wil be published soon (the 
 
 License
 -----------
-The code is published under the MIT License.
+The code is published under MIT LICENSE.
 
 References
 -----------

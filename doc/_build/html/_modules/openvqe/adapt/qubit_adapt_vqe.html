@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>openvqe.adapt.qubit_adapt_vqe &mdash; OpenVQE 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OpenVQE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started with OpenVQE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../openvqe.html">openvqe modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenVQE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>openvqe.adapt.qubit_adapt_vqe</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for openvqe.adapt.qubit_adapt_vqe</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">scipy.optimize</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">SparseEfficiencyWarning</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">SparseEfficiencyWarning</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">binary_repr</span>
+<span class="kn">from</span> <span class="nn">qat.fermion.chemistry.ucc_deprecated</span> <span class="kn">import</span> <span class="n">build_ucc_ansatz</span>
+<span class="kn">from</span> <span class="nn">qat.lang.AQASM</span> <span class="kn">import</span> <span class="n">Program</span><span class="p">,</span> <span class="n">X</span>
+<span class="kn">from</span> <span class="nn">qat.qpus</span> <span class="kn">import</span> <span class="n">get_default_qpu</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">sparse</span>
+
+<span class="kn">from</span> <span class="nn">..common_files.sorted_gradient</span> <span class="kn">import</span> <span class="n">value_without_0</span><span class="p">,</span> <span class="n">index_without_0</span><span class="p">,</span> <span class="n">abs_sort_desc</span><span class="p">,</span> <span class="n">corresponding_index</span>
+<span class="kn">from</span> <span class="nn">..common_files.circuit</span> <span class="kn">import</span> <span class="n">count</span>
+
+<div class="viewcode-block" id="prepare_adapt_state"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.qubit_adapt_vqe.prepare_adapt_state">[docs]</a><span class="k">def</span> <span class="nf">prepare_adapt_state</span><span class="p">(</span><span class="n">reference_state</span><span class="p">,</span> <span class="n">ansatz</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">qubit_number</span><span class="p">):</span>
+    <span class="c1"># Initialize the state vector with the reference state.\n&quot;,</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">reference_state</span>
+    <span class="c1">#     print(\&quot;state\&quot;,state)</span>
+    <span class="c1"># Apply the ansatz operators one by one to obtain the state as optimized\n&quot;,</span>
+    <span class="c1"># by the last iteration\n&quot;,</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">operator</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ansatz</span><span class="p">):</span>
+        <span class="c1"># Multiply the operator by the variational parameter\n&quot;,</span>
+        <span class="c1">#         operator = coefficients[i]*operator</span>
+        <span class="c1"># Obtain the sparse matrix representing the operator\n&quot;,</span>
+        <span class="n">sparse_operator</span> <span class="o">=</span> <span class="n">term_to_matrix_sparse</span><span class="p">(</span><span class="n">operator</span><span class="p">,</span> <span class="n">qubit_number</span><span class="p">)</span>
+        <span class="n">sparse_operator</span> <span class="o">=</span> <span class="n">coefficients</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">sparse_operator</span>
+        <span class="c1"># Exponentiate the operator\n&quot;</span>
+        <span class="n">exp_operator</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">sparse_operator</span><span class="p">)</span>
+        <span class="c1">#         dim, _ = sparseOperator.shape</span>
+        <span class="c1">#         expOperator = expm_multiply(dim,coefficients[i],-1j*sparseOperator)</span>
+        <span class="c1"># Act on the state with the operator\n&quot;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">exp_operator</span> <span class="o">*</span> <span class="n">state</span>
+    <span class="k">return</span> <span class="n">state</span></div>
+
+
+<div class="viewcode-block" id="expm_multiply"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.qubit_adapt_vqe.expm_multiply">[docs]</a><span class="k">def</span> <span class="nf">expm_multiply</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">g</span>
+    <span class="c1">#     X = cosm(g) + 1j*sinm(-g)</span>
+    <span class="c1">#     print(X)</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+
+
+<span class="c1"># def exact_adapt_energy(coef_vect,operators,reference_state,hamiltonian,n_el):</span>
+<span class="c1">#  # Find the number of qubits of the system (2**qubitNumber = dimension)</span>
+<span class="c1">#     dimension, _ = hamiltonian.shape</span>
+<span class="c1"># #     print(&quot;dimension&quot;,dimension)</span>
+<span class="c1"># #     print(\&quot;dimension\&quot;,dimension)</span>
+<span class="c1">#     qubit_number = int(np.log(dimension)/np.log(2))</span>
+<span class="c1"># #     print(&quot;qubitnumberfromexact&quot;, qubitNumber)</span>
+<span class="c1">#   # Transform reference vector into a Compressed Sparse Column matrix\n&quot;,</span>
+<span class="c1">#     reference_state= jw_hartree_fock_state(n_el,qubit_number)</span>
+<span class="c1"># #     print(&quot;referenceState&quot;,referenceState)</span>
+<span class="c1">#     ket = scipy.sparse.csr_matrix(reference_state,dtype=complex).transpose()</span>
+<span class="c1"># #     print(&quot;ket&quot;,ket)</span>
+<span class="c1"># #     ket = referenceState</span>
+<span class="c1">#       # Apply e ** (coefficient * operator) to the state (ket) for each operator in\n&quot;,</span>
+<span class="c1">#      #the ansatz, following the order of the list\n&quot;,</span>
+<span class="c1">#     for (coefficient,operator) in zip(coef_vect,operators):</span>
+<span class="c1">#         operator_sparse = term_to_matrix_sparse(operator,qubit_number)</span>
+<span class="c1"># #         print(&quot;operator_sparse1&quot;,operator_sparse)</span>
+<span class="c1"># #         operator_sparse = coefficient*operator_sparse</span>
+<span class="c1"># #         expOperator =  expm_multiply(dimension,coefficient,operator_sparse)</span>
+<span class="c1"># #         sparseOperator = get_sparse_operator(operator,qubitNumber)</span>
+<span class="c1">#         exp_operator  = scipy.sparse.linalg.expm(-1j*coefficient*operator_sparse)</span>
+<span class="c1">#         ket = exp_operator * ket</span>
+<span class="c1"># #     print(&quot;ket&quot;,ket)</span>
+<span class="c1">#      # Get the corresponding bra and calculate the energy: |&lt;bra| H |ket&gt;|\n&quot;,</span>
+<span class="c1">#     bra = ket.transpose().conj()</span>
+<span class="c1">#     energy = (bra * hamiltonian * ket)[0,0].real</span>
+<span class="c1"># #     print(&#39;Energy finished: &#39;, energy)</span>
+<span class="c1"># #     print(&#39;parameterssssss: &#39;, coefVect,operators,referenceState,hamiltonian)</span>
+<span class="c1">#     return energy</span>
+
+
+<div class="viewcode-block" id="term_to_matrix_sparse"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.qubit_adapt_vqe.term_to_matrix_sparse">[docs]</a><span class="k">def</span> <span class="nf">term_to_matrix_sparse</span><span class="p">(</span><span class="n">Poolmix</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]))</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]))</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
+    <span class="c1">#     print(&quot;X&quot;,X)</span>
+    <span class="c1">#     print(&quot;Y&quot;,Y)</span>
+    <span class="c1">#     print(&quot;Z&quot;,Z)</span>
+    <span class="c1">#     print(&quot;I&quot;,I)</span>
+    <span class="c1">#     print(Y)\n&quot;,</span>
+    <span class="n">dic_Pauli</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;I&quot;</span><span class="p">:</span> <span class="n">I</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">:</span> <span class="n">X</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">:</span> <span class="n">Y</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="n">Z</span><span class="p">}</span>
+    <span class="n">matrix_final</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># for i in range(len(Poolmix)):</span>
+    <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">Poolmix</span><span class="o">.</span><span class="n">terms</span><span class="p">:</span>
+        <span class="n">result_one_term</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># print(term.op, term.qbits)</span>
+        <span class="n">char_term</span> <span class="o">=</span> <span class="p">[</span><span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">term</span><span class="o">.</span><span class="n">op</span><span class="p">]</span>
+        <span class="c1"># print(term.op)</span>
+        <span class="n">qb_term</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">qbits</span>
+        <span class="n">dic_op</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">):</span>
+            <span class="n">dic_op</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">I</span>
+        <span class="c1">#         print(dic_op[n])\n&quot;,</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">term</span><span class="o">.</span><span class="n">qbits</span><span class="p">)):</span>
+            <span class="n">dic_op</span><span class="p">[</span><span class="n">qb_term</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dic_Pauli</span><span class="p">[</span><span class="n">char_term</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span>
+        <span class="c1">#     print(dic_op)\n&quot;,</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dic_op</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="n">matrix</span> <span class="o">=</span> <span class="n">dic_op</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">matrix</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">dic_op</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+        <span class="n">result_one_term</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">matrix</span> <span class="o">*</span> <span class="n">term</span><span class="o">.</span><span class="n">coeff</span><span class="p">)</span>
+        <span class="c1"># print(&#39;matrix-current: &#39;, result_one_term)</span>
+        <span class="n">matrix_final</span> <span class="o">+=</span> <span class="n">result_one_term</span>
+    <span class="c1"># print(matrix_final)</span>
+    <span class="k">return</span> <span class="n">matrix_final</span>  <span class="c1"># matrix*term.coeff</span></div>
+
+
+<div class="viewcode-block" id="calculate_gradient"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.qubit_adapt_vqe.calculate_gradient">[docs]</a><span class="k">def</span> <span class="nf">calculate_gradient</span><span class="p">(</span><span class="n">sparse_operator</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sparse_hamiltonian</span><span class="p">):</span>
+    <span class="n">test_state</span> <span class="o">=</span> <span class="n">sparse_operator</span> <span class="o">*</span> <span class="n">state</span>
+    <span class="n">bra</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+    <span class="n">gradient</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">bra</span> <span class="o">*</span> <span class="n">sparse_hamiltonian</span> <span class="o">*</span> <span class="n">test_state</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gradient</span></div>
+
+
+<div class="viewcode-block" id="prepare_state"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.qubit_adapt_vqe.prepare_state">[docs]</a><span class="k">def</span> <span class="nf">prepare_state</span><span class="p">(</span><span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">()</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">)</span>
+    <span class="c1">#     qrout = build_ucc_ansatz(cluster_ops_sp,hf_init_sp,n_steps=1)</span>
+    <span class="c1">#     prog.apply(qrout(parameters), reg)</span>
+    <span class="k">for</span> <span class="n">n_term</span><span class="p">,</span> <span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">theta_term</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)):</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="n">hf_init_sp</span> <span class="k">if</span> <span class="n">n_term</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">qprog</span> <span class="o">=</span> <span class="n">build_ucc_ansatz</span><span class="p">([</span><span class="n">term</span><span class="p">],</span> <span class="n">init</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">prog</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">qprog</span><span class="p">([</span><span class="n">theta_term</span><span class="p">]),</span> <span class="n">reg</span><span class="p">)</span>
+    <span class="n">circ1</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">circ1</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">to_circ</span><span class="p">()</span>
+    <span class="n">curr_state</span> <span class="o">=</span> <span class="n">circ1</span>
+    <span class="k">return</span> <span class="n">curr_state</span></div>
+
+
+<div class="viewcode-block" id="compute_commutator_i"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.qubit_adapt_vqe.compute_commutator_i">[docs]</a><span class="k">def</span> <span class="nf">compute_commutator_i</span><span class="p">(</span><span class="n">commu</span><span class="p">,</span> <span class="n">curr_state</span><span class="p">):</span>
+    <span class="n">qpu</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">qpu</span> <span class="o">=</span> <span class="n">get_default_qpu</span><span class="p">()</span>
+    <span class="c1"># X= -(hamiltonian_sp*oi*(complex(0,1)) - oi*(complex(0,1))*hamiltonian_sp)</span>
+    <span class="n">circuit</span> <span class="o">=</span> <span class="n">curr_state</span>
+    <span class="n">job</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">to_job</span><span class="p">(</span><span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;OBS&quot;</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="n">commu</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+    <span class="c1">#     print(&quot;gradientcurrent&quot;,res)</span>
+    <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="prepare_hf_state"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.qubit_adapt_vqe.prepare_hf_state">[docs]</a><span class="k">def</span> <span class="nf">prepare_hf_state</span><span class="p">(</span><span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">):</span>
+    <span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">()</span>
+    <span class="n">nbqbits</span> <span class="o">=</span> <span class="n">cluster_ops_sp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nbqbits</span>
+    <span class="n">ket_hf</span> <span class="o">=</span> <span class="n">binary_repr</span><span class="p">(</span><span class="n">hf_init_sp</span><span class="p">)</span>
+    <span class="n">list_ket_hf</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ket_hf</span><span class="p">]</span>
+    <span class="n">qb</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">)</span>
+    <span class="c1"># print(list_ket_hf)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_ket_hf</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">prog</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">qb</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+    <span class="n">circuit</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">to_circ</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">circuit</span></div>
+
+
+<div class="viewcode-block" id="hf_energy"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.qubit_adapt_vqe.hf_energy">[docs]</a><span class="k">def</span> <span class="nf">hf_energy</span><span class="p">(</span><span class="n">hf_state</span><span class="p">,</span> <span class="n">hamiltonian_sp</span><span class="p">):</span>
+    <span class="n">qpu</span> <span class="o">=</span> <span class="n">get_default_qpu</span><span class="p">()</span>
+    <span class="n">circ</span> <span class="o">=</span> <span class="n">hf_state</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">circ</span><span class="o">.</span><span class="n">to_job</span><span class="p">(</span><span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;OBS&quot;</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="n">hamiltonian_sp</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="ucc_action"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.qubit_adapt_vqe.ucc_action">[docs]</a><span class="k">def</span> <span class="nf">ucc_action</span><span class="p">(</span><span class="n">hamiltonian_sp</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+    <span class="c1">#     print(&quot;theta&quot;,theta)</span>
+    <span class="n">qpu</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">prog</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">qpu</span> <span class="o">=</span> <span class="n">get_default_qpu</span><span class="p">()</span>
+    <span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">()</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="n">hamiltonian_sp</span><span class="o">.</span><span class="n">nbqbits</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n_term</span><span class="p">,</span> <span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">theta_term</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">theta</span><span class="p">)):</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="n">hf_init_sp</span> <span class="k">if</span> <span class="n">n_term</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">qprog</span> <span class="o">=</span> <span class="n">build_ucc_ansatz</span><span class="p">([</span><span class="n">term</span><span class="p">],</span> <span class="n">init</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">prog</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">qprog</span><span class="p">([</span><span class="n">theta_term</span><span class="p">]),</span> <span class="n">reg</span><span class="p">)</span>
+    <span class="c1">#     qrout = build_ucc_ansatz(cluster_ops_sp,hf_init_sp,n_steps=1)</span>
+    <span class="c1">#     prog.apply(qrout(theta), reg)</span>
+    <span class="n">circ</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">to_circ</span><span class="p">()</span>
+    <span class="c1">#     if (iteration==10):</span>
+    <span class="c1">#         for op in circ.iterate_simple():</span>
+    <span class="c1">#             print(&quot;opnew&quot;,op)</span>
+    <span class="c1">#         print(circ)</span>
+    <span class="n">job</span> <span class="o">=</span> <span class="n">circ</span><span class="o">.</span><span class="n">to_job</span><span class="p">(</span><span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;OBS&quot;</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="n">hamiltonian_sp</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="qubit_adapt_vqe"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.qubit_adapt_vqe.qubit_adapt_vqe">[docs]</a><span class="k">def</span> <span class="nf">qubit_adapt_vqe</span><span class="p">(</span>
+    <span class="n">hamiltonian_sp</span><span class="p">,</span>
+    <span class="n">hamiltonian_sp_sparse</span><span class="p">,</span>
+    <span class="n">reference_ket</span><span class="p">,</span>
+    <span class="n">nqubits</span><span class="p">,</span>
+    <span class="n">pool_mix</span><span class="p">,</span>
+    <span class="n">hf_init_sp</span><span class="p">,</span>
+    <span class="n">fci</span><span class="p">,</span>
+    <span class="n">chosen_grad</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">adapt_conver</span><span class="o">=</span><span class="s2">&quot;norm&quot;</span><span class="p">,</span>
+    <span class="n">adapt_thresh</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">,</span>
+    <span class="n">adapt_maxiter</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
+    <span class="n">tolerance_sim</span><span class="o">=</span><span class="mf">1e-07</span><span class="p">,</span>
+    <span class="n">method_sim</span><span class="o">=</span><span class="s2">&quot;BFGS&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">iterations_sim</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;energies&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;energies_substracted_from_fci&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;norms&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;Max_gradient&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;CNOTs&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;Hadamard&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;RY&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;RX&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="n">result_sim</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">iterations_ana</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;energies&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;energies_substracted_from_fci&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;norms&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;Max_gradient&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="n">result_ana</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">parameters_sim</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">parameters_ana</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">ansatz_ops</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># SQ operator strings in the ansatz</span>
+    <span class="c1">#     for i in range(len(cluster_ops_sp)):</span>
+    <span class="c1">#         parameters.append(0.0)</span>
+    <span class="c1"># print(len(theta_0))</span>
+    <span class="c1">#     print(&quot;hamiltonian_spfrom ADAPt&quot;,hamiltonian_sp)</span>
+    <span class="n">curr_state</span> <span class="o">=</span> <span class="n">prepare_hf_state</span><span class="p">(</span><span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">pool_mix</span><span class="p">)</span>
+    <span class="n">ref_energy</span> <span class="o">=</span> <span class="n">hf_energy</span><span class="p">(</span><span class="n">curr_state</span><span class="p">,</span> <span class="n">hamiltonian_sp</span><span class="p">)</span>
+    <span class="n">ref_energy_ana</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">reference_ket</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">hamiltonian_sp_sparse</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">reference_ket</span><span class="p">))[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reference_energy from the simulator:&quot;</span><span class="p">,</span> <span class="n">ref_energy</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reference_energy from the analytical calculations:&quot;</span><span class="p">,</span> <span class="n">ref_energy_ana</span><span class="p">)</span>
+    <span class="n">curr_state_open_f</span> <span class="o">=</span> <span class="n">prepare_adapt_state</span><span class="p">(</span>
+        <span class="n">reference_ket</span><span class="p">,</span> <span class="n">ansatz_ops</span><span class="p">,</span> <span class="n">parameters_ana</span><span class="p">,</span> <span class="n">nqubits</span>
+    <span class="p">)</span>
+    <span class="c1">#     print(&quot; Reference Energy: %12.8f&quot; %ref_energy)</span>
+    <span class="c1">#     curr_state,_ = simple_circuit_parameters(hamiltonian_sp)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; --------------------------------------------------------------------------&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                                                          &quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                      Start Qubit ADAPT-VQE algorithm:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                                                          &quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; --------------------------------------------------------------------------&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                                                          &quot;</span><span class="p">)</span>
+    <span class="c1">#     chosegrad = 2</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">chosen_grad</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; ------------------------------------------------------&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;        The number of maximum gradients inserted in each iteration:&quot;</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; ------------------------------------------------------&quot;</span><span class="p">)</span>
+    <span class="n">op_indices</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1">#     print(&quot;Compute the commutator for the first time&quot;)</span>
+    <span class="c1">#     listcommutators1= []</span>
+    <span class="c1">#     listcommutators2= []</span>
+    <span class="c1">#     # check the points of imaginary part i</span>
+    <span class="c1">#     for oi in pool_mix:</span>
+    <span class="c1">#         X= 2.0j*(hamiltonian_sp*oi)</span>
+    <span class="c1">#         listcommutators2.append(X)</span>
+    <span class="c1"># #     listcommutators2= []</span>
+    <span class="c1"># #     for oi in pool_mix:</span>
+    <span class="c1"># #         Y= 1j*(hamiltonian_sp*oi-oi*hamiltonian_sp)</span>
+    <span class="c1"># #         listcommutators2.append(Y)</span>
+    <span class="c1"># method = &#39;BFGS&#39;</span>
+    <span class="n">prev_norm</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">n_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">adapt_maxiter</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot; --------------------------------------------------------------------------&quot;</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                         Qubit ADAPT-VQE iteration: &quot;</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot; --------------------------------------------------------------------------&quot;</span>
+        <span class="p">)</span>
+        <span class="n">next_deriv</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">curr_norm</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1">#         print(&quot; Check gradient list chronological order&quot;)</span>
+        <span class="n">list_grad</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">#         print(&quot; Check each new operator for coupling&quot;)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; ------------------------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;        Start the analytical gradient calculation:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; ------------------------------------------------------&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pool_mix</span><span class="p">)):</span>
+            <span class="c1">#             print(&quot;i&quot;,i)</span>
+            <span class="c1"># gi = #compute_commutator_i(listcommutators2[i],curr_state)</span>
+            <span class="n">operator_sparse</span> <span class="o">=</span> <span class="n">term_to_matrix_sparse</span><span class="p">(</span><span class="n">pool_mix</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nqubits</span><span class="p">)</span>
+            <span class="n">gi</span> <span class="o">=</span> <span class="n">calculate_gradient</span><span class="p">(</span>
+                <span class="n">operator_sparse</span><span class="p">,</span> <span class="n">curr_state_open_f</span><span class="p">,</span> <span class="n">hamiltonian_sp_sparse</span>
+            <span class="p">)</span>
+            <span class="n">curr_norm</span> <span class="o">+=</span> <span class="n">gi</span> <span class="o">*</span> <span class="n">gi</span>
+            <span class="n">list_grad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gi</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">gi</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">next_deriv</span><span class="p">):</span>
+                <span class="n">next_deriv</span> <span class="o">=</span> <span class="n">gi</span>
+        <span class="c1">#             print(&quot;list_gradorginal&quot;,list_grad)</span>
+        <span class="n">mylist_value_without_0</span> <span class="o">=</span> <span class="n">value_without_0</span><span class="p">(</span><span class="n">list_grad</span><span class="p">)</span>
+        <span class="c1">#             print(&#39;mylist_value_without_0:&#39;,mylist_value_without_0)</span>
+
+        <span class="n">mylist_index_without_0</span> <span class="o">=</span> <span class="n">index_without_0</span><span class="p">(</span><span class="n">list_grad</span><span class="p">)</span>
+        <span class="c1">#         print(&#39;mylist_index_without_0:&#39;,mylist_index_without_0)</span>
+        <span class="n">sorted_mylist_value_without_0</span> <span class="o">=</span> <span class="n">abs_sort_desc</span><span class="p">(</span>
+            <span class="n">value_without_0</span><span class="p">(</span><span class="n">list_grad</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;sorted_mylist_value of gradient_without_0&quot;</span><span class="p">,</span> <span class="n">sorted_mylist_value_without_0</span>
+        <span class="p">)</span>
+        <span class="n">sorted_index</span> <span class="o">=</span> <span class="n">corresponding_index</span><span class="p">(</span>
+            <span class="n">mylist_value_without_0</span><span class="p">,</span>
+            <span class="n">mylist_index_without_0</span><span class="p">,</span>
+            <span class="n">sorted_mylist_value_without_0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1">#         print(&#39;sorted Index: &#39;,sorted_index)</span>
+        <span class="n">curr_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">curr_norm</span><span class="p">)</span>
+        <span class="n">max_of_gi</span> <span class="o">=</span> <span class="n">next_deriv</span>
+
+        <span class="c1"># print(&quot;list_grad&quot;,X)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Norm of &lt;[H,A]&gt; = </span><span class="si">%12.8f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">curr_norm</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Max  of &lt;[H,A]&gt; = </span><span class="si">%12.8f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">max_of_gi</span><span class="p">)</span>
+
+        <span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">adapt_conver</span> <span class="o">==</span> <span class="s2">&quot;norm&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">curr_norm</span> <span class="o">&lt;</span> <span class="n">adapt_thresh</span><span class="p">:</span>
+                <span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># elif adapt_conver == &quot;var&quot;:</span>
+        <span class="c1">#     if abs(var) &lt; adapt_thresh:</span>
+        <span class="c1">#         #variance</span>
+        <span class="c1">#         converged = True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; FAIL: Convergence criterion not defined&quot;</span><span class="p">)</span>
+            <span class="n">exit</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">converged</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">curr_norm</span> <span class="o">-</span> <span class="n">prev_norm</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">7</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Ansatz Growth Converged!&quot;</span><span class="p">)</span>
+            <span class="n">result_sim</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method_sim</span>
+            <span class="n">result_sim</span><span class="p">[</span><span class="s2">&quot;final_norm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">curr_norm</span>
+            <span class="n">result_sim</span><span class="p">[</span><span class="s2">&quot;indices&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">op_indices</span>
+            <span class="n">result_sim</span><span class="p">[</span><span class="s2">&quot;len_operators&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">op_indices</span><span class="p">)</span>
+            <span class="n">result_sim</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters_sim</span>
+            <span class="n">result_sim</span><span class="p">[</span><span class="s2">&quot;final_energy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt_result_sim</span><span class="o">.</span><span class="n">fun</span>
+
+            <span class="c1">#             result_ana[&quot;optimizer&quot;] = method_ana</span>
+            <span class="c1">#             result_ana[&quot;final_norm&quot;] = curr_norm</span>
+            <span class="c1">#             result_ana[&quot;indices&quot;] = op_indices</span>
+            <span class="c1">#             result_ana[&quot;len_operators&quot;] = len(op_indices)</span>
+            <span class="c1">#             result_ana[&quot;parameters&quot;] = parameters_ana</span>
+            <span class="c1">#             result_ana[&quot;final_energy&quot;] = opt_result_ana.fun</span>
+
+            <span class="n">gates</span> <span class="o">=</span> <span class="n">curr_state</span><span class="o">.</span><span class="n">ops</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="s2">&quot;CNOT&quot;</span><span class="p">,</span> <span class="n">gates</span><span class="p">)</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="n">gates</span><span class="p">)</span>
+            <span class="n">RX</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="s2">&quot;_2&quot;</span><span class="p">,</span> <span class="n">gates</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; -----------Final ansatz----------- &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%4s</span><span class="s2"> </span><span class="si">%12s</span><span class="s2"> </span><span class="si">%18s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;Coeff&quot;</span><span class="p">,</span> <span class="s2">&quot;Term&quot;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ansatz_ops</span><span class="p">)):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%4i</span><span class="s2"> </span><span class="si">%12.8f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">si</span><span class="p">,</span> <span class="n">parameters_sim</span><span class="p">[</span><span class="n">si</span><span class="p">]))</span>
+            <span class="k">break</span>
+
+        <span class="c1">#         print(&quot;\n&quot;)</span>
+        <span class="n">chosen_batch</span> <span class="o">=</span> <span class="n">sorted_mylist_value_without_0</span>
+
+        <span class="n">gamma1</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sorted_index1</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">curr_norm1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">chosen_batch</span><span class="p">:</span>
+            <span class="n">curr_norm1</span> <span class="o">+=</span> <span class="n">z</span> <span class="o">*</span> <span class="n">z</span>
+            <span class="n">curr_norm1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">curr_norm1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Y</span><span class="p">):</span>
+            <span class="n">gamma1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chosen_batch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">curr_norm1</span><span class="p">)</span>
+            <span class="n">sorted_index1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sorted_index</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="c1">#             parameters = []</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gamma1</span><span class="p">)):</span>
+            <span class="n">parameters_sim</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gamma1</span><span class="p">[</span><span class="n">m</span><span class="p">])</span>
+            <span class="n">parameters_ana</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gamma1</span><span class="p">[</span><span class="n">m</span><span class="p">])</span>
+            <span class="c1">#             parameters.append(0.0)</span>
+            <span class="n">ansatz_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pool_mix</span><span class="p">[</span><span class="n">sorted_index1</span><span class="p">[</span><span class="n">m</span><span class="p">]])</span>
+            <span class="n">op_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sorted_index1</span><span class="p">[</span><span class="n">m</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;initial parameters&quot;</span><span class="p">,</span> <span class="n">parameters_sim</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;op_indices of iteration_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">n_iter</span><span class="p">,</span> <span class="n">op_indices</span><span class="p">)</span>
+        <span class="c1">#         opt_result_ana = scipy.optimize.minimize(exact_adapt_energy,</span>
+        <span class="c1">#                              parameters_ana,</span>
+        <span class="c1">#                          (ansatz_ops,reference_ket,hamiltonian_sp_sparse,n_el),</span>
+        <span class="c1">#                          method = method_ana,</span>
+        <span class="c1">#                          tol =tolerance_ana,</span>
+        <span class="c1">#                          options = {&#39;gtol&#39;: 10**(-5),</span>
+        <span class="c1">#                         &#39;maxiter&#39;: 50000,</span>
+        <span class="c1">#                         &#39;disp&#39;: False})</span>
+        <span class="c1">#         xlist_ana = opt_result_ana.x</span>
+        <span class="n">opt_result_sim</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">theta</span><span class="p">:</span> <span class="n">ucc_action</span><span class="p">(</span>
+                <span class="n">hamiltonian_sp</span><span class="p">,</span> <span class="n">ansatz_ops</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">n_iter</span>
+            <span class="p">),</span>
+            <span class="n">x0</span><span class="o">=</span><span class="n">parameters_sim</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method_sim</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="n">tolerance_sim</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">100000</span><span class="p">,</span> <span class="s2">&quot;disp&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">xlist_sim</span> <span class="o">=</span> <span class="n">opt_result_sim</span><span class="o">.</span><span class="n">x</span>
+        <span class="c1">#         print(&quot; ----------- ansatz from analytical calculations----------- &quot;)</span>
+        <span class="c1">#         print(&quot; %s\t %s\t\t %s&quot; %(&quot;#&quot;,&quot;Coeff&quot;,&quot;Term&quot;))</span>
+        <span class="c1">#         parameters_ana = []</span>
+        <span class="c1">#         for si in range(len(ansatz_ops)):</span>
+        <span class="c1">#             print(&quot; %i\t %f\t %s&quot; %(si, xlist_ana[si], op_indices[si]) )</span>
+        <span class="c1">#             parameters_ana.append(xlist_ana[si])</span>
+        <span class="c1">#         print(&quot; Energy reached from the analytical calculations: %20.20f&quot; %opt_result_ana.fun)</span>
+
+        <span class="c1">#         curr_state_open_f = prepare_adapt_state(reference_ket,ansatz_ops,parameters_ana,nqubits)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; ----------- ansatz from the simulator----------- &quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%s</span><span class="se">\t</span><span class="s2"> </span><span class="si">%s</span><span class="se">\t\t</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;Coeff&quot;</span><span class="p">,</span> <span class="s2">&quot;Term&quot;</span><span class="p">))</span>
+        <span class="n">parameters_sim</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ansatz_ops</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%i</span><span class="se">\t</span><span class="s2"> </span><span class="si">%f</span><span class="se">\t</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">si</span><span class="p">,</span> <span class="n">xlist_sim</span><span class="p">[</span><span class="n">si</span><span class="p">],</span> <span class="n">op_indices</span><span class="p">[</span><span class="n">si</span><span class="p">]))</span>
+            <span class="n">parameters_sim</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xlist_sim</span><span class="p">[</span><span class="n">si</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Energy reached from the simulator: </span><span class="si">%20.20f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">opt_result_sim</span><span class="o">.</span><span class="n">fun</span><span class="p">)</span>
+        <span class="n">curr_state</span> <span class="o">=</span> <span class="n">prepare_state</span><span class="p">(</span><span class="n">ansatz_ops</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">parameters_sim</span><span class="p">,</span> <span class="n">nqubits</span><span class="p">)</span>
+        <span class="n">curr_state_open_f</span> <span class="o">=</span> <span class="n">prepare_adapt_state</span><span class="p">(</span>
+            <span class="n">reference_ket</span><span class="p">,</span> <span class="n">ansatz_ops</span><span class="p">,</span> <span class="n">parameters_sim</span><span class="p">,</span> <span class="n">nqubits</span>
+        <span class="p">)</span>
+
+        <span class="n">prev_norm</span> <span class="o">=</span> <span class="n">curr_norm</span>
+        <span class="n">gates</span> <span class="o">=</span> <span class="n">curr_state</span><span class="o">.</span><span class="n">ops</span>
+        <span class="n">cnot</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="s2">&quot;CNOT&quot;</span><span class="p">,</span> <span class="n">gates</span><span class="p">)</span>
+        <span class="n">hadamard</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="n">gates</span><span class="p">)</span>
+        <span class="n">ry</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="s2">&quot;_4&quot;</span><span class="p">,</span> <span class="n">gates</span><span class="p">)</span>
+        <span class="n">rx</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="s2">&quot;_2&quot;</span><span class="p">,</span> <span class="n">gates</span><span class="p">)</span>
+        <span class="n">iterations_sim</span><span class="p">[</span><span class="s2">&quot;energies&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">opt_result_sim</span><span class="o">.</span><span class="n">fun</span><span class="p">)</span>
+        <span class="n">iterations_sim</span><span class="p">[</span><span class="s2">&quot;energies_substracted_from_fci&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="nb">abs</span><span class="p">(</span><span class="n">opt_result_sim</span><span class="o">.</span><span class="n">fun</span> <span class="o">-</span> <span class="n">fci</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">iterations_sim</span><span class="p">[</span><span class="s2">&quot;norms&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr_norm</span><span class="p">)</span>
+        <span class="n">iterations_sim</span><span class="p">[</span><span class="s2">&quot;Max_gradient&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sorted_mylist_value_without_0</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1">#         iterations_ana[&quot;energies&quot;].append(opt_result_ana.fun)</span>
+        <span class="c1">#         iterations_ana[&quot;norms&quot;].append(curr_norm)</span>
+        <span class="c1">#         iterations_ana[&quot;Max_gradient&quot;].append(sorted_mylist_value_without_0[0])</span>
+        <span class="n">iterations_sim</span><span class="p">[</span><span class="s2">&quot;CNOTs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cnot</span><span class="p">)</span>
+        <span class="n">iterations_sim</span><span class="p">[</span><span class="s2">&quot;Hadamard&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hadamard</span><span class="p">)</span>
+        <span class="n">iterations_sim</span><span class="p">[</span><span class="s2">&quot;RY&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ry</span><span class="p">)</span>
+        <span class="n">iterations_sim</span><span class="p">[</span><span class="s2">&quot;RX&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rx</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">iterations_sim</span><span class="p">,</span> <span class="n">iterations_ana</span><span class="p">,</span> <span class="n">result_sim</span><span class="p">,</span> <span class="n">result_ana</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Mohammad HAIDAR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
