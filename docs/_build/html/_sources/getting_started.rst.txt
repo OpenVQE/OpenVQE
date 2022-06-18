@@ -4,9 +4,10 @@
 Getting started with OpenVQE
 ==============================
 
-
 In this page, you will learn how to write your first OpenVQE code.
 
+.. image:: images/openvqe.png
+   :alt: OpenVQE Library structure
 
 
 
