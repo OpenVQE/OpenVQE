@@ -1082,10 +1082,7 @@ generator excitations.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.common_files.sorted_gradient.corresponding_index">
 <span class="sig-prename descclassname"><span class="pre">openvqe.common_files.sorted_gradient.</span></span><span class="sig-name descname"><span class="pre">corresponding_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_list_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sorted_new</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/common_files/sorted_gradient.html#corresponding_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.common_files.sorted_gradient.corresponding_index" title="Permalink to this definition"></a></dt>
-<dd><p>corresponding index: It generates sorted index after shuffling of elements in list.</p>
-<p>Params: it takes three parameters first is list of values (newlist), second is list of index (newlistindex),</p>
-<p>third it takes sorted list of values (sorted_new).</p>
-<p>returns: it returns sorted index after shuffling of elements in list.</p>
+<dd><p>It generates sorted index after shuffling of elements in list.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1111,7 +1108,17 @@ generator excitations.</p>
 <dt class="sig sig-object py" id="openvqe.common_files.sorted_gradient.value_without_0">
 <span class="sig-prename descclassname"><span class="pre">openvqe.common_files.sorted_gradient.</span></span><span class="sig-name descname"><span class="pre">value_without_0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/common_files/sorted_gradient.html#value_without_0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.common_files.sorted_gradient.value_without_0" title="Permalink to this definition"></a></dt>
 <dd><p>Value_without_0 will remove 0 from the list.</p>
-<p>it takes a list and returns list without 0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>my_list</strong> (<em>List&lt;float&gt;</em>) – input list</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>new</strong> – the list without zeros</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List&lt;float&gt;</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -1194,12 +1201,20 @@ generator excitations.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.common_files.circuit.circuit_opt_double">
 <span class="sig-prename descclassname"><span class="pre">openvqe.common_files.circuit.</span></span><span class="sig-name descname"><span class="pre">circuit_opt_double</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/common_files/circuit.html#circuit_opt_double"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.common_files.circuit.circuit_opt_double" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>A Double-fermionic-evolution circuit
+See circuit in figure 2.14 of the following reference:
+Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+Cambridge, Cambridge, UK; 2021.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.common_files.circuit.circuit_opt_simple">
 <span class="sig-prename descclassname"><span class="pre">openvqe.common_files.circuit.</span></span><span class="sig-name descname"><span class="pre">circuit_opt_simple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/common_files/circuit.html#circuit_opt_simple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.common_files.circuit.circuit_opt_simple" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>A Single-fermionic-evolution circuit
+See circuit in figure 2.13 of the following reference:
+Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+Cambridge, Cambridge, UK; 2021.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.common_files.circuit.count">
@@ -1214,22 +1229,36 @@ returns: it returns number of gates.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.common_files.circuit.double_qubit_evo">
 <span class="sig-prename descclassname"><span class="pre">openvqe.common_files.circuit.</span></span><span class="sig-name descname"><span class="pre">double_qubit_evo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/common_files/circuit.html#double_qubit_evo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.common_files.circuit.double_qubit_evo" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Double qubit evolution circuit
+See circuit in figure 2.14 of the following reference:
+Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+Cambridge, Cambridge, UK; 2021.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.common_files.circuit.efficient_fermionic_ansatz">
 <span class="sig-prename descclassname"><span class="pre">openvqe.common_files.circuit.</span></span><span class="sig-name descname"><span class="pre">efficient_fermionic_ansatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_exci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/common_files/circuit.html#efficient_fermionic_ansatz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.common_files.circuit.efficient_fermionic_ansatz" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>See chapter 2 of the following reference:
+Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+Cambridge, Cambridge, UK; 2021.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.common_files.circuit.efficient_qubit_ansatz">
 <span class="sig-prename descclassname"><span class="pre">openvqe.common_files.circuit.</span></span><span class="sig-name descname"><span class="pre">efficient_qubit_ansatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_exci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/common_files/circuit.html#efficient_qubit_ansatz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.common_files.circuit.efficient_qubit_ansatz" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>See chapter 2 of the following reference:
+Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+Cambridge, Cambridge, UK; 2021.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.common_files.circuit.single_qubit_evo">
 <span class="sig-prename descclassname"><span class="pre">openvqe.common_files.circuit.</span></span><span class="sig-name descname"><span class="pre">single_qubit_evo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/common_files/circuit.html#single_qubit_evo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.common_files.circuit.single_qubit_evo" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Single qubit evolution circuit
+See circuit in figure 2.10 of the following reference:
+Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+Cambridge, Cambridge, UK; 2021.</p>
+</dd></dl>
 
 </section>
 </section>

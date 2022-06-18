@@ -6,6 +6,32 @@ from ..common_files.circuit import count
 
 class EnergyUCC:
     def ucc_action(self, theta_current, hamiltonian_sp, cluster_ops_sp, hf_init_sp):
+        """
+        It maps the exponential of cluster operators ("cluster_ops_sp") associated by their parameters ("theta_current")
+        using the CNOTS-staircase method, which is done by "build_ucc_ansatz" which creates the circuit on the top of
+        the HF-state ("hf_init_sp"). Then, this function also calculates the expected value of the hamiltonian ("hamiltonian_sp").
+
+        Parameters
+        ----------
+        theta_current: List<float>
+            the Parameters of the cluster operators
+        
+        hamiltonian_sp: Hamiltonian
+                Hamiltonian in the spin representation
+            
+        cluster_ops_sp: list[Hamiltonian]
+            list of spin cluster operators
+        
+        hf_init_sp: int
+            the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+            "qat.fermion.transforms.record_integer".
+        
+        Returns
+        --------
+            res.value: float
+                the resulted energy
+
+        """
         qpu = 0
         prog = 0
         reg = 0
@@ -25,6 +51,32 @@ class EnergyUCC:
     def prepare_state_ansatz(
         self, hamiltonian_sp, cluster_ops_sp, hf_init_sp, parameters
     ):
+        """
+        It constructs the trial wave function (ansatz) 
+
+        Parameters
+        ----------
+        hamiltonian_sp: Hamiltonian
+                Hamiltonian in the spin representation
+            
+        cluster_ops_sp: list[Hamiltonian]
+            list of spin cluster operators
+        
+        hf_init_sp: int
+            the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+            "qat.fermion.transforms.record_integer".
+        
+        parameters: List<float>
+            the Parameters for the trial wave function to be constructed
+        
+
+
+        Returns
+        --------
+            curr_state: qat.core.Circuit
+                the circuit that represent the trial wave function
+        
+        """
         qpu = get_default_qpu()
         prog = Program()
         reg = prog.qalloc(hamiltonian_sp.nbqbits)
@@ -46,6 +98,45 @@ class EnergyUCC:
         theta_current2,
         fci,
     ):
+        """
+        It calls internally the functions "ucc_action" and "prepare_state_ansatz", and uses scipy.optimize to
+        return the properties of the ucc energy and wave function.
+
+        Parameters
+        ----------
+        hamiltonian_sp: Hamiltonian
+                Hamiltonian in the spin representation
+            
+        cluster_ops_sp: list[Hamiltonian]
+            list of spin cluster operators
+
+        pool_generator: 
+            the pool containing the operators made of Pauli strings that doesn't contain Z-Pauli term.
+        
+        hf_init_sp: int
+            the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+            "qat.fermion.transforms.record_integer".
+        
+        theta_current1: List<float>
+            the Parameters of the cluster operators of "cluster_ops_sp"
+        
+        theta_current2: List<float>
+            the Parameters of the cluster operators of "pool_generator"
+        
+        fci: float
+            the full configuration interaction energy (for any basis set)
+    
+        
+        Returns
+        --------
+            iterations: Dict
+                the minimum energy and the optimized parameters
+            
+            result: Dict
+                the number of CNOT gates, the number of operators/parameters, and the substraction of the optimized energy from fci.
+        
+        """
+
         iterations = {
             "minimum_energy_result1_guess": [],
             "minimum_energy_result2_guess": [],

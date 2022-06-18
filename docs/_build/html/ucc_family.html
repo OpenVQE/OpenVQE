@@ -112,17 +112,78 @@
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="openvqe.ucc_family.get_energy_ucc.EnergyUCC.get_energies">
 <span class="sig-name descname"><span class="pre">get_energies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_current1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_current2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/ucc_family/get_energy_ucc.html#EnergyUCC.get_energies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.ucc_family.get_energy_ucc.EnergyUCC.get_energies" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>It calls internally the functions “ucc_action” and “prepare_state_ansatz”, and uses scipy.optimize to
+return the properties of the ucc energy and wave function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+<li><p><strong>pool_generator</strong> – the pool containing the operators made of Pauli strings that doesn’t contain Z-Pauli term.</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>theta_current1</strong> (<em>List&lt;float&gt;</em>) – the Parameters of the cluster operators of “cluster_ops_sp”</p></li>
+<li><p><strong>theta_current2</strong> (<em>List&lt;float&gt;</em>) – the Parameters of the cluster operators of “pool_generator”</p></li>
+<li><p><strong>fci</strong> (<em>float</em>) – the full configuration interaction energy (for any basis set)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>iterations</strong> (<em>Dict</em>) – the minimum energy and the optimized parameters</p></li>
+<li><p><strong>result</strong> (<em>Dict</em>) – the number of CNOT gates, the number of operators/parameters, and the substraction of the optimized energy from fci.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openvqe.ucc_family.get_energy_ucc.EnergyUCC.prepare_state_ansatz">
 <span class="sig-name descname"><span class="pre">prepare_state_ansatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/ucc_family/get_energy_ucc.html#EnergyUCC.prepare_state_ansatz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.ucc_family.get_energy_ucc.EnergyUCC.prepare_state_ansatz" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>It constructs the trial wave function (ansatz)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>parameters</strong> (<em>List&lt;float&gt;</em>) – the Parameters for the trial wave function to be constructed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>curr_state</strong> – the circuit that represent the trial wave function</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>qat.core.Circuit</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openvqe.ucc_family.get_energy_ucc.EnergyUCC.ucc_action">
 <span class="sig-name descname"><span class="pre">ucc_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta_current</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/ucc_family/get_energy_ucc.html#EnergyUCC.ucc_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.ucc_family.get_energy_ucc.EnergyUCC.ucc_action" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>It maps the exponential of cluster operators (“cluster_ops_sp”) associated by their parameters (“theta_current”)
+using the CNOTS-staircase method, which is done by “build_ucc_ansatz” which creates the circuit on the top of
+the HF-state (“hf_init_sp”). Then, this function also calculates the expected value of the hamiltonian (“hamiltonian_sp”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta_current</strong> (<em>List&lt;float&gt;</em>) – the Parameters of the cluster operators</p></li>
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res.value</strong> – the resulted energy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -135,22 +196,96 @@
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="openvqe.ucc_family.get_energy_qucc.EnergyUCC.action_quccsd">
 <span class="sig-name descname"><span class="pre">action_quccsd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/ucc_family/get_energy_qucc.html#EnergyUCC.action_quccsd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.ucc_family.get_energy_qucc.EnergyUCC.action_quccsd" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>It returns the energy from the qubit coupled cluster ansatz which are obtained from common_files.circuit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta_0</strong> (<em>List&lt;float&gt;</em>) – the Parameters of the cluster operators</p></li>
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+<li><p><strong>cluster_ops</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of fermionic cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res.value</strong> – the resulted energy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openvqe.ucc_family.get_energy_qucc.EnergyUCC.get_energies">
-<span class="sig-name descname"><span class="pre">get_energies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_current1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_current2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FCI</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/ucc_family/get_energy_qucc.html#EnergyUCC.get_energies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.ucc_family.get_energy_qucc.EnergyUCC.get_energies" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">get_energies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_current1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_current2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FCI</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/ucc_family/get_energy_qucc.html#EnergyUCC.get_energies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.ucc_family.get_energy_qucc.EnergyUCC.get_energies" title="Permalink to this definition"></a></dt>
+<dd><p>It calls internally the functions “action_quccsd” and “prepare_state_ansatz”, and uses scipy.optimize to
+return the properties of</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+<li><p><strong>cluster_ops</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of fermionic cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>theta_current1</strong> (<em>List&lt;float&gt;</em>) – MP2 initial guess obtained from “qat.fermion.chemistry.ucc_deprecated.get_cluster_ops_and_init_guess”</p></li>
+<li><p><strong>theta_current2</strong> (<em>List&lt;float&gt;</em>) – fixed values (e.g. 0.0, 0.001, …) or random values (random.uniform(0,1))</p></li>
+<li><p><strong>FCI</strong> (<em>float</em>) – the full configuration interaction energy (for any basis set)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>iterations</strong> (<em>Dict</em>) – the minimum energy and the optimized parameters</p></li>
+<li><p><strong>result</strong> (<em>Dict</em>) – the number of CNOT gates, the number of operators/parameters, and the substraction of the optimized energy from fci.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openvqe.ucc_family.get_energy_qucc.EnergyUCC.prepare_hf_state">
 <span class="sig-name descname"><span class="pre">prepare_hf_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/ucc_family/get_energy_qucc.html#EnergyUCC.prepare_hf_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.ucc_family.get_energy_qucc.EnergyUCC.prepare_hf_state" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>It constructs the Hartree-Fock state (ansatz)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>circuit</strong> – the circuit representing the HF-state</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>qat.core.Circuit</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openvqe.ucc_family.get_energy_qucc.EnergyUCC.prepare_state_ansatz">
 <span class="sig-name descname"><span class="pre">prepare_state_ansatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/ucc_family/get_energy_qucc.html#EnergyUCC.prepare_state_ansatz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.ucc_family.get_energy_qucc.EnergyUCC.prepare_state_ansatz" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>It constructs the “qubit coupled cluster” trial wave function (ansatz)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+<li><p><strong>cluster_ops</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of fermionic cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>theta</strong> (<em>List&lt;float&gt;</em>) – the Parameters for the trial wave function to be constructed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>curr_state</strong> – the circuit that represent the trial wave function</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>qat.core.Circuit</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

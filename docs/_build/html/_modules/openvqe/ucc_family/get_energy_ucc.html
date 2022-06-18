@@ -74,6 +74,32 @@
 
 <div class="viewcode-block" id="EnergyUCC"><a class="viewcode-back" href="../../../ucc_family.html#openvqe.ucc_family.get_energy_ucc.EnergyUCC">[docs]</a><span class="k">class</span> <span class="nc">EnergyUCC</span><span class="p">:</span>
 <div class="viewcode-block" id="EnergyUCC.ucc_action"><a class="viewcode-back" href="../../../ucc_family.html#openvqe.ucc_family.get_energy_ucc.EnergyUCC.ucc_action">[docs]</a>    <span class="k">def</span> <span class="nf">ucc_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta_current</span><span class="p">,</span> <span class="n">hamiltonian_sp</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It maps the exponential of cluster operators (&quot;cluster_ops_sp&quot;) associated by their parameters (&quot;theta_current&quot;)</span>
+<span class="sd">        using the CNOTS-staircase method, which is done by &quot;build_ucc_ansatz&quot; which creates the circuit on the top of</span>
+<span class="sd">        the HF-state (&quot;hf_init_sp&quot;). Then, this function also calculates the expected value of the hamiltonian (&quot;hamiltonian_sp&quot;).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        theta_current: List&lt;float&gt;</span>
+<span class="sd">            the Parameters of the cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        hamiltonian_sp: Hamiltonian</span>
+<span class="sd">                Hamiltonian in the spin representation</span>
+<span class="sd">            </span>
+<span class="sd">        cluster_ops_sp: list[Hamiltonian]</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        hf_init_sp: int</span>
+<span class="sd">            the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using</span>
+<span class="sd">            &quot;qat.fermion.transforms.record_integer&quot;.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">            res.value: float</span>
+<span class="sd">                the resulted energy</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">qpu</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">prog</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">reg</span> <span class="o">=</span> <span class="mi">0</span>
@@ -93,6 +119,32 @@
 <div class="viewcode-block" id="EnergyUCC.prepare_state_ansatz"><a class="viewcode-back" href="../../../ucc_family.html#openvqe.ucc_family.get_energy_ucc.EnergyUCC.prepare_state_ansatz">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_state_ansatz</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">hamiltonian_sp</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">parameters</span>
     <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It constructs the trial wave function (ansatz) </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hamiltonian_sp: Hamiltonian</span>
+<span class="sd">                Hamiltonian in the spin representation</span>
+<span class="sd">            </span>
+<span class="sd">        cluster_ops_sp: list[Hamiltonian]</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        hf_init_sp: int</span>
+<span class="sd">            the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using</span>
+<span class="sd">            &quot;qat.fermion.transforms.record_integer&quot;.</span>
+<span class="sd">        </span>
+<span class="sd">        parameters: List&lt;float&gt;</span>
+<span class="sd">            the Parameters for the trial wave function to be constructed</span>
+<span class="sd">        </span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">            curr_state: qat.core.Circuit</span>
+<span class="sd">                the circuit that represent the trial wave function</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">qpu</span> <span class="o">=</span> <span class="n">get_default_qpu</span><span class="p">()</span>
         <span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">()</span>
         <span class="n">reg</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="n">hamiltonian_sp</span><span class="o">.</span><span class="n">nbqbits</span><span class="p">)</span>
@@ -114,6 +166,45 @@
         <span class="n">theta_current2</span><span class="p">,</span>
         <span class="n">fci</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It calls internally the functions &quot;ucc_action&quot; and &quot;prepare_state_ansatz&quot;, and uses scipy.optimize to</span>
+<span class="sd">        return the properties of the ucc energy and wave function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hamiltonian_sp: Hamiltonian</span>
+<span class="sd">                Hamiltonian in the spin representation</span>
+<span class="sd">            </span>
+<span class="sd">        cluster_ops_sp: list[Hamiltonian]</span>
+<span class="sd">            list of spin cluster operators</span>
+
+<span class="sd">        pool_generator: </span>
+<span class="sd">            the pool containing the operators made of Pauli strings that doesn&#39;t contain Z-Pauli term.</span>
+<span class="sd">        </span>
+<span class="sd">        hf_init_sp: int</span>
+<span class="sd">            the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using</span>
+<span class="sd">            &quot;qat.fermion.transforms.record_integer&quot;.</span>
+<span class="sd">        </span>
+<span class="sd">        theta_current1: List&lt;float&gt;</span>
+<span class="sd">            the Parameters of the cluster operators of &quot;cluster_ops_sp&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        theta_current2: List&lt;float&gt;</span>
+<span class="sd">            the Parameters of the cluster operators of &quot;pool_generator&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        fci: float</span>
+<span class="sd">            the full configuration interaction energy (for any basis set)</span>
+<span class="sd">    </span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">            iterations: Dict</span>
+<span class="sd">                the minimum energy and the optimized parameters</span>
+<span class="sd">            </span>
+<span class="sd">            result: Dict</span>
+<span class="sd">                the number of CNOT gates, the number of operators/parameters, and the substraction of the optimized energy from fci.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">iterations</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;minimum_energy_result1_guess&quot;</span><span class="p">:</span> <span class="p">[],</span>
             <span class="s2">&quot;minimum_energy_result2_guess&quot;</span><span class="p">:</span> <span class="p">[],</span>

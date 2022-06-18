@@ -4,14 +4,7 @@
 
 def corresponding_index(new_list, new_list_index, sorted_new):
     """
-    corresponding index: It generates sorted index after shuffling of elements in list.
-
-    Params: it takes three parameters first is list of values (newlist), second is list of index (newlistindex),
-
-    third it takes sorted list of values (sorted_new).
-
-    returns: it returns sorted index after shuffling of elements in list.
-
+    It generates sorted index after shuffling of elements in list.
     """
     n = []
     res = []
@@ -45,7 +38,15 @@ def value_without_0(my_list):
     """
     Value_without_0 will remove 0 from the list.
 
-    it takes a list and returns list without 0
+    parameters
+    -----------
+    my_list: List<float>
+        input list
+    
+    Returns
+    --------
+    new: List<float>
+        the list without zeros
     """
     new = []
     for i in range(0, len(my_list)):

@@ -4,7 +4,12 @@ from math import pi
 
 
 def circuit_opt_simple(q, qc, exci, theta):        
-
+    """
+    A Single-fermionic-evolution circuit
+    See circuit in figure 2.13 of the following reference:
+    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+    Cambridge, Cambridge, UK; 2021.
+    """
     for i in range(exci[0] + 1, exci[1] - 1):
         qc.apply(CNOT, q[i], q[i + 1])
     
@@ -26,7 +31,12 @@ def circuit_opt_simple(q, qc, exci, theta):
     return qc
 
 def circuit_opt_double(q, qc, exci, theta):            
-    
+    """
+    A Double-fermionic-evolution circuit
+    See circuit in figure 2.14 of the following reference:
+    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+    Cambridge, Cambridge, UK; 2021.
+    """
     qc.apply(CNOT, q[exci[0]], q[exci[1]])
     qc.apply(CNOT, q[exci[2]], q[exci[3]])
 
@@ -76,6 +86,11 @@ def circuit_opt_double(q, qc, exci, theta):
     return qc
 
 def efficient_fermionic_ansatz(q, qc, list_exci, list_theta):
+    """
+    See chapter 2 of the following reference:
+    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+    Cambridge, Cambridge, UK; 2021.
+    """
     for i in range(len(list_exci)):
         if len(list_exci[i]) == 4:
             circuit_opt_double(q, qc, list_exci[i], list_theta[i])
@@ -84,7 +99,13 @@ def efficient_fermionic_ansatz(q, qc, list_exci, list_theta):
     return qc
 
 def single_qubit_evo(q, qc, exci, theta):        
-
+    """
+    Single qubit evolution circuit
+    See circuit in figure 2.10 of the following reference:
+    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+    Cambridge, Cambridge, UK; 2021.
+    """
+    
     qc.apply(RZ(pi/2),q[exci[0]])
     qc.apply(RY(-pi/2),q[exci[1]])
     qc.apply(RZ(-pi/2),q[exci[1]])
@@ -99,6 +120,12 @@ def single_qubit_evo(q, qc, exci, theta):
     return qc
 
 def double_qubit_evo(q, qc, exci, theta):            
+    """
+    Double qubit evolution circuit
+    See circuit in figure 2.14 of the following reference:
+    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+    Cambridge, Cambridge, UK; 2021.
+    """
 
     qc.apply(CNOT, q[exci[0]], q[exci[1]])
     qc.apply(CNOT, q[exci[2]], q[exci[3]])
@@ -137,6 +164,11 @@ def double_qubit_evo(q, qc, exci, theta):
 
 
 def efficient_qubit_ansatz(q, qc, list_exci, list_theta):
+    """
+    See chapter 2 of the following reference:
+    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of
+    Cambridge, Cambridge, UK; 2021.
+    """
     for i in range(len(list_exci)):
         if len(list_exci[i]) == 4:
             double_qubit_evo(q, qc, list_exci[i], list_theta[i])

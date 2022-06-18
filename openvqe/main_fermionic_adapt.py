@@ -57,7 +57,7 @@ type_conver = 'norm'
 threshold_needed = 1e-2
 max_external_iterations = 35
 fci = info['FCI']
-fermionic_adapt_vqe(cluster_ops, hamiltonian_sparse, cluster_ops_sparse, reference_ket, hamiltonian_sp,
+fermionic_adapt_vqe(hamiltonian_sparse, cluster_ops_sparse, reference_ket, hamiltonian_sp,
         cluster_ops_sp, hf_init_sp, n_max_grads, fci, 
         optimizer,                
         tolerance,                
@@ -124,7 +124,7 @@ type_conver = 'norm'
 threshold_needed = 1e-3
 max_external_iterations = 30
 fci = info['FCI']
-fermionic_adapt_vqe(cluster_ops, hamiltonian_active_sparse, cluster_ops_sparse, reference_ket, hamiltonian_sp,
+fermionic_adapt_vqe(hamiltonian_active_sparse, cluster_ops_sparse, reference_ket, hamiltonian_sp,
         cluster_ops_sp, hf_init_sp, n_max_grads, fci, 
         optimizer,                
         tolerance,                

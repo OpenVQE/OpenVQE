@@ -60,15 +60,13 @@ nbqbits = hamiltonian_sp.nbqbits
 theta_current1 = theta_MP2
 # theta_current1 = []
 theta_current2 = []
-ansatz_ops = []
 # for UCCS skip 1j
 # for i in range(len(cluster_ops_sp)):
 #     theta_current1.append(0.01)
 for i in range(len(cluster_ops)):
     theta_current2.append(0.01)
-for i in cluster_ops_sp:
-    ansatz_ops.append(i)
-iterations, result = energy_ucc.get_energies(hamiltonian_sp,cluster_ops,ansatz_ops,hf_init_sp,theta_current1,theta_current2,FCI)
+
+iterations, result = energy_ucc.get_energies(hamiltonian_sp,cluster_ops,hf_init_sp,theta_current1,theta_current2,FCI)
 print("iterations are:", iterations)
 print("results are:", result)
 

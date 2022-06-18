@@ -72,7 +72,12 @@
 
 
 <div class="viewcode-block" id="circuit_opt_simple"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.circuit.circuit_opt_simple">[docs]</a><span class="k">def</span> <span class="nf">circuit_opt_simple</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">qc</span><span class="p">,</span> <span class="n">exci</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>        
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Single-fermionic-evolution circuit</span>
+<span class="sd">    See circuit in figure 2.13 of the following reference:</span>
+<span class="sd">    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of</span>
+<span class="sd">    Cambridge, Cambridge, UK; 2021.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">exci</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">exci</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">qc</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">CNOT</span><span class="p">,</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
     
@@ -94,7 +99,12 @@
     <span class="k">return</span> <span class="n">qc</span></div>
 
 <div class="viewcode-block" id="circuit_opt_double"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.circuit.circuit_opt_double">[docs]</a><span class="k">def</span> <span class="nf">circuit_opt_double</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">qc</span><span class="p">,</span> <span class="n">exci</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>            
-    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Double-fermionic-evolution circuit</span>
+<span class="sd">    See circuit in figure 2.14 of the following reference:</span>
+<span class="sd">    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of</span>
+<span class="sd">    Cambridge, Cambridge, UK; 2021.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">qc</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">CNOT</span><span class="p">,</span> <span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
     <span class="n">qc</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">CNOT</span><span class="p">,</span> <span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
 
@@ -144,6 +154,11 @@
     <span class="k">return</span> <span class="n">qc</span></div>
 
 <div class="viewcode-block" id="efficient_fermionic_ansatz"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.circuit.efficient_fermionic_ansatz">[docs]</a><span class="k">def</span> <span class="nf">efficient_fermionic_ansatz</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">qc</span><span class="p">,</span> <span class="n">list_exci</span><span class="p">,</span> <span class="n">list_theta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    See chapter 2 of the following reference:</span>
+<span class="sd">    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of</span>
+<span class="sd">    Cambridge, Cambridge, UK; 2021.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_exci</span><span class="p">)):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_exci</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">circuit_opt_double</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">qc</span><span class="p">,</span> <span class="n">list_exci</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">list_theta</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
@@ -152,7 +167,13 @@
     <span class="k">return</span> <span class="n">qc</span></div>
 
 <div class="viewcode-block" id="single_qubit_evo"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.circuit.single_qubit_evo">[docs]</a><span class="k">def</span> <span class="nf">single_qubit_evo</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">qc</span><span class="p">,</span> <span class="n">exci</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>        
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Single qubit evolution circuit</span>
+<span class="sd">    See circuit in figure 2.10 of the following reference:</span>
+<span class="sd">    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of</span>
+<span class="sd">    Cambridge, Cambridge, UK; 2021.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="n">qc</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">RZ</span><span class="p">(</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
     <span class="n">qc</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">RY</span><span class="p">(</span><span class="o">-</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
     <span class="n">qc</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">RZ</span><span class="p">(</span><span class="o">-</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
@@ -167,6 +188,12 @@
     <span class="k">return</span> <span class="n">qc</span></div>
 
 <div class="viewcode-block" id="double_qubit_evo"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.circuit.double_qubit_evo">[docs]</a><span class="k">def</span> <span class="nf">double_qubit_evo</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">qc</span><span class="p">,</span> <span class="n">exci</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>            
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Double qubit evolution circuit</span>
+<span class="sd">    See circuit in figure 2.14 of the following reference:</span>
+<span class="sd">    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of</span>
+<span class="sd">    Cambridge, Cambridge, UK; 2021.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">qc</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">CNOT</span><span class="p">,</span> <span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
     <span class="n">qc</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">CNOT</span><span class="p">,</span> <span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="n">q</span><span class="p">[</span><span class="n">exci</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
@@ -205,6 +232,11 @@
 
 
 <div class="viewcode-block" id="efficient_qubit_ansatz"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.circuit.efficient_qubit_ansatz">[docs]</a><span class="k">def</span> <span class="nf">efficient_qubit_ansatz</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">qc</span><span class="p">,</span> <span class="n">list_exci</span><span class="p">,</span> <span class="n">list_theta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    See chapter 2 of the following reference:</span>
+<span class="sd">    Yordanov Y. Quantum computational chemistry methods for early-stage quantum computers. PhD thesis. University of</span>
+<span class="sd">    Cambridge, Cambridge, UK; 2021.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_exci</span><span class="p">)):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_exci</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">double_qubit_evo</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">qc</span><span class="p">,</span> <span class="n">list_exci</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">list_theta</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>

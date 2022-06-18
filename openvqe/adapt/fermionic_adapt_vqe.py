@@ -9,24 +9,61 @@ from qat.qpus import get_default_qpu
 from ..common_files.sorted_gradient import value_without_0, index_without_0, abs_sort_desc, corresponding_index
 from ..common_files.circuit import count
 
-def prepare_state(reference_ket, spmat_ops, parameters):
+def prepare_adapt_state(reference_ket, spmat_ops, parameters):
+    """
+    Computes the action of the matrix exponential of fermionic sparse operators ("spmat_ops") on
+    the state initiated by "reference_ket".
+
+    Parameters
+    -----------
+    reference_ket: ndarray
+        the initial state
+    
+    spmat_ops: List<transposable linear operator>
+        the sparse fermionic operators
+
+    parameters: List<float>
+        list of parameters for the "spmat_ops"
+    
+
+    Returns
+    --------
+    new_state: ndarray
+        the new state
+
+    """
     new_state = reference_ket * 1.0
-    g = spmat_ops
     for k in range(len(parameters)):
-        new_state = scipy.sparse.linalg.expm_multiply((parameters[k] * g[k]), new_state)
+        new_state = scipy.sparse.linalg.expm_multiply((parameters[k] * spmat_ops[k]), new_state)
     return new_state
 
 
 def compute_gradient_i(i, cluster_ops_sparse, v, sig):
-    # """
-    # For a previously optimized state |n>, compute the gradient g(k) of exp(c(k) A(k))|n>
-    # g(k) = 2Real<HA(k)>
-    # Note - this assumes A(k) is an antihermitian operator. If this is not the case,
-    # the derived class should
-    # reimplement this function. Of course, also assumes H is hermitian
-    # v = current_state
-    # sig = H*v
-    # """
+    """
+    Compute analytically the gradient of the ith operator of "cluster_ops_sparse".
+
+    Parameters
+    -----------
+    i: int
+        the index of the fermionic operator for which the gradient is computed
+        
+    cluster_ops_sparse: List<transposable linear operator>
+        the sparse fermionic operators
+
+    v: ndarray
+        the current state
+    
+    sig: ndarray
+        the resultant of the dot product of a hamiltonian operator with the current state
+
+
+    Returns
+    --------
+    gi: float
+        the gradient of the correponding fermionic operator
+
+    """
+
     op_a = cluster_ops_sparse[i]
     gi = 2 * (sig.transpose().conj().dot(op_a.dot(v)))
     assert gi.shape == (1, 1)
@@ -37,15 +74,45 @@ def compute_gradient_i(i, cluster_ops_sparse, v, sig):
     return gi
 
 
-def return_gradient_list(
-    cluster_ops, cluster_ops_sparse, hamiltonian_sparse, curr_state
+def return_gradient_list(cluster_ops_sparse, hamiltonian_sparse, curr_state
 ):
+    """
+    Compute analytically the gradient for all fermionic cluster operators ("cluster_ops_sparse").
+
+    Parameters
+    -----------
+    cluster_ops_sparse: List<transposable linear operator>
+        the sparse fermionic operators
+
+    hamiltonian_sparse: ndarray
+        the hamiltonian operator
+    
+    curr_state: ndarray
+        the current state
+
+
+    Returns
+    --------
+    list_grad: List<float>
+        the gradients for all the fermionic cluster operators
+    
+    curr_norm: float
+        the magnitude of the gradients
+    
+    next_deriv: float
+        the maximum gradient (in absolute value)
+    
+    next_index: int
+        the index of the operator with maximum gradient
+
+    """
+    
     list_grad = []
     curr_norm = 0
     next_deriv = 0
     next_index = 0
     sig = hamiltonian_sparse.dot(curr_state)
-    for oi in range(len(cluster_ops)):
+    for oi in range(len(cluster_ops_sparse)):
         gi = compute_gradient_i(oi, cluster_ops_sparse, curr_state, sig)
         list_grad.append(abs(gi))
         curr_norm += gi * gi
@@ -56,17 +123,42 @@ def return_gradient_list(
 
 
 # create the function related to myADAPT-VQE:
-def ucc_action(hamiltonian_sp, cluster_ops_sp, hf_init_sp, theta):
+def ucc_action(hamiltonian_sp, cluster_ops_sp, hf_init_sp, theta_current):
+    """
+    It maps the exponential of cluster operators ("cluster_ops_sp") associated by their parameters ("theta_current")
+    using the CNOTS-staircase method, which is done by "build_ucc_ansatz" which creates the circuit on the top of
+    the HF-state ("hf_init_sp"). Then, this function also calculates the expected value of the hamiltonian ("hamiltonian_sp").
+
+    Parameters
+    ----------
+    hamiltonian_sp: Hamiltonian
+        Hamiltonian in the spin representation
+
+    cluster_ops_sp: list[Hamiltonian]
+        list of spin cluster operators
+    
+    hf_init_sp: int
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+        "qat.fermion.transforms.record_integer".
+    
+    theta_current: List<float>
+        the Parameters of the cluster operators
+    
+    Returns
+    --------
+        res.value: float
+            the resulted energy
+
+    """
     qpu = get_default_qpu()
     prog = Program()
     reg = prog.qalloc(hamiltonian_sp.nbqbits)
-    for n_term, (term, theta_term) in enumerate(zip(cluster_ops_sp, theta)):
+    for n_term, (term, theta_term) in enumerate(zip(cluster_ops_sp, theta_current)):
         init = hf_init_sp if n_term == 0 else 0
         qprog = build_ucc_ansatz([term], init, n_steps=1)
         prog.apply(qprog([theta_term]), reg)
     circ = prog.to_circ()
     res = qpu.submit(circ.to_job(job_type="OBS", observable=hamiltonian_sp))
-    circ.empty(hamiltonian_sp.nbqbits)
     return res.value
 
 
@@ -89,36 +181,85 @@ def print_gradient_lists_and_indices(list_grad):
 
 
 def prepare_hf_state(hf_init_sp, cluster_ops_sp):
+    """
+    It constructs the Hartree-Fock state (ansatz)
+
+    Parameters
+    ----------
+
+    hf_init_sp: int
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+        "qat.fermion.transforms.record_integer".
+
+    cluster_ops_sp: list[Hamiltonian]
+        list of spin cluster operators
+    
+
+    Returns
+    --------
+        circuit: qat.core.Circuit
+            the circuit representing the HF-state
+    
+    """
     prog = Program()
     nbqbits = cluster_ops_sp[0].nbqbits
-    print(nbqbits)
     ket_hf = binary_repr(hf_init_sp)
     list_ket_hf = [int(c) for c in ket_hf]
-    print(ket_hf)
-    print(list_ket_hf)
     qb = prog.qalloc(nbqbits)
-    # print(list_ket_hf)
     for j in range(nbqbits):
         if int(list_ket_hf[j] == 1):
             prog.apply(X, qb[j])
     circuit = prog.to_circ()
-    qpu = get_default_qpu()
-    res = qpu.submit(circuit.to_job())
-    statevector = get_statevector(res, nbqbits)
-    vec = statevector
-    print("vec", vec)
     return circuit
 
 
 def hf_energy(hf_state, hamiltonian_sp):
+    """
+    Returns the Hartee Fock energy
+
+    Parameters
+    ----------
+
+    hf_state: qat.core.Circuit
+        the circuit representing the HF state
+
+    hamiltonian_sp: Hamiltonian
+        Hamiltonian in the spin representation
+
+    
+    Returns
+    --------
+        res.value: float
+            the resulted energy
+
+    """
     qpu = get_default_qpu()
-    circ = hf_state
-    res = qpu.submit(circ.to_job(job_type="OBS", observable=hamiltonian_sp))
+    res = qpu.submit(hf_state.to_job(job_type="OBS", observable=hamiltonian_sp))
     return res.value
 
 
 def commutators_calculations(cluster_ops_sp, hamiltonian_sp):
-    print("Compute the commutator for the first time from ")
+    """
+    Compute the commutators [cluster_ops_sp[i], hamiltonian_sp].
+    Note: it is under developement
+
+    Parameters
+    -----------
+
+    cluster_ops_sp: list[Hamiltonian]
+        list of spin cluster operators
+    
+    hamiltonian_sp: Hamiltonian
+        Hamiltonian in the spin representation
+    
+
+    Returns
+    --------
+    list_commutators: list<float>
+        list of the resulting commutators (gradients)
+
+    """
+
     list_commutators = []
     for oi in cluster_ops_sp:
         X = -(
@@ -129,9 +270,33 @@ def commutators_calculations(cluster_ops_sp, hamiltonian_sp):
     return list_commutators
 
 
-def prepare_state_ansatz(hamiltonian_sp, cluster_ops_sp, hf_init_sp, parameters):
+def prepare_state_ansatz(cluster_ops_sp, hf_init_sp, parameters):
+    """
+    It constructs the trial wave function (ansatz) 
+
+    Parameters
+    ----------
+    cluster_ops_sp: list[Hamiltonian]
+        list of spin cluster operators
+    
+    hf_init_sp: int
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+        "qat.fermion.transforms.record_integer".
+    
+    parameters: List<float>
+        the Parameters for the trial wave function to be constructed
+    
+
+
+    Returns
+    --------
+        curr_state: qat.core.Circuit
+            the circuit that represent the trial wave function
+    
+    """
+
     prog = Program()
-    reg = prog.qalloc(hamiltonian_sp.nbqbits)
+    reg = prog.qalloc(cluster_ops_sp[0].nbqbits)
     for n_term, (term, theta_term) in enumerate(zip(cluster_ops_sp, parameters)):
         init = hf_init_sp if n_term == 0 else 0
         qprog = build_ucc_ansatz([term], init, n_steps=1)
@@ -142,15 +307,52 @@ def prepare_state_ansatz(hamiltonian_sp, cluster_ops_sp, hf_init_sp, parameters)
 
 
 def get_statevector(result, nbqbits):
-    # "Get the statevector from the Result class:"
+    """
+    Get the statevector from the Result class
+
+    Parameters
+    -----------
+    result: qat.core.BatchResult
+        the result of an executed job
+    
+    nbqbits: int
+        the number of qubits
+    
+    statevector: ndarray
+        the resulting statevector representation
+
+    """
     statevector = np.zeros((2**nbqbits), np.complex128)
     for sample in result:
         statevector[sample.state.int] = sample.amplitude
     return statevector
 
 
-## check fidelity of the circuit:
 def fun_fidelity(circ, eigenvalues, eigenvectors, nbqbits):
+    """
+    Checks the fidelity between the resulted state and exact wave function
+
+    Parameters
+    ----------
+    circ: qat.core.Circuit
+        the circuit corresponding to the resulted state
+
+    eigenvalues: ndarray
+        the eigen values of the hamiltonian
+
+    eigenvectors: ndarray
+        the eigen vectors of the hamiltonian
+
+    nbqbits: int
+        the number of qubits
+    
+    Returns
+    --------
+
+    fid: float
+        the fidelity
+
+    """
     ee = eigenvectors[:, np.argmin(eigenvalues)]
     qpu = get_default_qpu()
     res = qpu.submit(circ.to_job())
@@ -167,7 +369,6 @@ def fun_fidelity(circ, eigenvalues, eigenvectors, nbqbits):
 #         threshold_needed = threshold_needed,
 #         max_external_iterations = max_external_iterations
 def fermionic_adapt_vqe(
-    cluster_ops,
     hamiltonian_sparse,
     cluster_ops_sparse,
     reference_ket,
@@ -182,6 +383,68 @@ def fermionic_adapt_vqe(
     threshold_needed,
     max_external_iterations=30,
 ):
+    
+    """
+    Runs the loop of making fermionic adapt vqe found in this reference in section "Results"
+    Grimsley HR, Economou SE, Barnes E, Mayhall NJ. An adaptive variational algorithm for exact molecular simulations
+    on a quantum computer. Nature communications 2019; 10(1): 1-9.
+
+    Parameters
+    ----------
+    
+    hamiltonian_sparse: ndarray
+        The sparse hamiltonian
+    
+    cluster_ops_sparse: List<transposable linear operator>
+        the sparse fermionic operators
+
+    reference_ket: ndarray
+        the initial state
+    
+    hamiltonian_sp: Hamiltonian
+        Hamiltonian in the spin representation
+    
+    cluster_ops_sp: list[Hamiltonian]
+        list of spin cluster operators
+    
+    hf_init_sp: int
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+        "qat.fermion.transforms.record_integer".
+    
+    n_max_grads: int
+        the number of maximum gradients chosen per internal iteration
+    
+    fci: float
+        the full configuration interaction energy
+    
+    optimizer: string
+        the type of the optimizer
+    
+    tolerance: float
+        the tolerance for reaching convergence
+    
+    type_conver: string
+        in our case, "norm" is chosen
+    
+    threshold_needed: float
+        the norm threshold 
+
+    max_external_iterations: int
+        the number of maximum iteration to perform the whole adaptive loop
+    
+
+    Returns
+    --------
+
+    iterations: Dict
+        the following properties of the simulation: 
+        energies, energies_substracted_from_FCI, norms, Max_gradients, fidelity, CNOTs, Hadamard, RY, and RX.
+
+    result: Dict
+        the following properties after convergence:
+        indices, Number_operators, final_norm, parameters, Number_CNOT_gates, Number_Hadamard_gates, Number_RX_gates, final_energy_last_iteration,
+
+    """
     iterations = {
         "energies": [],
         "energies_substracted_from_FCI": [],
@@ -205,10 +468,6 @@ def fermionic_adapt_vqe(
     ansatz_mat = []
     # define a list which store the indices of the operators
     op_indices = []
-    # use this list in case we need reversing the indices
-    listreverse = []
-    # define a list parameters use open_fermion
-    parameters_open_f = []
     # define a list to store parameters for the ansatz
     parameters_ansatz = []
     # to see fidelity
@@ -220,7 +479,6 @@ def fermionic_adapt_vqe(
     print(ref_energy)
     print(" The reference energy of the molecular system is: %12.8f" % ref_energy)
     curr_state = hf_state
-    # curr_state = prepare_state_ansatz(hamiltonian_sp,cluster_ops_sp, hf_init_sp, parameters_ansatz)
     curr_state_open_f = 1.0 * reference_ket
     prev_norm = 0.0
     for n_iter in range(0, max_external_iterations):
@@ -235,7 +493,7 @@ def fermionic_adapt_vqe(
         # few commands to initialize at each new iteration
         print(" Check gradient list chronological order")
         list_grad, curr_norm, next_deriv, next_index = return_gradient_list(
-            cluster_ops, cluster_ops_sparse, hamiltonian_sparse, curr_state_open_f
+            cluster_ops_sparse, hamiltonian_sparse, curr_state_open_f
         )
         sorted_mylist_value_without_0, sorted_index = print_gradient_lists_and_indices(
             list_grad
@@ -287,24 +545,15 @@ def fermionic_adapt_vqe(
         for i in range(n_max_grads):
             gamma1.append(chosen_batch[i] / curr_norm1)
             sorted_index1.append(sorted_index[i])
-        #         print('N_max_grads: ', N_max_grads)
-        #         print('gamma1: ', gamma1)
         print("sorted_index1: ", sorted_index1)
         # there are two types of initial thetas: either zero, of from gamma_1 list
         for j in range(len(sorted_index1)):
-            #             parameters_ansatz.append(gamma1[j])
-            #             parameters_ansatz.append(0.0)
             parameters_ansatz.append(0.01)
             # for UCCSD: we must multiply by i
             #             ansatz_ops.append(cluster_ops_sp[sorted_index1[j]])
             ansatz_ops.append(complex(0.0, 1.0) * cluster_ops_sp[sorted_index1[j]])
             op_indices.append(sorted_index1[j])
             ansatz_mat.append(cluster_ops_sparse[sorted_index1[j]])
-        #         print('parameters_ansatz: ', parameters_ansatz)
-        #         print('op_indices: ', op_indices)
-        #         print('ansatz_mat: ', ansatz_mat)
-        #         print('ansatz_ops: ', ansatz_ops)
-        # print('cluster_ops_sparse: ', cluster_ops_sparse)
         # minimize and optimize from simulator
         opt_result = scipy.optimize.minimize(
             lambda parameters: ucc_action(
@@ -317,8 +566,6 @@ def fermionic_adapt_vqe(
         )
         xlist = opt_result.x
         print(" Finished energy iteration_i: %20.12f" % opt_result.fun)
-        #         print('length of ansatz_ops', len(ansatz_ops))
-        #         print('length of xlist', len(xlist))
         print(" -----------New ansatz created----------- ")
         print(" %4s \t%s \t%s" % ("#", "Coefficients", "Term"))
         parameters_ansatz = []
@@ -326,10 +573,8 @@ def fermionic_adapt_vqe(
         for si in range(len(ansatz_ops)):
             print(" %4i \t%f \t%s" % (si, xlist[si], op_indices[si]))
             parameters_ansatz.append(xlist[si])
-        curr_state = prepare_state_ansatz(
-            hamiltonian_sp, ansatz_ops, hf_init_sp, parameters_ansatz
-        )
-        curr_state_open_f = prepare_state(reference_ket, ansatz_mat, parameters_ansatz)
+        curr_state = prepare_state_ansatz(ansatz_ops, hf_init_sp, parameters_ansatz)
+        curr_state_open_f = prepare_adapt_state(reference_ket, ansatz_mat, parameters_ansatz)
         prev_norm = curr_norm
         gates = curr_state.ops
         cnot = count("CNOT", gates)
@@ -346,6 +591,3 @@ def fermionic_adapt_vqe(
         iterations["RY"].append(ry)
         iterations["RX"].append(rx)
     return iterations, result
-
-
-# In[ ]:

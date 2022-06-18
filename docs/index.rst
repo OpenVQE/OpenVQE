@@ -6,7 +6,8 @@ Welcome to OpenVQE's documentation!
 
 OpenVQE is a package to perform quantum chemistry computations...
 
-
+.. image:: images/myqlm-fermion_openvqe.png
+   :alt: myqlm-fermion_openvqe
 
 
 

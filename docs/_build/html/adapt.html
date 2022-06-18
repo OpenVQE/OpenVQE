@@ -108,47 +108,204 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.commutators_calculations">
 <span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">commutators_calculations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#commutators_calculations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.commutators_calculations" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Compute the commutators [cluster_ops_sp[i], hamiltonian_sp].
+Note: it is under developement</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>list_commutators</strong> – list of the resulting commutators (gradients)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list&lt;float&gt;</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.compute_gradient_i">
 <span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">compute_gradient_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#compute_gradient_i"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.compute_gradient_i" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Compute analytically the gradient of the ith operator of “cluster_ops_sparse”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> (<em>int</em>) – the index of the fermionic operator for which the gradient is computed</p></li>
+<li><p><strong>cluster_ops_sparse</strong> (<em>List&lt;transposable linear operator&gt;</em>) – the sparse fermionic operators</p></li>
+<li><p><strong>v</strong> (<em>ndarray</em>) – the current state</p></li>
+<li><p><strong>sig</strong> (<em>ndarray</em>) – the resultant of the dot product of a hamiltonian operator with the current state</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>gi</strong> – the gradient of the correponding fermionic operator</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.fermionic_adapt_vqe">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">fermionic_adapt_vqe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_ket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_max_grads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_conver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_needed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_external_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#fermionic_adapt_vqe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.fermionic_adapt_vqe" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">fermionic_adapt_vqe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_ket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_max_grads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_conver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_needed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_external_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#fermionic_adapt_vqe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.fermionic_adapt_vqe" title="Permalink to this definition"></a></dt>
+<dd><p>Runs the loop of making fermionic adapt vqe found in this reference in section “Results”
+Grimsley HR, Economou SE, Barnes E, Mayhall NJ. An adaptive variational algorithm for exact molecular simulations
+on a quantum computer. Nature communications 2019; 10(1): 1-9.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hamiltonian_sparse</strong> (<em>ndarray</em>) – The sparse hamiltonian</p></li>
+<li><p><strong>cluster_ops_sparse</strong> (<em>List&lt;transposable linear operator&gt;</em>) – the sparse fermionic operators</p></li>
+<li><p><strong>reference_ket</strong> (<em>ndarray</em>) – the initial state</p></li>
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>n_max_grads</strong> (<em>int</em>) – the number of maximum gradients chosen per internal iteration</p></li>
+<li><p><strong>fci</strong> (<em>float</em>) – the full configuration interaction energy</p></li>
+<li><p><strong>optimizer</strong> (<em>string</em>) – the type of the optimizer</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>) – the tolerance for reaching convergence</p></li>
+<li><p><strong>type_conver</strong> (<em>string</em>) – in our case, “norm” is chosen</p></li>
+<li><p><strong>threshold_needed</strong> (<em>float</em>) – the norm threshold</p></li>
+<li><p><strong>max_external_iterations</strong> (<em>int</em>) – the number of maximum iteration to perform the whole adaptive loop</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>iterations</strong> (<em>Dict</em>) – the following properties of the simulation:
+energies, energies_substracted_from_FCI, norms, Max_gradients, fidelity, CNOTs, Hadamard, RY, and RX.</p></li>
+<li><p><strong>result</strong> (<em>Dict</em>) – the following properties after convergence:
+indices, Number_operators, final_norm, parameters, Number_CNOT_gates, Number_Hadamard_gates, Number_RX_gates, final_energy_last_iteration,</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.fun_fidelity">
 <span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">fun_fidelity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigenvalues</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigenvectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbqbits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#fun_fidelity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.fun_fidelity" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Checks the fidelity between the resulted state and exact wave function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circ</strong> (<em>qat.core.Circuit</em>) – the circuit corresponding to the resulted state</p></li>
+<li><p><strong>eigenvalues</strong> (<em>ndarray</em>) – the eigen values of the hamiltonian</p></li>
+<li><p><strong>eigenvectors</strong> (<em>ndarray</em>) – the eigen vectors of the hamiltonian</p></li>
+<li><p><strong>nbqbits</strong> (<em>int</em>) – the number of qubits</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fid</strong> – the fidelity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.get_statevector">
 <span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">get_statevector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbqbits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#get_statevector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.get_statevector" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get the statevector from the Result class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result</strong> (<em>qat.core.BatchResult</em>) – the result of an executed job</p></li>
+<li><p><strong>nbqbits</strong> (<em>int</em>) – the number of qubits</p></li>
+<li><p><strong>statevector</strong> (<em>ndarray</em>) – the resulting statevector representation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.hf_energy">
 <span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">hf_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hf_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#hf_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.hf_energy" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns the Hartee Fock energy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hf_state</strong> (<em>qat.core.Circuit</em>) – the circuit representing the HF state</p></li>
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res.value</strong> – the resulted energy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.prepare_adapt_state">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_adapt_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_ket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spmat_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#prepare_adapt_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.prepare_adapt_state" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the action of the matrix exponential of fermionic sparse operators (“spmat_ops”) on
+the state initiated by “reference_ket”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_ket</strong> (<em>ndarray</em>) – the initial state</p></li>
+<li><p><strong>spmat_ops</strong> (<em>List&lt;transposable linear operator&gt;</em>) – the sparse fermionic operators</p></li>
+<li><p><strong>parameters</strong> (<em>List&lt;float&gt;</em>) – list of parameters for the “spmat_ops”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>new_state</strong> – the new state</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.prepare_hf_state">
 <span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_hf_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#prepare_hf_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.prepare_hf_state" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.prepare_state">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_ket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spmat_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#prepare_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.prepare_state" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>It constructs the Hartree-Fock state (ansatz)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>circuit</strong> – the circuit representing the HF-state</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>qat.core.Circuit</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.prepare_state_ansatz">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_state_ansatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#prepare_state_ansatz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.prepare_state_ansatz" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_state_ansatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#prepare_state_ansatz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.prepare_state_ansatz" title="Permalink to this definition"></a></dt>
+<dd><p>It constructs the trial wave function (ansatz)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>parameters</strong> (<em>List&lt;float&gt;</em>) – the Parameters for the trial wave function to be constructed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>curr_state</strong> – the circuit that represent the trial wave function</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>qat.core.Circuit</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.print_gradient_lists_and_indices">
@@ -157,13 +314,52 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.return_gradient_list">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">return_gradient_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#return_gradient_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.return_gradient_list" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">return_gradient_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#return_gradient_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.return_gradient_list" title="Permalink to this definition"></a></dt>
+<dd><p>Compute analytically the gradient for all fermionic cluster operators (“cluster_ops_sparse”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster_ops_sparse</strong> (<em>List&lt;transposable linear operator&gt;</em>) – the sparse fermionic operators</p></li>
+<li><p><strong>hamiltonian_sparse</strong> (<em>ndarray</em>) – the hamiltonian operator</p></li>
+<li><p><strong>curr_state</strong> (<em>ndarray</em>) – the current state</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>list_grad</strong> (<em>List&lt;float&gt;</em>) – the gradients for all the fermionic cluster operators</p></li>
+<li><p><strong>curr_norm</strong> (<em>float</em>) – the magnitude of the gradients</p></li>
+<li><p><strong>next_deriv</strong> (<em>float</em>) – the maximum gradient (in absolute value)</p></li>
+<li><p><strong>next_index</strong> (<em>int</em>) – the index of the operator with maximum gradient</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.fermionic_adapt_vqe.ucc_action">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">ucc_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#ucc_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.ucc_action" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.fermionic_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">ucc_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_current</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/fermionic_adapt_vqe.html#ucc_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.fermionic_adapt_vqe.ucc_action" title="Permalink to this definition"></a></dt>
+<dd><p>It maps the exponential of cluster operators (“cluster_ops_sp”) associated by their parameters (“theta_current”)
+using the CNOTS-staircase method, which is done by “build_ucc_ansatz” which creates the circuit on the top of
+the HF-state (“hf_init_sp”). Then, this function also calculates the expected value of the hamiltonian (“hamiltonian_sp”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>theta_current</strong> (<em>List&lt;float&gt;</em>) – the Parameters of the cluster operators</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res.value</strong> – the resulted energy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-openvqe.adapt.qubit_adapt_vqe">
@@ -171,52 +367,208 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.calculate_gradient">
 <span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">calculate_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_hamiltonian</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#calculate_gradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.calculate_gradient" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Computation of the gradient 2*&lt;bra|sparse_hamiltonian*sparse_operator|state&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sparse_operator</strong> (<em>transposable linear operator</em>) – the sparse qubit operator</p></li>
+<li><p><strong>state</strong> (<em>ndarray</em>) – the current state</p></li>
+<li><p><strong>sparse_hamiltonian</strong> (<em>ndarray</em>) – the sparsed hamiltonian operator</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>gradient</strong> – the computed gradient for the qubit operator</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.compute_commutator_i">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">compute_commutator_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#compute_commutator_i"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.compute_commutator_i" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.expm_multiply">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">expm_multiply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#expm_multiply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.expm_multiply" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">compute_commutator_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commutator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#compute_commutator_i"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.compute_commutator_i" title="Permalink to this definition"></a></dt>
+<dd><p>computes the expectation value of the commutator of a given qubit operator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>commutator</strong> (<em>Hamiltonian</em>) – The product of the qubit operator and the spin hamiltonian</p></li>
+<li><p><strong>curr_state</strong> (<em>qat.core.Circuit</em>) – the ansatz of the current state</p></li>
+<li><p><strong>res.value</strong> (<em>float</em>) – the obtained expectation value (gradient)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.hf_energy">
 <span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">hf_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hf_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#hf_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.hf_energy" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns the Hartee Fock energy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hf_state</strong> (<em>qat.core.Circuit</em>) – the circuit representing the HF state</p></li>
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res.value</strong> – the resulted energy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.prepare_adapt_state">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_adapt_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ansatz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#prepare_adapt_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.prepare_adapt_state" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_adapt_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ansatz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#prepare_adapt_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.prepare_adapt_state" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the action of the matrix exponential of qubit sparse operators (“ansatz”) on
+the state initiated by “reference_state”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_state</strong> (<em>ndarray</em>) – the initial state</p></li>
+<li><p><strong>ansatz</strong> (<em>List&lt;transposable linear operator&gt;</em>) – the sparse qubit operators</p></li>
+<li><p><strong>coefficients</strong> (<em>List&lt;float&gt;</em>) – list of parameters for the “ansatz”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>state</strong> – the new state</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.prepare_hf_state">
 <span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_hf_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#prepare_hf_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.prepare_hf_state" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>It constructs the Hartree-Fock state (ansatz)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>circuit</strong> – the circuit representing the HF-state</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>qat.core.Circuit</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.prepare_state">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbqbits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#prepare_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.prepare_state" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.prepare_state_ansatz">
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">prepare_state_ansatz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#prepare_state_ansatz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.prepare_state_ansatz" title="Permalink to this definition"></a></dt>
+<dd><p>It constructs the trial wave function (ansatz)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>parameters</strong> (<em>List&lt;float&gt;</em>) – the Parameters for the trial wave function to be constructed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>curr_state</strong> – the circuit that represent the trial wave function</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>qat.core.Circuit</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.qubit_adapt_vqe">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">qubit_adapt_vqe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_ket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nqubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_mix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chosen_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_conver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'norm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_maxiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance_sim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_sim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BFGS'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#qubit_adapt_vqe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.qubit_adapt_vqe" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">qubit_adapt_vqe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp_sparse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_ket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nqubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_mix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_max_grads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_conver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'norm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_maxiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance_sim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_sim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BFGS'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#qubit_adapt_vqe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.qubit_adapt_vqe" title="Permalink to this definition"></a></dt>
+<dd><p>adapt_conver
+adapt_thresh
+adapt_maxiter
+tolerance_sim
+method_sim</p>
+<p>Runs the loop of making qubit adapt vqe found in this reference in section “Results”
+Grimsley HR, Economou SE, Barnes E, Mayhall NJ. An adaptive variational algorithm for exact molecular simulations
+on a quantum computer. Nature communications 2019; 10(1): 1-9.</p>
+<p>Note: the analytical calculation for the “exact_adapt_energy” are still under developement so that we later can compare
+the results obtained by the qlm simulator and the “exact_adapt_energy”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+<li><p><strong>hamiltonian_sp_sparse</strong> (<em>ndarray</em>) – The sparsed spin hamiltonian</p></li>
+<li><p><strong>reference_ket</strong> (<em>ndarray</em>) – the initial state</p></li>
+<li><p><strong>nqubits</strong> (<em>int</em>) – the number of qubits</p></li>
+<li><p><strong>pool_mix</strong> (<em>List&lt;Hamiltonian&gt;</em>) – list of qubit cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>fci</strong> (<em>float</em>) – the full configuration interaction energy</p></li>
+<li><p><strong>n_max_grads</strong> (<em>int</em>) – the number of maximum gradients chosen per internal iteration</p></li>
+<li><p><strong>adapt_conver</strong> (<em>string</em>) – in our case, “norm” is chosen</p></li>
+<li><p><strong>adapt_thresh</strong> (<em>float</em>) – the norm threshold</p></li>
+<li><p><strong>adapt_maxiter</strong> (<em>int</em>) – the number of maximum iteration to perform the whole adaptive loop</p></li>
+<li><p><strong>tolerance_sim</strong> (<em>float</em>) – the tolerance for reaching convergence</p></li>
+<li><p><strong>method_sim</strong> (<em>string</em>) – the type of the optimizer for the qlm simulator</p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>--------</strong> – </p></li>
+<li><p><strong>iterations_sim</strong> (<em>Dict</em>) – the following properties:
+energies, energies_substracted_from_fci, norms, Max_gradient, CNOTs, Hadamard, RY, RX</p></li>
+<li><p><strong>result_sim</strong> (<em>Dict</em>) – the following properties:
+optimizer, final_norm, indices, len_operators, parameters, final_energy,</p></li>
+<li><p><strong>iterations_ana</strong> (<em>Empty dict</em><em> (</em><em>see the note above</em><em>)</em>) – </p></li>
+<li><p><strong>result_ana</strong> (<em>Empty dict</em><em> (</em><em>see the note above</em><em>)</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.term_to_matrix_sparse">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">term_to_matrix_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Poolmix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbqbits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#term_to_matrix_sparse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.term_to_matrix_sparse" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">term_to_matrix_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin_operator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#term_to_matrix_sparse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.term_to_matrix_sparse" title="Permalink to this definition"></a></dt>
+<dd><p>converts the terms in the spin hamiltonian into a sparse.csr_matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>spin_operator</strong> (<em>Hamiltonian</em>) – cluster operator in the spin representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>matrix_final</strong> – the final matrix of the spin operator</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openvqe.adapt.qubit_adapt_vqe.ucc_action">
-<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">ucc_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#ucc_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.ucc_action" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">openvqe.adapt.qubit_adapt_vqe.</span></span><span class="sig-name descname"><span class="pre">ucc_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ops_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_init_sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_current</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openvqe/adapt/qubit_adapt_vqe.html#ucc_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openvqe.adapt.qubit_adapt_vqe.ucc_action" title="Permalink to this definition"></a></dt>
+<dd><p>It maps the exponential of cluster operators (“cluster_ops_sp”) associated by their parameters (“theta_current”)
+using the CNOTS-staircase method, which is done by “build_ucc_ansatz” which creates the circuit on the top of
+the HF-state (“hf_init_sp”). Then, this function also calculates the expected value of the hamiltonian (“hamiltonian_sp”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hamiltonian_sp</strong> (<em>Hamiltonian</em>) – Hamiltonian in the spin representation</p></li>
+<li><p><strong>cluster_ops_sp</strong> (<em>list</em><em>[</em><em>Hamiltonian</em><em>]</em>) – list of spin cluster operators</p></li>
+<li><p><strong>hf_init_sp</strong> (<em>int</em>) – the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+“qat.fermion.transforms.record_integer”.</p></li>
+<li><p><strong>theta_current</strong> (<em>List&lt;float&gt;</em>) – the Parameters of the cluster operators</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res.value</strong> – the resulted energy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>

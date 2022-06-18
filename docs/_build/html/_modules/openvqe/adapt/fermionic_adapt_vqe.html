@@ -77,24 +77,61 @@
 <span class="kn">from</span> <span class="nn">..common_files.sorted_gradient</span> <span class="kn">import</span> <span class="n">value_without_0</span><span class="p">,</span> <span class="n">index_without_0</span><span class="p">,</span> <span class="n">abs_sort_desc</span><span class="p">,</span> <span class="n">corresponding_index</span>
 <span class="kn">from</span> <span class="nn">..common_files.circuit</span> <span class="kn">import</span> <span class="n">count</span>
 
-<div class="viewcode-block" id="prepare_state"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.prepare_state">[docs]</a><span class="k">def</span> <span class="nf">prepare_state</span><span class="p">(</span><span class="n">reference_ket</span><span class="p">,</span> <span class="n">spmat_ops</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+<div class="viewcode-block" id="prepare_adapt_state"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.prepare_adapt_state">[docs]</a><span class="k">def</span> <span class="nf">prepare_adapt_state</span><span class="p">(</span><span class="n">reference_ket</span><span class="p">,</span> <span class="n">spmat_ops</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the action of the matrix exponential of fermionic sparse operators (&quot;spmat_ops&quot;) on</span>
+<span class="sd">    the state initiated by &quot;reference_ket&quot;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    reference_ket: ndarray</span>
+<span class="sd">        the initial state</span>
+<span class="sd">    </span>
+<span class="sd">    spmat_ops: List&lt;transposable linear operator&gt;</span>
+<span class="sd">        the sparse fermionic operators</span>
+
+<span class="sd">    parameters: List&lt;float&gt;</span>
+<span class="sd">        list of parameters for the &quot;spmat_ops&quot;</span>
+<span class="sd">    </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    new_state: ndarray</span>
+<span class="sd">        the new state</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">new_state</span> <span class="o">=</span> <span class="n">reference_ket</span> <span class="o">*</span> <span class="mf">1.0</span>
-    <span class="n">g</span> <span class="o">=</span> <span class="n">spmat_ops</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">)):</span>
-        <span class="n">new_state</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm_multiply</span><span class="p">((</span><span class="n">parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">g</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="n">new_state</span><span class="p">)</span>
+        <span class="n">new_state</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">expm_multiply</span><span class="p">((</span><span class="n">parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">spmat_ops</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="n">new_state</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">new_state</span></div>
 
 
 <div class="viewcode-block" id="compute_gradient_i"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.compute_gradient_i">[docs]</a><span class="k">def</span> <span class="nf">compute_gradient_i</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">cluster_ops_sparse</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">sig</span><span class="p">):</span>
-    <span class="c1"># &quot;&quot;&quot;</span>
-    <span class="c1"># For a previously optimized state |n&gt;, compute the gradient g(k) of exp(c(k) A(k))|n&gt;</span>
-    <span class="c1"># g(k) = 2Real&lt;HA(k)&gt;</span>
-    <span class="c1"># Note - this assumes A(k) is an antihermitian operator. If this is not the case,</span>
-    <span class="c1"># the derived class should</span>
-    <span class="c1"># reimplement this function. Of course, also assumes H is hermitian</span>
-    <span class="c1"># v = current_state</span>
-    <span class="c1"># sig = H*v</span>
-    <span class="c1"># &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute analytically the gradient of the ith operator of &quot;cluster_ops_sparse&quot;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    i: int</span>
+<span class="sd">        the index of the fermionic operator for which the gradient is computed</span>
+<span class="sd">        </span>
+<span class="sd">    cluster_ops_sparse: List&lt;transposable linear operator&gt;</span>
+<span class="sd">        the sparse fermionic operators</span>
+
+<span class="sd">    v: ndarray</span>
+<span class="sd">        the current state</span>
+<span class="sd">    </span>
+<span class="sd">    sig: ndarray</span>
+<span class="sd">        the resultant of the dot product of a hamiltonian operator with the current state</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    gi: float</span>
+<span class="sd">        the gradient of the correponding fermionic operator</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">op_a</span> <span class="o">=</span> <span class="n">cluster_ops_sparse</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
     <span class="n">gi</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">op_a</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
     <span class="k">assert</span> <span class="n">gi</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -105,15 +142,45 @@
     <span class="k">return</span> <span class="n">gi</span></div>
 
 
-<div class="viewcode-block" id="return_gradient_list"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.return_gradient_list">[docs]</a><span class="k">def</span> <span class="nf">return_gradient_list</span><span class="p">(</span>
-    <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sparse</span><span class="p">,</span> <span class="n">hamiltonian_sparse</span><span class="p">,</span> <span class="n">curr_state</span>
+<div class="viewcode-block" id="return_gradient_list"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.return_gradient_list">[docs]</a><span class="k">def</span> <span class="nf">return_gradient_list</span><span class="p">(</span><span class="n">cluster_ops_sparse</span><span class="p">,</span> <span class="n">hamiltonian_sparse</span><span class="p">,</span> <span class="n">curr_state</span>
 <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute analytically the gradient for all fermionic cluster operators (&quot;cluster_ops_sparse&quot;).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    cluster_ops_sparse: List&lt;transposable linear operator&gt;</span>
+<span class="sd">        the sparse fermionic operators</span>
+
+<span class="sd">    hamiltonian_sparse: ndarray</span>
+<span class="sd">        the hamiltonian operator</span>
+<span class="sd">    </span>
+<span class="sd">    curr_state: ndarray</span>
+<span class="sd">        the current state</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    list_grad: List&lt;float&gt;</span>
+<span class="sd">        the gradients for all the fermionic cluster operators</span>
+<span class="sd">    </span>
+<span class="sd">    curr_norm: float</span>
+<span class="sd">        the magnitude of the gradients</span>
+<span class="sd">    </span>
+<span class="sd">    next_deriv: float</span>
+<span class="sd">        the maximum gradient (in absolute value)</span>
+<span class="sd">    </span>
+<span class="sd">    next_index: int</span>
+<span class="sd">        the index of the operator with maximum gradient</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="n">list_grad</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">curr_norm</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">next_deriv</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">next_index</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">sig</span> <span class="o">=</span> <span class="n">hamiltonian_sparse</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">curr_state</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">oi</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cluster_ops</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">oi</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cluster_ops_sparse</span><span class="p">)):</span>
         <span class="n">gi</span> <span class="o">=</span> <span class="n">compute_gradient_i</span><span class="p">(</span><span class="n">oi</span><span class="p">,</span> <span class="n">cluster_ops_sparse</span><span class="p">,</span> <span class="n">curr_state</span><span class="p">,</span> <span class="n">sig</span><span class="p">)</span>
         <span class="n">list_grad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">gi</span><span class="p">))</span>
         <span class="n">curr_norm</span> <span class="o">+=</span> <span class="n">gi</span> <span class="o">*</span> <span class="n">gi</span>
@@ -124,17 +191,42 @@
 
 
 <span class="c1"># create the function related to myADAPT-VQE:</span>
-<div class="viewcode-block" id="ucc_action"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.ucc_action">[docs]</a><span class="k">def</span> <span class="nf">ucc_action</span><span class="p">(</span><span class="n">hamiltonian_sp</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+<div class="viewcode-block" id="ucc_action"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.ucc_action">[docs]</a><span class="k">def</span> <span class="nf">ucc_action</span><span class="p">(</span><span class="n">hamiltonian_sp</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">theta_current</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    It maps the exponential of cluster operators (&quot;cluster_ops_sp&quot;) associated by their parameters (&quot;theta_current&quot;)</span>
+<span class="sd">    using the CNOTS-staircase method, which is done by &quot;build_ucc_ansatz&quot; which creates the circuit on the top of</span>
+<span class="sd">    the HF-state (&quot;hf_init_sp&quot;). Then, this function also calculates the expected value of the hamiltonian (&quot;hamiltonian_sp&quot;).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    hamiltonian_sp: Hamiltonian</span>
+<span class="sd">        Hamiltonian in the spin representation</span>
+
+<span class="sd">    cluster_ops_sp: list[Hamiltonian]</span>
+<span class="sd">        list of spin cluster operators</span>
+<span class="sd">    </span>
+<span class="sd">    hf_init_sp: int</span>
+<span class="sd">        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using</span>
+<span class="sd">        &quot;qat.fermion.transforms.record_integer&quot;.</span>
+<span class="sd">    </span>
+<span class="sd">    theta_current: List&lt;float&gt;</span>
+<span class="sd">        the Parameters of the cluster operators</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">        res.value: float</span>
+<span class="sd">            the resulted energy</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">qpu</span> <span class="o">=</span> <span class="n">get_default_qpu</span><span class="p">()</span>
     <span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">()</span>
     <span class="n">reg</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="n">hamiltonian_sp</span><span class="o">.</span><span class="n">nbqbits</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">n_term</span><span class="p">,</span> <span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">theta_term</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">theta</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">n_term</span><span class="p">,</span> <span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">theta_term</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">theta_current</span><span class="p">)):</span>
         <span class="n">init</span> <span class="o">=</span> <span class="n">hf_init_sp</span> <span class="k">if</span> <span class="n">n_term</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
         <span class="n">qprog</span> <span class="o">=</span> <span class="n">build_ucc_ansatz</span><span class="p">([</span><span class="n">term</span><span class="p">],</span> <span class="n">init</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">prog</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">qprog</span><span class="p">([</span><span class="n">theta_term</span><span class="p">]),</span> <span class="n">reg</span><span class="p">)</span>
     <span class="n">circ</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">to_circ</span><span class="p">()</span>
     <span class="n">res</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">circ</span><span class="o">.</span><span class="n">to_job</span><span class="p">(</span><span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;OBS&quot;</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="n">hamiltonian_sp</span><span class="p">))</span>
-    <span class="n">circ</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">hamiltonian_sp</span><span class="o">.</span><span class="n">nbqbits</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">value</span></div>
 
 
@@ -157,36 +249,85 @@
 
 
 <div class="viewcode-block" id="prepare_hf_state"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.prepare_hf_state">[docs]</a><span class="k">def</span> <span class="nf">prepare_hf_state</span><span class="p">(</span><span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    It constructs the Hartree-Fock state (ansatz)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    hf_init_sp: int</span>
+<span class="sd">        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using</span>
+<span class="sd">        &quot;qat.fermion.transforms.record_integer&quot;.</span>
+
+<span class="sd">    cluster_ops_sp: list[Hamiltonian]</span>
+<span class="sd">        list of spin cluster operators</span>
+<span class="sd">    </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">        circuit: qat.core.Circuit</span>
+<span class="sd">            the circuit representing the HF-state</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">()</span>
     <span class="n">nbqbits</span> <span class="o">=</span> <span class="n">cluster_ops_sp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nbqbits</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">)</span>
     <span class="n">ket_hf</span> <span class="o">=</span> <span class="n">binary_repr</span><span class="p">(</span><span class="n">hf_init_sp</span><span class="p">)</span>
     <span class="n">list_ket_hf</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ket_hf</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">ket_hf</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">list_ket_hf</span><span class="p">)</span>
     <span class="n">qb</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">)</span>
-    <span class="c1"># print(list_ket_hf)</span>
     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_ket_hf</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">prog</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">qb</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
     <span class="n">circuit</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">to_circ</span><span class="p">()</span>
-    <span class="n">qpu</span> <span class="o">=</span> <span class="n">get_default_qpu</span><span class="p">()</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">to_job</span><span class="p">())</span>
-    <span class="n">statevector</span> <span class="o">=</span> <span class="n">get_statevector</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">)</span>
-    <span class="n">vec</span> <span class="o">=</span> <span class="n">statevector</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;vec&quot;</span><span class="p">,</span> <span class="n">vec</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">circuit</span></div>
 
 
 <div class="viewcode-block" id="hf_energy"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.hf_energy">[docs]</a><span class="k">def</span> <span class="nf">hf_energy</span><span class="p">(</span><span class="n">hf_state</span><span class="p">,</span> <span class="n">hamiltonian_sp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the Hartee Fock energy</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    hf_state: qat.core.Circuit</span>
+<span class="sd">        the circuit representing the HF state</span>
+
+<span class="sd">    hamiltonian_sp: Hamiltonian</span>
+<span class="sd">        Hamiltonian in the spin representation</span>
+
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">        res.value: float</span>
+<span class="sd">            the resulted energy</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">qpu</span> <span class="o">=</span> <span class="n">get_default_qpu</span><span class="p">()</span>
-    <span class="n">circ</span> <span class="o">=</span> <span class="n">hf_state</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">circ</span><span class="o">.</span><span class="n">to_job</span><span class="p">(</span><span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;OBS&quot;</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="n">hamiltonian_sp</span><span class="p">))</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">hf_state</span><span class="o">.</span><span class="n">to_job</span><span class="p">(</span><span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;OBS&quot;</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="n">hamiltonian_sp</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">value</span></div>
 
 
 <div class="viewcode-block" id="commutators_calculations"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.commutators_calculations">[docs]</a><span class="k">def</span> <span class="nf">commutators_calculations</span><span class="p">(</span><span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">hamiltonian_sp</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Compute the commutator for the first time from &quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the commutators [cluster_ops_sp[i], hamiltonian_sp].</span>
+<span class="sd">    Note: it is under developement</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+
+<span class="sd">    cluster_ops_sp: list[Hamiltonian]</span>
+<span class="sd">        list of spin cluster operators</span>
+<span class="sd">    </span>
+<span class="sd">    hamiltonian_sp: Hamiltonian</span>
+<span class="sd">        Hamiltonian in the spin representation</span>
+<span class="sd">    </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    list_commutators: list&lt;float&gt;</span>
+<span class="sd">        list of the resulting commutators (gradients)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">list_commutators</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">oi</span> <span class="ow">in</span> <span class="n">cluster_ops_sp</span><span class="p">:</span>
         <span class="n">X</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span>
@@ -197,9 +338,33 @@
     <span class="k">return</span> <span class="n">list_commutators</span></div>
 
 
-<div class="viewcode-block" id="prepare_state_ansatz"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.prepare_state_ansatz">[docs]</a><span class="k">def</span> <span class="nf">prepare_state_ansatz</span><span class="p">(</span><span class="n">hamiltonian_sp</span><span class="p">,</span> <span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+<div class="viewcode-block" id="prepare_state_ansatz"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.prepare_state_ansatz">[docs]</a><span class="k">def</span> <span class="nf">prepare_state_ansatz</span><span class="p">(</span><span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    It constructs the trial wave function (ansatz) </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cluster_ops_sp: list[Hamiltonian]</span>
+<span class="sd">        list of spin cluster operators</span>
+<span class="sd">    </span>
+<span class="sd">    hf_init_sp: int</span>
+<span class="sd">        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using</span>
+<span class="sd">        &quot;qat.fermion.transforms.record_integer&quot;.</span>
+<span class="sd">    </span>
+<span class="sd">    parameters: List&lt;float&gt;</span>
+<span class="sd">        the Parameters for the trial wave function to be constructed</span>
+<span class="sd">    </span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">        curr_state: qat.core.Circuit</span>
+<span class="sd">            the circuit that represent the trial wave function</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">()</span>
-    <span class="n">reg</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="n">hamiltonian_sp</span><span class="o">.</span><span class="n">nbqbits</span><span class="p">)</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="n">cluster_ops_sp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nbqbits</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">n_term</span><span class="p">,</span> <span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">theta_term</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cluster_ops_sp</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)):</span>
         <span class="n">init</span> <span class="o">=</span> <span class="n">hf_init_sp</span> <span class="k">if</span> <span class="n">n_term</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
         <span class="n">qprog</span> <span class="o">=</span> <span class="n">build_ucc_ansatz</span><span class="p">([</span><span class="n">term</span><span class="p">],</span> <span class="n">init</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -210,15 +375,52 @@
 
 
 <div class="viewcode-block" id="get_statevector"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.get_statevector">[docs]</a><span class="k">def</span> <span class="nf">get_statevector</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
-    <span class="c1"># &quot;Get the statevector from the Result class:&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the statevector from the Result class</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    result: qat.core.BatchResult</span>
+<span class="sd">        the result of an executed job</span>
+<span class="sd">    </span>
+<span class="sd">    nbqbits: int</span>
+<span class="sd">        the number of qubits</span>
+<span class="sd">    </span>
+<span class="sd">    statevector: ndarray</span>
+<span class="sd">        the resulting statevector representation</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">statevector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="o">**</span><span class="n">nbqbits</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
         <span class="n">statevector</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">amplitude</span>
     <span class="k">return</span> <span class="n">statevector</span></div>
 
 
-<span class="c1">## check fidelity of the circuit:</span>
 <div class="viewcode-block" id="fun_fidelity"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.fun_fidelity">[docs]</a><span class="k">def</span> <span class="nf">fun_fidelity</span><span class="p">(</span><span class="n">circ</span><span class="p">,</span> <span class="n">eigenvalues</span><span class="p">,</span> <span class="n">eigenvectors</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks the fidelity between the resulted state and exact wave function</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    circ: qat.core.Circuit</span>
+<span class="sd">        the circuit corresponding to the resulted state</span>
+
+<span class="sd">    eigenvalues: ndarray</span>
+<span class="sd">        the eigen values of the hamiltonian</span>
+
+<span class="sd">    eigenvectors: ndarray</span>
+<span class="sd">        the eigen vectors of the hamiltonian</span>
+
+<span class="sd">    nbqbits: int</span>
+<span class="sd">        the number of qubits</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    fid: float</span>
+<span class="sd">        the fidelity</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ee</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">eigenvalues</span><span class="p">)]</span>
     <span class="n">qpu</span> <span class="o">=</span> <span class="n">get_default_qpu</span><span class="p">()</span>
     <span class="n">res</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">circ</span><span class="o">.</span><span class="n">to_job</span><span class="p">())</span>
@@ -235,7 +437,6 @@
 <span class="c1">#         threshold_needed = threshold_needed,</span>
 <span class="c1">#         max_external_iterations = max_external_iterations</span>
 <div class="viewcode-block" id="fermionic_adapt_vqe"><a class="viewcode-back" href="../../../adapt.html#openvqe.adapt.fermionic_adapt_vqe.fermionic_adapt_vqe">[docs]</a><span class="k">def</span> <span class="nf">fermionic_adapt_vqe</span><span class="p">(</span>
-    <span class="n">cluster_ops</span><span class="p">,</span>
     <span class="n">hamiltonian_sparse</span><span class="p">,</span>
     <span class="n">cluster_ops_sparse</span><span class="p">,</span>
     <span class="n">reference_ket</span><span class="p">,</span>
@@ -250,6 +451,68 @@
     <span class="n">threshold_needed</span><span class="p">,</span>
     <span class="n">max_external_iterations</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
 <span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Runs the loop of making fermionic adapt vqe found in this reference in section &quot;Results&quot;</span>
+<span class="sd">    Grimsley HR, Economou SE, Barnes E, Mayhall NJ. An adaptive variational algorithm for exact molecular simulations</span>
+<span class="sd">    on a quantum computer. Nature communications 2019; 10(1): 1-9.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    hamiltonian_sparse: ndarray</span>
+<span class="sd">        The sparse hamiltonian</span>
+<span class="sd">    </span>
+<span class="sd">    cluster_ops_sparse: List&lt;transposable linear operator&gt;</span>
+<span class="sd">        the sparse fermionic operators</span>
+
+<span class="sd">    reference_ket: ndarray</span>
+<span class="sd">        the initial state</span>
+<span class="sd">    </span>
+<span class="sd">    hamiltonian_sp: Hamiltonian</span>
+<span class="sd">        Hamiltonian in the spin representation</span>
+<span class="sd">    </span>
+<span class="sd">    cluster_ops_sp: list[Hamiltonian]</span>
+<span class="sd">        list of spin cluster operators</span>
+<span class="sd">    </span>
+<span class="sd">    hf_init_sp: int</span>
+<span class="sd">        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using</span>
+<span class="sd">        &quot;qat.fermion.transforms.record_integer&quot;.</span>
+<span class="sd">    </span>
+<span class="sd">    n_max_grads: int</span>
+<span class="sd">        the number of maximum gradients chosen per internal iteration</span>
+<span class="sd">    </span>
+<span class="sd">    fci: float</span>
+<span class="sd">        the full configuration interaction energy</span>
+<span class="sd">    </span>
+<span class="sd">    optimizer: string</span>
+<span class="sd">        the type of the optimizer</span>
+<span class="sd">    </span>
+<span class="sd">    tolerance: float</span>
+<span class="sd">        the tolerance for reaching convergence</span>
+<span class="sd">    </span>
+<span class="sd">    type_conver: string</span>
+<span class="sd">        in our case, &quot;norm&quot; is chosen</span>
+<span class="sd">    </span>
+<span class="sd">    threshold_needed: float</span>
+<span class="sd">        the norm threshold </span>
+
+<span class="sd">    max_external_iterations: int</span>
+<span class="sd">        the number of maximum iteration to perform the whole adaptive loop</span>
+<span class="sd">    </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    iterations: Dict</span>
+<span class="sd">        the following properties of the simulation: </span>
+<span class="sd">        energies, energies_substracted_from_FCI, norms, Max_gradients, fidelity, CNOTs, Hadamard, RY, and RX.</span>
+
+<span class="sd">    result: Dict</span>
+<span class="sd">        the following properties after convergence:</span>
+<span class="sd">        indices, Number_operators, final_norm, parameters, Number_CNOT_gates, Number_Hadamard_gates, Number_RX_gates, final_energy_last_iteration,</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">iterations</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;energies&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;energies_substracted_from_FCI&quot;</span><span class="p">:</span> <span class="p">[],</span>
@@ -273,10 +536,6 @@
     <span class="n">ansatz_mat</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># define a list which store the indices of the operators</span>
     <span class="n">op_indices</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c1"># use this list in case we need reversing the indices</span>
-    <span class="n">listreverse</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c1"># define a list parameters use open_fermion</span>
-    <span class="n">parameters_open_f</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># define a list to store parameters for the ansatz</span>
     <span class="n">parameters_ansatz</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># to see fidelity</span>
@@ -288,7 +547,6 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">ref_energy</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; The reference energy of the molecular system is: </span><span class="si">%12.8f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ref_energy</span><span class="p">)</span>
     <span class="n">curr_state</span> <span class="o">=</span> <span class="n">hf_state</span>
-    <span class="c1"># curr_state = prepare_state_ansatz(hamiltonian_sp,cluster_ops_sp, hf_init_sp, parameters_ansatz)</span>
     <span class="n">curr_state_open_f</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">reference_ket</span>
     <span class="n">prev_norm</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">for</span> <span class="n">n_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_external_iterations</span><span class="p">):</span>
@@ -303,7 +561,7 @@
         <span class="c1"># few commands to initialize at each new iteration</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Check gradient list chronological order&quot;</span><span class="p">)</span>
         <span class="n">list_grad</span><span class="p">,</span> <span class="n">curr_norm</span><span class="p">,</span> <span class="n">next_deriv</span><span class="p">,</span> <span class="n">next_index</span> <span class="o">=</span> <span class="n">return_gradient_list</span><span class="p">(</span>
-            <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">cluster_ops_sparse</span><span class="p">,</span> <span class="n">hamiltonian_sparse</span><span class="p">,</span> <span class="n">curr_state_open_f</span>
+            <span class="n">cluster_ops_sparse</span><span class="p">,</span> <span class="n">hamiltonian_sparse</span><span class="p">,</span> <span class="n">curr_state_open_f</span>
         <span class="p">)</span>
         <span class="n">sorted_mylist_value_without_0</span><span class="p">,</span> <span class="n">sorted_index</span> <span class="o">=</span> <span class="n">print_gradient_lists_and_indices</span><span class="p">(</span>
             <span class="n">list_grad</span>
@@ -355,24 +613,15 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_max_grads</span><span class="p">):</span>
             <span class="n">gamma1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chosen_batch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">curr_norm1</span><span class="p">)</span>
             <span class="n">sorted_index1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sorted_index</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-        <span class="c1">#         print(&#39;N_max_grads: &#39;, N_max_grads)</span>
-        <span class="c1">#         print(&#39;gamma1: &#39;, gamma1)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sorted_index1: &quot;</span><span class="p">,</span> <span class="n">sorted_index1</span><span class="p">)</span>
         <span class="c1"># there are two types of initial thetas: either zero, of from gamma_1 list</span>
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sorted_index1</span><span class="p">)):</span>
-            <span class="c1">#             parameters_ansatz.append(gamma1[j])</span>
-            <span class="c1">#             parameters_ansatz.append(0.0)</span>
             <span class="n">parameters_ansatz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
             <span class="c1"># for UCCSD: we must multiply by i</span>
             <span class="c1">#             ansatz_ops.append(cluster_ops_sp[sorted_index1[j]])</span>
             <span class="n">ansatz_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">complex</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">cluster_ops_sp</span><span class="p">[</span><span class="n">sorted_index1</span><span class="p">[</span><span class="n">j</span><span class="p">]])</span>
             <span class="n">op_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sorted_index1</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
             <span class="n">ansatz_mat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cluster_ops_sparse</span><span class="p">[</span><span class="n">sorted_index1</span><span class="p">[</span><span class="n">j</span><span class="p">]])</span>
-        <span class="c1">#         print(&#39;parameters_ansatz: &#39;, parameters_ansatz)</span>
-        <span class="c1">#         print(&#39;op_indices: &#39;, op_indices)</span>
-        <span class="c1">#         print(&#39;ansatz_mat: &#39;, ansatz_mat)</span>
-        <span class="c1">#         print(&#39;ansatz_ops: &#39;, ansatz_ops)</span>
-        <span class="c1"># print(&#39;cluster_ops_sparse: &#39;, cluster_ops_sparse)</span>
         <span class="c1"># minimize and optimize from simulator</span>
         <span class="n">opt_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">ucc_action</span><span class="p">(</span>
@@ -385,8 +634,6 @@
         <span class="p">)</span>
         <span class="n">xlist</span> <span class="o">=</span> <span class="n">opt_result</span><span class="o">.</span><span class="n">x</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Finished energy iteration_i: </span><span class="si">%20.12f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">opt_result</span><span class="o">.</span><span class="n">fun</span><span class="p">)</span>
-        <span class="c1">#         print(&#39;length of ansatz_ops&#39;, len(ansatz_ops))</span>
-        <span class="c1">#         print(&#39;length of xlist&#39;, len(xlist))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; -----------New ansatz created----------- &quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%4s</span><span class="s2"> </span><span class="se">\t</span><span class="si">%s</span><span class="s2"> </span><span class="se">\t</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;Coefficients&quot;</span><span class="p">,</span> <span class="s2">&quot;Term&quot;</span><span class="p">))</span>
         <span class="n">parameters_ansatz</span> <span class="o">=</span> <span class="p">[]</span>
@@ -394,10 +641,8 @@
         <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ansatz_ops</span><span class="p">)):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%4i</span><span class="s2"> </span><span class="se">\t</span><span class="si">%f</span><span class="s2"> </span><span class="se">\t</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">si</span><span class="p">,</span> <span class="n">xlist</span><span class="p">[</span><span class="n">si</span><span class="p">],</span> <span class="n">op_indices</span><span class="p">[</span><span class="n">si</span><span class="p">]))</span>
             <span class="n">parameters_ansatz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xlist</span><span class="p">[</span><span class="n">si</span><span class="p">])</span>
-        <span class="n">curr_state</span> <span class="o">=</span> <span class="n">prepare_state_ansatz</span><span class="p">(</span>
-            <span class="n">hamiltonian_sp</span><span class="p">,</span> <span class="n">ansatz_ops</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">parameters_ansatz</span>
-        <span class="p">)</span>
-        <span class="n">curr_state_open_f</span> <span class="o">=</span> <span class="n">prepare_state</span><span class="p">(</span><span class="n">reference_ket</span><span class="p">,</span> <span class="n">ansatz_mat</span><span class="p">,</span> <span class="n">parameters_ansatz</span><span class="p">)</span>
+        <span class="n">curr_state</span> <span class="o">=</span> <span class="n">prepare_state_ansatz</span><span class="p">(</span><span class="n">ansatz_ops</span><span class="p">,</span> <span class="n">hf_init_sp</span><span class="p">,</span> <span class="n">parameters_ansatz</span><span class="p">)</span>
+        <span class="n">curr_state_open_f</span> <span class="o">=</span> <span class="n">prepare_adapt_state</span><span class="p">(</span><span class="n">reference_ket</span><span class="p">,</span> <span class="n">ansatz_mat</span><span class="p">,</span> <span class="n">parameters_ansatz</span><span class="p">)</span>
         <span class="n">prev_norm</span> <span class="o">=</span> <span class="n">curr_norm</span>
         <span class="n">gates</span> <span class="o">=</span> <span class="n">curr_state</span><span class="o">.</span><span class="n">ops</span>
         <span class="n">cnot</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="s2">&quot;CNOT&quot;</span><span class="p">,</span> <span class="n">gates</span><span class="p">)</span>
@@ -414,9 +659,6 @@
         <span class="n">iterations</span><span class="p">[</span><span class="s2">&quot;RY&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ry</span><span class="p">)</span>
         <span class="n">iterations</span><span class="p">[</span><span class="s2">&quot;RX&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rx</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">iterations</span><span class="p">,</span> <span class="n">result</span></div>
-
-
-<span class="c1"># In[ ]:</span>
 </pre></div>
 
            </div>

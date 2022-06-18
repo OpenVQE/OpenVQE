@@ -9,6 +9,30 @@ from ..common_files.circuit import efficient_fermionic_ansatz, count
 
 class EnergyUCC:
     def action_quccsd(self, theta_0, hamiltonian_sp, cluster_ops, hf_init_sp):
+        """
+        It returns the energy from the qubit coupled cluster ansatz which are obtained from common_files.circuit
+
+        Parameters
+        ----------
+        theta_0: List<float>
+            the Parameters of the cluster operators
+        
+        hamiltonian_sp: Hamiltonian
+                Hamiltonian in the spin representation
+            
+        cluster_ops: list[Hamiltonian]
+            list of fermionic cluster operators
+        
+        hf_init_sp: int
+            the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+            "qat.fermion.transforms.record_integer".
+        
+        Returns
+        --------
+            res.value: float
+                the resulted energy
+
+        """
         qpu = 0
         prog = 0
         prog = Program()
@@ -31,6 +55,26 @@ class EnergyUCC:
         return res.value
 
     def prepare_hf_state(self, hf_init_sp, cluster_ops_sp):
+        """
+        It constructs the Hartree-Fock state (ansatz)
+
+        Parameters
+        ----------
+
+        hf_init_sp: int
+            the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+            "qat.fermion.transforms.record_integer".
+
+        cluster_ops_sp: list[Hamiltonian]
+            list of spin cluster operators
+        
+
+        Returns
+        --------
+            circuit: qat.core.Circuit
+                the circuit representing the HF-state
+        
+        """
         prog = Program()
         nbqbits = cluster_ops_sp[0].nbqbits
         ket_hf = binary_repr(hf_init_sp)
@@ -44,6 +88,32 @@ class EnergyUCC:
         return circuit
 
     def prepare_state_ansatz(self, hamiltonian_sp, hf_init_sp, cluster_ops, theta):
+        """
+        It constructs the "qubit coupled cluster" trial wave function (ansatz) 
+
+        Parameters
+        ----------
+        hamiltonian_sp: Hamiltonian
+                Hamiltonian in the spin representation
+            
+        cluster_ops: list[Hamiltonian]
+            list of fermionic cluster operators
+        
+        hf_init_sp: int
+            the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+            "qat.fermion.transforms.record_integer".
+        
+        theta: List<float>
+            the Parameters for the trial wave function to be constructed
+        
+
+
+        Returns
+        --------
+            curr_state: qat.core.Circuit
+                the circuit that represent the trial wave function
+        
+        """
         prog = Program()
         q = prog.qalloc(hamiltonian_sp.nbqbits)
         ket_hf = binary_repr(hf_init_sp)
@@ -66,12 +136,47 @@ class EnergyUCC:
         self,
         hamiltonian_sp,
         cluster_ops,
-        cluster_ops_sp,
         hf_init_sp,
         theta_current1,
         theta_current2,
         FCI,
     ):
+        """
+        It calls internally the functions "action_quccsd" and "prepare_state_ansatz", and uses scipy.optimize to
+        return the properties of 
+
+        Parameters
+        ----------
+        hamiltonian_sp: Hamiltonian
+                Hamiltonian in the spin representation
+            
+        cluster_ops: list[Hamiltonian]
+            list of fermionic cluster operators
+
+        hf_init_sp: int
+            the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
+            "qat.fermion.transforms.record_integer".
+        
+        theta_current1: List<float>
+            MP2 initial guess obtained from "qat.fermion.chemistry.ucc_deprecated.get_cluster_ops_and_init_guess"
+        
+        theta_current2: List<float>
+            fixed values (e.g. 0.0, 0.001, ...) or random values (random.uniform(0,1))
+        
+        FCI: float
+            the full configuration interaction energy (for any basis set)
+    
+        
+        Returns
+        --------
+            iterations: Dict
+                the minimum energy and the optimized parameters
+            
+            result: Dict
+                the number of CNOT gates, the number of operators/parameters, and the substraction of the optimized energy from fci.
+        
+        """
+
         iterations = {
             "minimum_energy_result1_guess": [],
             "minimum_energy_result2_guess": [],
