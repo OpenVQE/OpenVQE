@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>openvqe.common_files.qubit_pool &mdash; OpenVQE 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OpenVQE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started with OpenVQE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../openvqe.html">openvqe modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenVQE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>openvqe.common_files.qubit_pool</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for openvqe.common_files.qubit_pool</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">qat.core</span> <span class="kn">import</span> <span class="n">Term</span>
+<span class="kn">from</span> <span class="nn">qat.fermion.transforms</span> <span class="kn">import</span> <span class="n">transform_to_jw_basis</span>
+<span class="kn">from</span> <span class="nn">qat.fermion</span> <span class="kn">import</span> <span class="n">Hamiltonian</span>
+
+
+<div class="viewcode-block" id="QubitPool"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool">[docs]</a><span class="k">class</span> <span class="nc">QubitPool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class contains functions that are responsible for generating the qubit cluster operators in a pool</span>
+<span class="sd">    from two main functions: &#39;generate_pool_from_cluster&#39; and &#39;generate_pool_without_cluster&#39;.</span>
+<span class="sd">    The first function takes as parameters the pool name and return the pool with its size.</span>
+<span class="sd">    The pools that are accessible for the user are as follows: full, full_without_Z and reduced_without_Z.</span>
+<span class="sd">    However the function generate_pool_without_cluster() takes as parameters the type of pool, pool generated from cluster operators and returns</span>
+<span class="sd">    the pool with its size. The type of pool that are considered as options for the user are as follows:</span>
+<span class="sd">    - YXXX</span>
+<span class="sd">    - XYXX</span>
+<span class="sd">    - XXYX</span>
+<span class="sd">    - XXXY</span>
+<span class="sd">    - random</span>
+<span class="sd">    - two</span>
+<span class="sd">    - four</span>
+<span class="sd">    - eight</span>
+<span class="sd">    - without_Z_from_generator</span>
+<span class="sd">    - minimal</span>
+<span class="sd">    - pure_with_symmetry </span>
+<span class="sd">    Note that the other functions in this class are helper functions.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="QubitPool.generate_pool"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_pool">[docs]</a>    <span class="k">def</span> <span class="nf">generate_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate the qubitPool from cluster_ops which is equivalent to getting cluster_ops_sp</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cluster_ops: list[Hamiltonian]</span>
+<span class="sd">            list of fermionic cluster operators        </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        qubit_pool: list[Hamiltonian]</span>
+<span class="sd">            list of spin cluster operators    </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qubit_pool</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cluster_ops</span><span class="p">:</span>
+            <span class="n">qubit_op</span> <span class="o">=</span> <span class="n">transform_to_jw_basis</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">qubit_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qubit_op</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">qubit_pool</span></div>
+
+    
+<div class="viewcode-block" id="QubitPool.extract_terms"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.extract_terms">[docs]</a>    <span class="k">def</span> <span class="nf">extract_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit_pool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract terms from qubitPool such as Pauli strings and number of qbits.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        qubit_pool: list[Hamiltonian]</span>
+<span class="sd">            list of spin cluster operators  </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        terms: list[string]</span>
+<span class="sd">            list of extracted terms for each cluster operator </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">terms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">qubit_op</span> <span class="ow">in</span> <span class="n">qubit_pool</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">qubit_op</span><span class="o">.</span><span class="n">terms</span><span class="p">:</span>
+                <span class="n">term_letters</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">op</span>
+                <span class="n">term_qbits</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">qbits</span>
+                <span class="n">term_temp</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span>
+                <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">term_letters</span><span class="p">)):</span>
+                    <span class="n">term_temp</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">term_letters</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">term_qbits</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+                <span class="n">term_temp</span> <span class="o">=</span> <span class="n">term_temp</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">term_temp</span> <span class="o">+=</span> <span class="s2">&quot;]&quot;</span>
+                <span class="k">if</span> <span class="n">term_temp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+                    <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">term_temp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">terms</span></div>
+
+    
+<div class="viewcode-block" id="QubitPool.extract_qubits_operators"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.extract_qubits_operators">[docs]</a>    <span class="k">def</span> <span class="nf">extract_qubits_operators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">terms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get the qubits and the operators from the terms</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        terms: list[string]</span>
+<span class="sd">            list of terms for each cluster operator</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        list_digits: List&lt;List&lt;int&gt;&gt;</span>
+<span class="sd">            Extracted digits for each term</span>
+
+<span class="sd">        list_letters: List&lt;List&lt;string&gt;&gt;</span>
+<span class="sd">            Extracted letters for each term</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">list_digits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">list_letters</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+            <span class="n">digits</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">letters</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">char_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">term</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                    <span class="n">two_digits</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">],</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">two_digits</span><span class="p">))</span>
+
+                <span class="k">elif</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                    <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]))</span>
+                <span class="k">elif</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                    <span class="n">letters</span> <span class="o">+=</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span>
+            <span class="n">list_digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span>
+            <span class="n">list_letters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">letters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">list_digits</span><span class="p">,</span> <span class="n">list_letters</span></div>
+
+    
+<div class="viewcode-block" id="QubitPool.terms_to_hamiltonian"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.terms_to_hamiltonian">[docs]</a>    <span class="k">def</span> <span class="nf">terms_to_hamiltonian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        transform the qubits and terms to hamiltonian operators, which is the accepted input format for</span>
+<span class="sd">        generator excitations.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        terms: list[string]</span>
+<span class="sd">            list of terms for each cluster operator</span>
+<span class="sd">        </span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        list_hamiltonian: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">list_digits</span><span class="p">,</span> <span class="n">list_letters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_qubits_operators</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
+        <span class="n">list_hamiltonian</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_digits</span><span class="p">)):</span>
+            <span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">list_letters</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">list_digits</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="n">list_hamiltonian</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">list_hamiltonian</span></div>
+
+<div class="viewcode-block" id="QubitPool.extract_qubits_operators_without_z"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.extract_qubits_operators_without_z">[docs]</a>    <span class="k">def</span> <span class="nf">extract_qubits_operators_without_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">terms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        same as &#39;extract_qubits_operators&#39; but ommiting the Z Pauli terms</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        terms: list[string]</span>
+<span class="sd">            list of terms for each cluster operator</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        list_digits: List&lt;List&lt;int&gt;&gt;</span>
+<span class="sd">            Extracted digits for each term</span>
+
+<span class="sd">        list_letters: List&lt;List&lt;string&gt;&gt;</span>
+<span class="sd">            Extracted letters for each term</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">list_digits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">list_letters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+            <span class="n">digits</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">letters</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">char_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">term</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                    <span class="n">two_digits</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">],</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
+                        <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">continue</span>
+                    <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">two_digits</span><span class="p">))</span>
+
+                <span class="k">elif</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
+                        <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">continue</span>
+                    <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]))</span>
+                <span class="k">elif</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+                        <span class="n">skip</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">continue</span>
+                    <span class="n">letters</span> <span class="o">+=</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span>
+            <span class="n">list_digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span>
+            <span class="n">list_letters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">letters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">list_digits</span><span class="p">,</span> <span class="n">list_letters</span></div>
+
+<div class="viewcode-block" id="QubitPool.extract_terms_without_z"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.extract_terms_without_z">[docs]</a>    <span class="k">def</span> <span class="nf">extract_terms_without_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">terms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Omits all the Z Pauli terms.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        terms: list[string]</span>
+<span class="sd">            list of extracted terms for each cluster operator </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        terms: list[string]</span>
+<span class="sd">            list of extracted terms for each cluster operator with Z Pauli terms omitted</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">list_digits</span><span class="p">,</span> <span class="n">list_letters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_qubits_operators_without_z</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
+        <span class="n">terms_z</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_digits</span><span class="p">)):</span>
+            <span class="n">term_temp</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span>
+            <span class="k">for</span> <span class="n">letter</span> <span class="ow">in</span> <span class="n">list_letters</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+
+                <span class="n">term_temp</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">letter</span><span class="p">,</span> <span class="n">list_digits</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">index</span><span class="p">])</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">term_temp</span> <span class="o">=</span> <span class="n">term_temp</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">term_temp</span> <span class="o">+=</span> <span class="s2">&quot;]&quot;</span>
+            <span class="k">if</span> <span class="n">term_temp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">terms_z</span><span class="p">:</span>
+                <span class="n">terms_z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">term_temp</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">terms_z</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">terms_z</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">terms_z</span></div>
+
+
+    
+<div class="viewcode-block" id="QubitPool.generate_reduced_qubit_pool"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_reduced_qubit_pool">[docs]</a>    <span class="k">def</span> <span class="nf">generate_reduced_qubit_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate the qubit pools discarding the Z-string responsible for the anticommutation of fermions</span>
+<span class="sd">        and only keeping the first string acting on each set of spin orbitals</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        terms: list[string]</span>
+<span class="sd">            list of terms for each cluster operator</span>
+<span class="sd">        </span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        list_hamiltonian: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">list_digits</span><span class="p">,</span> <span class="n">list_letters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_qubits_operators</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
+        <span class="c1">## Reduced Qubit pool</span>
+        <span class="n">reduced_qubit_pool</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">included</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_digits</span><span class="p">)):</span>
+            <span class="n">operators</span> <span class="o">=</span> <span class="n">list_letters</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">qubits</span> <span class="o">=</span> <span class="n">list_digits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">digits</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_digits</span><span class="p">[</span><span class="n">i</span><span class="p">])):</span>
+                <span class="n">operator</span> <span class="o">=</span> <span class="n">operators</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">qubit</span> <span class="o">=</span> <span class="n">qubits</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">operator</span> <span class="o">!=</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+                    <span class="n">terms</span> <span class="o">+=</span> <span class="n">operator</span>
+                    <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span>
+                    <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span>
+
+            <span class="n">new_operator_hamiltonian</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)])</span>
+            <span class="k">if</span> <span class="n">indices</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">included</span><span class="p">:</span>
+                <span class="n">reduced_qubit_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_operator_hamiltonian</span><span class="p">)</span>
+                <span class="n">included</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">reduced_qubit_pool</span></div>
+
+    <span class="c1">############### POOLS ####################</span>
+    <span class="c1"># generate YXXX pool</span>
+<div class="viewcode-block" id="QubitPool.generate_yxxx_pool"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_yxxx_pool">[docs]</a>    <span class="k">def</span> <span class="nf">generate_yxxx_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate the qubit pools containing the YXXX string with parity sum conditions.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of YXXX operators in a pool</span>
+
+<span class="sd">        yxxx_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">yxxx_pool</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">parity</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;YX&quot;</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+                <span class="n">yxxx_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)]))</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="n">paritySum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">d</span> <span class="o">%</span> <span class="mi">2</span>
+
+            <span class="k">if</span> <span class="n">paritySum</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;YXXX&quot;</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                <span class="n">yxxx_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)]))</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">yxxx_pool</span><span class="p">),</span> <span class="n">yxxx_pool</span></div>
+
+    <span class="c1"># generate XYXX pool</span>
+<div class="viewcode-block" id="QubitPool.generate_xyxx_pool"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_xyxx_pool">[docs]</a>    <span class="k">def</span> <span class="nf">generate_xyxx_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate the qubit pools containing the XYXX string with parity sum conditions.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of XYXX operators in a pool</span>
+
+<span class="sd">        xyxx_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">xyxx_pool</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">parity</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span>
+            <span class="c1"># print(a, b)</span>
+            <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;YX&quot;</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+                <span class="n">xyxx_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)]))</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="n">paritySum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">d</span> <span class="o">%</span> <span class="mi">2</span>
+
+            <span class="k">if</span> <span class="n">paritySum</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;XYXX&quot;</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                <span class="n">xyxx_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)]))</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">xyxx_pool</span><span class="p">),</span> <span class="n">xyxx_pool</span></div>
+
+    <span class="c1"># generate XXYX pool</span>
+<div class="viewcode-block" id="QubitPool.generate_xxyx_pool"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_xxyx_pool">[docs]</a>    <span class="k">def</span> <span class="nf">generate_xxyx_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate the qubit pools containing the XXYX string with parity sum conditions.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of XXYX operators in a pool</span>
+
+<span class="sd">        xxyx_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">xxyx_pool</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">parity</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span>
+            <span class="c1"># print(a, b)</span>
+            <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># yxxxPool.append(QubitOperator(((a, &#39;Y&#39;), (b, &#39;X&#39;)), 1j))</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;YX&quot;</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+                <span class="n">xxyx_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)]))</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="n">paritySum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">d</span> <span class="o">%</span> <span class="mi">2</span>
+
+            <span class="k">if</span> <span class="n">paritySum</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;XXYX&quot;</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                <span class="n">xxyx_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)]))</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">xxyx_pool</span><span class="p">),</span> <span class="n">xxyx_pool</span></div>
+
+    <span class="c1"># generate XXXY pool</span>
+<div class="viewcode-block" id="QubitPool.generate_xxxy_pool"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_xxxy_pool">[docs]</a>    <span class="k">def</span> <span class="nf">generate_xxxy_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate the qubit pools containing the XXXY string with parity sum conditions.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of XXXY operators in a pool</span>
+
+<span class="sd">        xxxy_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">xxxy_pool</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">parity</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span>
+            <span class="c1"># print(a, b)</span>
+            <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># yxxxPool.append(QubitOperator(((a, &#39;Y&#39;), (b, &#39;X&#39;)), 1j))</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;YX&quot;</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+                <span class="n">xxxy_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)]))</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="n">paritySum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">d</span> <span class="o">%</span> <span class="mi">2</span>
+
+            <span class="k">if</span> <span class="n">paritySum</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;XXXY&quot;</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                <span class="n">xxxy_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)]))</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">xxxy_pool</span><span class="p">),</span> <span class="n">xxxy_pool</span></div>
+
+    <span class="c1"># generate random pool</span>
+<div class="viewcode-block" id="QubitPool.generate_random_pool"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_random_pool">[docs]</a>    <span class="k">def</span> <span class="nf">generate_random_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yxxx_pool</span><span class="p">,</span> <span class="n">xyxx_pool</span><span class="p">,</span> <span class="n">xxyx_pool</span><span class="p">,</span> <span class="n">xxxy_pool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate randomly chosen qubit pools from YXXX, XYXX, XXYX, and XXXY pools</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        yxxx_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of YXXX spin cluster operators </span>
+<span class="sd">        </span>
+<span class="sd">        xyxx_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of XYXX spin cluster operators </span>
+
+<span class="sd">        xxyx_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of XXYX spin cluster operators </span>
+
+<span class="sd">        xxxy_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of XXXY spin cluster operators </span>
+
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of operators in the randomly generated pool</span>
+
+<span class="sd">        random_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of the randomly chosen spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">random_pool</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">string_options</span> <span class="o">=</span> <span class="p">[</span><span class="n">yxxx_pool</span><span class="p">,</span> <span class="n">xyxx_pool</span><span class="p">,</span> <span class="n">xxyx_pool</span><span class="p">,</span> <span class="n">xxxy_pool</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xxxy_pool</span><span class="p">)):</span>
+            <span class="n">chosen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">random_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string_options</span><span class="p">[</span><span class="n">chosen</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">random_pool</span><span class="p">),</span> <span class="n">random_pool</span></div>
+
+    <span class="c1">############# TWO FOUR EIGHT POOLS ###############</span>
+
+    <span class="c1"># generate two pools</span>
+<div class="viewcode-block" id="QubitPool.generate_two_pools"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_two_pools">[docs]</a>    <span class="k">def</span> <span class="nf">generate_two_pools</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate the list of qubit pool operators where each operator is a sum of two Pauli strings</span>
+<span class="sd">        associated with their qubit digits with parity conditions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of two-pool operators</span>
+
+<span class="sd">        two_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">base_string</span> <span class="o">=</span> <span class="s2">&quot;XXYX&quot;</span>
+
+        <span class="n">op1</span> <span class="o">=</span> <span class="n">base_string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">op2</span> <span class="o">=</span> <span class="n">base_string</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">op3</span> <span class="o">=</span> <span class="n">base_string</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">op4</span> <span class="o">=</span> <span class="n">base_string</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="n">two_pool</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">parity</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span>
+
+            <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;YX&quot;</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+                <span class="n">operator</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)])</span>
+                <span class="n">terms_z</span> <span class="o">=</span> <span class="s2">&quot;ZZ&quot;</span>
+                <span class="n">digits_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+
+                <span class="n">terms_empty</span> <span class="o">=</span> <span class="s2">&quot;II&quot;</span>
+                <span class="n">digits_empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                    <span class="n">nbqbits</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="n">Term</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_empty</span><span class="p">,</span> <span class="n">digits_empty</span><span class="p">),</span>
+                        <span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_z</span><span class="p">,</span> <span class="n">digits_z</span><span class="p">),</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+                <span class="n">two_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operator</span> <span class="o">*</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="n">parity_sum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">d</span> <span class="o">%</span> <span class="mi">2</span>
+
+            <span class="k">if</span> <span class="n">parity_sum</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="n">op1</span> <span class="o">+</span> <span class="n">op2</span> <span class="o">+</span> <span class="n">op3</span> <span class="o">+</span> <span class="n">op4</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                <span class="n">operator</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)])</span>
+                <span class="n">terms_empty</span> <span class="o">=</span> <span class="s2">&quot;IIII&quot;</span>
+                <span class="n">digits_empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                <span class="n">terms_z</span> <span class="o">=</span> <span class="s2">&quot;ZZZZ&quot;</span>
+                <span class="n">digits_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                    <span class="n">nbqbits</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="n">Term</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_empty</span><span class="p">,</span> <span class="n">digits_empty</span><span class="p">),</span>
+                        <span class="n">Term</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_z</span><span class="p">,</span> <span class="n">digits_z</span><span class="p">),</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+                <span class="n">two_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operator</span> <span class="o">*</span> <span class="n">z</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">two_pool</span><span class="p">),</span> <span class="n">two_pool</span></div>
+
+    <span class="c1"># generate four pools</span>
+<div class="viewcode-block" id="QubitPool.generate_four_pools"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_four_pools">[docs]</a>    <span class="k">def</span> <span class="nf">generate_four_pools</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate the list of qubit pool operators where each operator is a sum of four Pauli strings</span>
+<span class="sd">        associated with their qubit digits with parity conditions.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of four-pool operators</span>
+
+<span class="sd">        four_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">base_string</span> <span class="o">=</span> <span class="s2">&quot;XXYX&quot;</span>
+
+        <span class="n">op1</span> <span class="o">=</span> <span class="n">base_string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">op2</span> <span class="o">=</span> <span class="n">base_string</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">op3</span> <span class="o">=</span> <span class="n">base_string</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">op4</span> <span class="o">=</span> <span class="n">base_string</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="n">four_pool</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">parity</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;YX&quot;</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+                <span class="n">operator</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)])</span>
+                <span class="n">terms_z</span> <span class="o">=</span> <span class="s2">&quot;ZZ&quot;</span>
+                <span class="n">digits_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+                <span class="n">terms_empty</span> <span class="o">=</span> <span class="s2">&quot;II&quot;</span>
+                <span class="n">digits_empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                    <span class="n">nbqbits</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_empty</span><span class="p">,</span> <span class="n">digits_empty</span><span class="p">),</span>
+                        <span class="n">Term</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_z</span><span class="p">,</span> <span class="n">digits_z</span><span class="p">),</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+
+                <span class="n">four_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operator</span> <span class="o">*</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">),</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="n">parity_sum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">d</span> <span class="o">%</span> <span class="mi">2</span>
+
+            <span class="k">if</span> <span class="n">parity_sum</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="n">op1</span> <span class="o">+</span> <span class="n">op2</span> <span class="o">+</span> <span class="n">op3</span> <span class="o">+</span> <span class="n">op4</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                <span class="n">operator</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">digits</span><span class="p">)])</span>
+
+                <span class="n">terms_empty</span> <span class="o">=</span> <span class="s2">&quot;II&quot;</span>
+                <span class="n">digits_empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+                <span class="n">terms_z</span> <span class="o">=</span> <span class="s2">&quot;ZZZZ&quot;</span>
+                <span class="n">digits_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                <span class="n">z1</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                    <span class="n">nbqbits</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_empty</span><span class="p">,</span> <span class="n">digits_empty</span><span class="p">),</span>
+                        <span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_z</span><span class="p">,</span> <span class="n">digits_z</span><span class="p">),</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                if (a % 2 == b % 2):</span>
+<span class="sd">                  # aabb, bbaa, aaaa, bbbb</span>
+<span class="sd">                  z2 = QubitOperator(()) - QubitOperator((             (c,&#39;Z&#39;),(d,&#39;Z&#39;)))</span>
+
+<span class="sd">                elif (a % 2 == c % 2):</span>
+<span class="sd">                  # abab, baba</span>
+<span class="sd">                  z2 = QubitOperator(()) - QubitOperator((        (b,&#39;Z&#39;),     (d,&#39;Z&#39;)))</span>
+
+<span class="sd">                else:</span>
+<span class="sd">                  # abba, baab</span>
+<span class="sd">                  z2 = QubitOperator(()) - QubitOperator(((a,&#39;Z&#39;),             (d,&#39;Z&#39;)))</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+
+                <span class="k">if</span> <span class="n">a</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">d</span> <span class="o">%</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="c1"># aaaa, bbbb</span>
+                    <span class="n">terms_z</span> <span class="o">=</span> <span class="s2">&quot;ZZ&quot;</span>
+                    <span class="n">digits_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">terms_empty</span> <span class="o">=</span> <span class="s2">&quot;II&quot;</span>
+                    <span class="n">digits_empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">z2</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                        <span class="n">nbqbits</span><span class="p">,</span>
+                        <span class="p">[</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_empty</span><span class="p">,</span> <span class="n">digits_empty</span><span class="p">),</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_z</span><span class="p">,</span> <span class="n">digits_z</span><span class="p">),</span>
+                        <span class="p">],</span>
+                    <span class="p">)</span>
+                    <span class="n">four_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operator</span> <span class="o">*</span> <span class="n">z1</span> <span class="o">*</span> <span class="n">z2</span><span class="p">)</span>
+                    <span class="n">digits_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">digits_empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">z2</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                        <span class="n">nbqbits</span><span class="p">,</span>
+                        <span class="p">[</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_empty</span><span class="p">,</span> <span class="n">digits_empty</span><span class="p">),</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_z</span><span class="p">,</span> <span class="n">digits_z</span><span class="p">),</span>
+                        <span class="p">],</span>
+                    <span class="p">)</span>
+                    <span class="n">four_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operator</span> <span class="o">*</span> <span class="n">z1</span> <span class="o">*</span> <span class="n">z2</span><span class="p">)</span>
+                    <span class="n">digits_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">digits_empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">z2</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                        <span class="n">nbqbits</span><span class="p">,</span>
+                        <span class="p">[</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_empty</span><span class="p">,</span> <span class="n">digits_empty</span><span class="p">),</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_z</span><span class="p">,</span> <span class="n">digits_z</span><span class="p">),</span>
+                        <span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">a</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">terms_z</span> <span class="o">=</span> <span class="s2">&quot;ZZ&quot;</span>
+                    <span class="n">digits_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">terms_empty</span> <span class="o">=</span> <span class="s2">&quot;II&quot;</span>
+                    <span class="n">digits_empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">z2</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                        <span class="n">nbqbits</span><span class="p">,</span>
+                        <span class="p">[</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_empty</span><span class="p">,</span> <span class="n">digits_empty</span><span class="p">),</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_z</span><span class="p">,</span> <span class="n">digits_z</span><span class="p">),</span>
+                        <span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="c1"># aabb, bbaa</span>
+                <span class="k">elif</span> <span class="n">a</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">terms_z</span> <span class="o">=</span> <span class="s2">&quot;ZZ&quot;</span>
+                    <span class="n">digits_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">terms_empty</span> <span class="o">=</span> <span class="s2">&quot;II&quot;</span>
+                    <span class="n">digits_empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">z2</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                        <span class="n">nbqbits</span><span class="p">,</span>
+                        <span class="p">[</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_empty</span><span class="p">,</span> <span class="n">digits_empty</span><span class="p">),</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_z</span><span class="p">,</span> <span class="n">digits_z</span><span class="p">),</span>
+                        <span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># abba, baab</span>
+                    <span class="n">terms_z</span> <span class="o">=</span> <span class="s2">&quot;ZZ&quot;</span>
+                    <span class="n">digits_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">terms_empty</span> <span class="o">=</span> <span class="s2">&quot;II&quot;</span>
+                    <span class="n">digits_empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span>
+                    <span class="n">z2</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                        <span class="n">nbqbits</span><span class="p">,</span>
+                        <span class="p">[</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_empty</span><span class="p">,</span> <span class="n">digits_empty</span><span class="p">),</span>
+                            <span class="n">Term</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">terms_z</span><span class="p">,</span> <span class="n">digits_z</span><span class="p">),</span>
+                        <span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="n">four_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operator</span> <span class="o">*</span> <span class="n">z1</span> <span class="o">*</span> <span class="n">z2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">four_pool</span><span class="p">),</span> <span class="n">four_pool</span></div>
+
+    <span class="c1"># extract the terms grouped by Hamiltonian groups with their coeffs</span>
+<div class="viewcode-block" id="QubitPool.extract_terms_with_coeff"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.extract_terms_with_coeff">[docs]</a>    <span class="k">def</span> <span class="nf">extract_terms_with_coeff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit_pool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sometimes we have coefficients like MP2 pre-screening parameters are needed.</span>
+<span class="sd">        So in this function, we extract from the qubit pool the terms with their associated parameters.</span>
+
+<span class="sd">                </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        qubit_pool: list[Hamiltonian]</span>
+<span class="sd">            list of spin cluster operators  </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        list_terms: list[any]</span>
+<span class="sd">            list of extracted terms for each cluster operator </span>
+<span class="sd">        </span>
+<span class="sd">        list_coeffs: list[list[floats]]</span>
+<span class="sd">            list of associated coefficients</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">list_terms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">list_coeffs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">qubit_op</span> <span class="ow">in</span> <span class="n">qubit_pool</span><span class="p">:</span>
+            <span class="n">terms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="n">coeffs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">qubit_op</span><span class="o">.</span><span class="n">terms</span><span class="p">:</span>
+                <span class="n">term_letters</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">op</span>
+                <span class="n">term_qbits</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">qbits</span>
+                <span class="k">if</span> <span class="n">term</span><span class="o">.</span><span class="n">_coeff</span><span class="o">.</span><span class="n">complex_p</span><span class="o">.</span><span class="n">re</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">term_coeff</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">_coeff</span><span class="o">.</span><span class="n">complex_p</span><span class="o">.</span><span class="n">im</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">term_coeff</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">_coeff</span><span class="o">.</span><span class="n">complex_p</span><span class="o">.</span><span class="n">re</span>
+                <span class="n">coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">term_coeff</span><span class="p">)</span>
+                <span class="n">term_temp</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span>
+                <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">term_letters</span><span class="p">)):</span>
+                    <span class="n">term_temp</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">term_letters</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">term_qbits</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+                <span class="n">term_temp</span> <span class="o">=</span> <span class="n">term_temp</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">term_temp</span> <span class="o">+=</span> <span class="s2">&quot;]&quot;</span>
+                <span class="k">if</span> <span class="n">term_temp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+                    <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">term_temp</span><span class="p">)</span>
+            <span class="n">list_terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
+            <span class="n">list_coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">list_terms</span><span class="p">,</span> <span class="n">list_coeffs</span></div>
+
+    
+<div class="viewcode-block" id="QubitPool.extract_list_qubits_operators"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.extract_list_qubits_operators">[docs]</a>    <span class="k">def</span> <span class="nf">extract_list_qubits_operators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_terms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        extract the qubits and operators from the lists and keep them grouped together as they were in</span>
+<span class="sd">        the original Hamiltonian objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        list_terms: List[Any]</span>
+<span class="sd">            list of extracted terms for each cluster operator </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        list_list_digits: List[List[int]]</span>
+<span class="sd">            Extracted digits for each term</span>
+
+<span class="sd">        list_list_letters: List[List[string]]</span>
+<span class="sd">            Extracted letters for each term</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">list_list_digits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">list_list_letters</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">terms</span> <span class="ow">in</span> <span class="n">list_terms</span><span class="p">:</span>
+            <span class="n">list_digits</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">list_letters</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+                <span class="n">digits</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">letters</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">for</span> <span class="n">char_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">term</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                        <span class="n">two_digits</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">],</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                        <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">two_digits</span><span class="p">))</span>
+
+                    <span class="k">elif</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                        <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]))</span>
+                    <span class="k">elif</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                        <span class="n">letters</span> <span class="o">+=</span> <span class="n">term</span><span class="p">[</span><span class="n">char_ind</span><span class="p">]</span>
+                <span class="n">list_digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span>
+                <span class="n">list_letters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">letters</span><span class="p">)</span>
+            <span class="n">list_list_digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">list_digits</span><span class="p">)</span>
+            <span class="n">list_list_letters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">list_letters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">list_list_digits</span><span class="p">,</span> <span class="n">list_list_letters</span></div>
+
+    <span class="c1"># generate eight pools</span>
+<div class="viewcode-block" id="QubitPool.generate_eight_pools"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_eight_pools">[docs]</a>    <span class="k">def</span> <span class="nf">generate_eight_pools</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">,</span> <span class="n">qubit_pool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate the list of qubit pool operators where each operator is a sum of eight Pauli strings</span>
+<span class="sd">        associated with their qubit digits with parity conditions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of eight-pool operators</span>
+
+<span class="sd">        eight_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        
+        <span class="n">eight_pool</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">list_terms</span><span class="p">,</span> <span class="n">list_coefs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_terms_with_coeff</span><span class="p">(</span><span class="n">qubit_pool</span><span class="p">)</span>
+        <span class="n">list_list_digits</span><span class="p">,</span> <span class="n">list_list_letters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_list_qubits_operators</span><span class="p">(</span>
+            <span class="n">list_terms</span>
+        <span class="p">)</span>
+        <span class="n">list_new_pauli</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">list_new_operators</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">list_digits</span><span class="p">,</span> <span class="n">list_letters</span><span class="p">,</span> <span class="n">coefs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">list_list_digits</span><span class="p">,</span> <span class="n">list_list_letters</span><span class="p">,</span> <span class="n">list_coefs</span>
+        <span class="p">):</span>
+            <span class="n">new_operator</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;II&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">nbqbits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">list_digits</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_digits</span><span class="p">)):</span>
+                <span class="n">coefficient</span> <span class="o">=</span> <span class="n">coefs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">qubit_append</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">operator_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="k">for</span> <span class="n">qubit</span><span class="p">,</span> <span class="n">operator</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">list_digits</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">list_letters</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">operator</span> <span class="o">!=</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+                        <span class="n">qubit_append</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span>
+                        <span class="n">operator_string</span> <span class="o">+=</span> <span class="n">operator</span>
+
+                <span class="n">new_pauli</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                    <span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">coefficient</span><span class="p">,</span> <span class="n">operator_string</span><span class="p">,</span> <span class="n">qubit_append</span><span class="p">)]</span>
+                <span class="p">)</span>
+                <span class="n">list_new_pauli</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_pauli</span><span class="p">)</span>
+                <span class="n">new_operator</span> <span class="o">+=</span> <span class="n">new_pauli</span>
+                <span class="n">list_new_operators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_operator</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">new_operator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">eight_pool</span> <span class="ow">and</span> <span class="o">-</span><span class="n">new_operator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">eight_pool</span><span class="p">:</span>
+                <span class="n">eight_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_operator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">eight_pool</span><span class="p">),</span> <span class="n">eight_pool</span></div>
+
+        <span class="c1"># generate eight pools</span>
+
+<div class="viewcode-block" id="QubitPool.generate_pool_without_z_from_generator"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_pool_without_z_from_generator">[docs]</a>    <span class="k">def</span> <span class="nf">generate_pool_without_z_from_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">,</span> <span class="n">qubit_pool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes the original Hamiltonian object and returns the Hamiltonian object without Z Pauli terms.</span>
+<span class="sd">        Note: each double fermionic operator after JW transformation gives eight operators composed of Pauli strings including Z term.</span>
+<span class="sd">        (This is a second version of generate_eight_pools)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+
+<span class="sd">        qubit_pool: list[Hamiltonian]</span>
+<span class="sd">            list of spin cluster operators  </span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of eight-pool operators</span>
+
+<span class="sd">        eight_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eight_pool</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">list_terms</span><span class="p">,</span> <span class="n">list_coefs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_terms_with_coeff</span><span class="p">(</span><span class="n">qubit_pool</span><span class="p">)</span>
+        <span class="n">list_list_digits</span><span class="p">,</span> <span class="n">list_list_letters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_list_qubits_operators</span><span class="p">(</span>
+            <span class="n">list_terms</span>
+        <span class="p">)</span>
+        <span class="n">list_new_pauli</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">list_new_operators</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">list_digits</span><span class="p">,</span> <span class="n">list_letters</span><span class="p">,</span> <span class="n">coefs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">list_list_digits</span><span class="p">,</span> <span class="n">list_list_letters</span><span class="p">,</span> <span class="n">list_coefs</span>
+        <span class="p">):</span>
+            <span class="n">new_operator</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;II&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">nbqbits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">list_digits</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_digits</span><span class="p">)):</span>
+                <span class="n">coefficient</span> <span class="o">=</span> <span class="n">coefs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">qubit_append</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">operator_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="k">for</span> <span class="n">qubit</span><span class="p">,</span> <span class="n">operator</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">list_digits</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">list_letters</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">operator</span> <span class="o">!=</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+                        <span class="n">qubit_append</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span>
+                        <span class="n">operator_string</span> <span class="o">+=</span> <span class="n">operator</span>
+                <span class="n">new_pauli</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                    <span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">coefficient</span><span class="p">,</span> <span class="n">operator_string</span><span class="p">,</span> <span class="n">qubit_append</span><span class="p">)]</span>
+                <span class="p">)</span>
+                <span class="n">list_new_pauli</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_pauli</span><span class="p">)</span>
+                <span class="n">new_operator</span> <span class="o">+=</span> <span class="n">new_pauli</span>
+                <span class="n">list_new_operators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_operator</span><span class="p">)</span>
+
+            <span class="n">eight_pool</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_operator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">eight_pool</span><span class="p">),</span> <span class="n">eight_pool</span></div>
+
+    <span class="c1"># generate minimal pool</span>
+<div class="viewcode-block" id="QubitPool.generate_minimal_pool"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_minimal_pool">[docs]</a>    <span class="k">def</span> <span class="nf">generate_minimal_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate minimal pool according to this article</span>
+<span class="sd">        </span>
+<span class="sd">        &#39;&#39;&#39;Tang HL, Shkolnikov V, Barron GS, et al. qubit-adapt-vqe: An adaptive algorithm for constructing hardware-efficient</span>
+<span class="sd">        ansätze on a quantum processor. PRX Quantum 2021; 2(2): 020310&#39;&#39;&#39;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of minimal pool operators</span>
+
+<span class="sd">        minimal_pool4: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">k</span> <span class="o">=</span> <span class="n">nbqbits</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">minimal_pool3</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">operator</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;YZ&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">k</span> <span class="o">-</span> <span class="n">i</span><span class="p">])])</span>
+            <span class="n">minimal_pool3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operator</span><span class="p">)</span>
+            <span class="n">operator</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">i</span><span class="p">])])</span>
+            <span class="n">minimal_pool3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operator</span><span class="p">)</span>
+
+        <span class="c1"># V from the qubit-ADAPT article (appendix C)</span>
+
+        <span class="n">minimal_pool4</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">):</span>
+            <span class="n">operator_string</span> <span class="o">=</span> <span class="s2">&quot;Y&quot;</span>
+            <span class="n">qubits</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                <span class="n">operator_string</span> <span class="o">+=</span> <span class="s2">&quot;Z&quot;</span>
+                <span class="n">qubits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span>
+            <span class="n">qubits</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+            <span class="n">operator</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">operator_string</span><span class="p">,</span> <span class="n">qubits</span><span class="p">)])</span>
+            <span class="n">minimal_pool4</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operator</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">nbqbits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">operator_string</span> <span class="o">=</span> <span class="s2">&quot;Y&quot;</span>
+                <span class="n">qubits</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">operator_string</span> <span class="o">+=</span> <span class="s2">&quot;Z&quot;</span>
+                    <span class="n">qubits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span>
+                <span class="n">qubits</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+                <span class="n">operator</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">operator_string</span><span class="p">,</span> <span class="n">qubits</span><span class="p">)])</span>
+                <span class="n">minimal_pool4</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">operator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">minimal_pool4</span><span class="p">),</span> <span class="n">minimal_pool4</span></div>
+
+    <span class="c1"># generate pure pool with symmetry</span>
+    
+<div class="viewcode-block" id="QubitPool.generate_pool_pure_with_symmetry"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_pool_pure_with_symmetry">[docs]</a>    <span class="k">def</span> <span class="nf">generate_pool_pure_with_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule_symbol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate pool pure with symmetry according to this article</span>
+<span class="sd">        </span>
+<span class="sd">        &#39;&#39;&#39;Shkolnikov V, Mayhall NJ, Economou SE, Barnes E. Avoiding symmetry roadblocks and minimizing the measurement</span>
+<span class="sd">        overhead of adaptive variational quantum eigensolvers. arXiv preprint arXiv:2109.05340 2021&#39;&#39;&#39;</span>
+<span class="sd">        </span>
+<span class="sd">        Note: Only H4 is supported. User can extend for other molecules like BeH2 or LiH.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        molecule_symbol: string</span>
+<span class="sd">            The name of the molecule</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            Number of minimal pool operators</span>
+
+<span class="sd">        pool_pure: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">pool_pure</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">molecule_symbol</span> <span class="o">==</span> <span class="s2">&quot;H4&quot;</span><span class="p">:</span>
+            <span class="n">hamiltonian1</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;YIXIYIYI&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="c1"># hamiltonian1 = Hamiltonian(8, [ Term(1.0, &quot;IYIYIXIY&quot;, [7,6,5,4,3,2,1,0])])</span>
+            <span class="n">hamiltonian2</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;ZYXIYIZY&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="n">hamiltonian3</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;YIZYXIZY&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="n">hamiltonian4</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;ZZYXYYII&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="n">hamiltonian5</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;XXIZIIXY&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="n">hamiltonian6</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;YIZYZXYI&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="n">hamiltonian7</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;XIYZYZYI&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="n">hamiltonian8</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;XZIIYZII&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="n">hamiltonian9</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;ZXXZZXYI&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="n">hamiltonian10</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;XXIIIIXY&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+            <span class="n">hamiltonian11</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="s2">&quot;IYYZXIZY&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])]</span>
+            <span class="p">)</span>
+
+            <span class="c1"># # ZYIZIYZY, ZXXZYYYI, YZIIIXII, YZXYIIXY,</span>
+            <span class="c1"># # IIXXIIYI, IYYYZZII, IYXZIYZY, ZXZIIXYI,</span>
+            <span class="c1"># # YYZZZIYI, YIXYZZXY, IIXXXIYI, IYXXIYXY,</span>
+            <span class="c1"># # ZYIXIXII, XYXIZZII.</span>
+            <span class="c1"># #ComplexNumber(re=0.7071067811865475, im=0.0)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian1</span><span class="p">)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian2</span><span class="p">)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian3</span><span class="p">)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian4</span><span class="p">)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian5</span><span class="p">)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian6</span><span class="p">)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian7</span><span class="p">)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian8</span><span class="p">)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian9</span><span class="p">)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian10</span><span class="p">)</span>
+            <span class="n">pool_pure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian11</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">pool_pure</span><span class="p">),</span> <span class="n">pool_pure</span></div>
+
+    <span class="c1">############### Qubit Excitations ####################</span>
+<div class="viewcode-block" id="QubitPool.single_position_generator"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.single_position_generator">[docs]</a>    <span class="k">def</span> <span class="nf">single_position_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nos_qubits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the permutation list of indices [i1, i2] such that i1 &lt; i2 and i2 &lt;= nos_qubits</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nos_qubits: int</span>
+<span class="sd">            number of qbits</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        store: List[List[int]]</span>
+<span class="sd">            the permutation list</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">store</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nos_qubits</span><span class="p">)]</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)):</span>
+            <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">ls</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">:</span>
+                <span class="n">store</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ls</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">store</span></div>
+
+<div class="viewcode-block" id="QubitPool.double_position_generator"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.double_position_generator">[docs]</a>    <span class="k">def</span> <span class="nf">double_position_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nos_qubits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the permutation list of indices [i1, i2, i3, i4] such that i1 &lt; i2 &lt; i3 &lt; i4 and i4 &lt;= nos_qubits</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nos_qubits: int</span>
+<span class="sd">            number of qbits</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        store: List[List[int]]</span>
+<span class="sd">            the permutation list</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">store</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nos_qubits</span><span class="p">)]</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)):</span>
+            <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ls</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">l</span><span class="p">:</span>
+                <span class="n">store</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ls</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">store</span></div>
+
+<div class="viewcode-block" id="QubitPool.generate_excitations"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_excitations">[docs]</a>    <span class="k">def</span> <span class="nf">generate_excitations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generates the single (s) and double (d) qubit excitations according to this article:</span>
+
+<span class="sd">        &#39;&#39;&#39;Yordanov YS, Armaos V, Barnes CH, Arvidsson-Shukur DR. Qubit-excitation-based adaptive variational quantum</span>
+<span class="sd">        eigensolver. Communications Physics 2021; 4(1): 1-1&#39;&#39;&#39;</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            number of qbits</span>
+<span class="sd">        </span>
+<span class="sd">        s: List[List[int]]</span>
+<span class="sd">            list of two-indices lists</span>
+
+<span class="sd">        d: List[List[int]]</span>
+<span class="sd">            list of four-indices lists</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length: int</span>
+<span class="sd">            the number of qubit excitations</span>
+
+<span class="sd">        qubit_excitation: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            The list of spin cluster operators of qubit excitations</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">qubit_excitation</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="n">nbqbits</span><span class="p">,</span>
+                <span class="p">[</span>
+                    <span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">&quot;XY&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span>
+                    <span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">&quot;YX&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">qubit_excitation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">Hamiltonian</span><span class="p">(</span>
+                <span class="n">nbqbits</span><span class="p">,</span>
+                <span class="p">[</span>
+                    <span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">8</span><span class="p">),</span> <span class="s2">&quot;XYXX&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span>
+                    <span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">8</span><span class="p">),</span> <span class="s2">&quot;YXXX&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span>
+                    <span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">8</span><span class="p">),</span> <span class="s2">&quot;YYYX&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span>
+                    <span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">8</span><span class="p">),</span> <span class="s2">&quot;YYXY&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span>
+                    <span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">8</span><span class="p">),</span> <span class="s2">&quot;XXYX&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span>
+                    <span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">8</span><span class="p">),</span> <span class="s2">&quot;XXXY&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span>
+                    <span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">8</span><span class="p">),</span> <span class="s2">&quot;YXYY&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span>
+                    <span class="n">Term</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="o">+</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">8</span><span class="p">),</span> <span class="s2">&quot;XYYY&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">qubit_excitation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubit_excitation</span><span class="p">),</span> <span class="n">qubit_excitation</span></div>
+
+<div class="viewcode-block" id="QubitPool.qubit_excitations"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.qubit_excitations">[docs]</a>    <span class="k">def</span> <span class="nf">qubit_excitations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Combines the functions &#39;single_position_generator&#39;, &#39;double_position_generator&#39;, and &#39;generate_excitations&#39;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            number of qbits</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+
+<span class="sd">        s: List[List[int]]</span>
+<span class="sd">            list of two-indices lists</span>
+
+<span class="sd">        d: List[List[int]]</span>
+<span class="sd">            list of four-indices lists</span>
+<span class="sd">        </span>
+<span class="sd">        len_qubit_excitation: int</span>
+<span class="sd">            the number of qubit excitations</span>
+
+<span class="sd">        qubit_excitation: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            The list of spin cluster operators of qubit excitations</span>
+<span class="sd">        ----------</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_position_generator</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">double_position_generator</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">)</span>
+        <span class="n">len_qubit_excitation</span><span class="p">,</span> <span class="n">qubit_excitation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_excitations</span><span class="p">(</span>
+            <span class="n">nbqbits</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">len_qubit_excitation</span><span class="p">,</span> <span class="n">qubit_excitation</span></div>
+
+<div class="viewcode-block" id="QubitPool.generate_pool_without_cluster"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_pool_without_cluster">[docs]</a>    <span class="k">def</span> <span class="nf">generate_pool_without_cluster</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">pool_type</span><span class="p">,</span> <span class="n">nbqbits</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">qubit_pool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">molecule_symbol</span><span class="o">=</span><span class="s2">&quot;H4&quot;</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function calls the following type of pools:</span>
+<span class="sd">        - YXXX</span>
+<span class="sd">        - XYXX</span>
+<span class="sd">        - XXYX</span>
+<span class="sd">        - XXXY</span>
+<span class="sd">        - random</span>
+<span class="sd">        - two</span>
+<span class="sd">        - four</span>
+<span class="sd">        - eight</span>
+<span class="sd">        - without_Z_from_generator</span>
+<span class="sd">        - minimal</span>
+<span class="sd">        - pure_with_symmetry</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        pool_type: string</span>
+<span class="sd">            The pool type</span>
+
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits. Defaults to 12.</span>
+
+<span class="sd">        qubit_pool: list[Hamiltonian]</span>
+<span class="sd">            list of spin cluster operators. Defaults to None. Only used for the following pool types:</span>
+<span class="sd">                - eight</span>
+<span class="sd">                - without_Z_from_generator</span>
+
+<span class="sd">        molecule_symbol: string</span>
+<span class="sd">            The name of the molecule. Defaults to &#39;H4&#39;. Only used for pure_with_symmetry pool type</span>
+<span class="sd">        </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        len_returned_pool: int</span>
+<span class="sd">            Number of the pool operators</span>
+
+<span class="sd">        returned_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">returned_pool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">len_returned_pool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The current pool is&quot;</span><span class="p">,</span> <span class="n">pool_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;YXXX&quot;</span><span class="p">:</span>
+            <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_yxxx_pool</span><span class="p">(</span><span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;XYXX&quot;</span><span class="p">:</span>
+            <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_xyxx_pool</span><span class="p">(</span><span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;XXYX&quot;</span><span class="p">:</span>
+            <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_xxyx_pool</span><span class="p">(</span><span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;XXXY&quot;</span><span class="p">:</span>
+            <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_xxxy_pool</span><span class="p">(</span><span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">yxxx_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_yxxx_pool</span><span class="p">(</span><span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">xyxx_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_xyxx_pool</span><span class="p">(</span><span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">xxyx_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_xxyx_pool</span><span class="p">(</span><span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">xxxy_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_xxxy_pool</span><span class="p">(</span><span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+            <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_random_pool</span><span class="p">(</span>
+                <span class="n">yxxx_pool</span><span class="p">,</span> <span class="n">xyxx_pool</span><span class="p">,</span> <span class="n">xxyx_pool</span><span class="p">,</span> <span class="n">xxxy_pool</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;two&quot;</span><span class="p">:</span>
+            <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_two_pools</span><span class="p">(</span><span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;four&quot;</span><span class="p">:</span>
+            <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_four_pools</span><span class="p">(</span><span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;eight&quot;</span><span class="p">:</span>
+            <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_eight_pools</span><span class="p">(</span>
+                <span class="n">nbqbits</span><span class="p">,</span> <span class="n">qubit_pool</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;without_Z_from_generator&quot;</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">len_returned_pool</span><span class="p">,</span>
+                <span class="n">returned_pool</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_pool_without_z_from_generator</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">,</span> <span class="n">qubit_pool</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;minimal&quot;</span><span class="p">:</span>
+            <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_minimal_pool</span><span class="p">(</span><span class="n">nbqbits</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;pure_with_symmetry&quot;</span><span class="p">:</span>
+            <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_pool_pure_with_symmetry</span><span class="p">(</span>
+                <span class="n">molecule_symbol</span><span class="o">=</span><span class="n">molecule_symbol</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">len_returned_pool</span><span class="p">,</span> <span class="n">returned_pool</span></div>
+
+<div class="viewcode-block" id="QubitPool.generate_pool_from_cluster"><a class="viewcode-back" href="../../../common_files.html#openvqe.common_files.qubit_pool.QubitPool.generate_pool_from_cluster">[docs]</a>    <span class="k">def</span> <span class="nf">generate_pool_from_cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pool_condition</span><span class="p">,</span> <span class="n">cluster_ops</span><span class="p">,</span> <span class="n">nbqbits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function generates the following type of pools:</span>
+<span class="sd">            - full</span>
+<span class="sd">            - full_without_Z</span>
+<span class="sd">            - reduced_without_Z</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ------------</span>
+<span class="sd">        pool_condition: string</span>
+<span class="sd">            The pool type</span>
+
+<span class="sd">        cluster_ops: list[Hamiltonian]</span>
+<span class="sd">            list of fermionic cluster operators</span>
+<span class="sd">        </span>
+<span class="sd">        nbqbits: int</span>
+<span class="sd">            The number of qbits.</span>
+
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        len_hamiltonian_pool: int</span>
+<span class="sd">            Number of the pool operators</span>
+
+<span class="sd">        hamiltonian_pool: List&lt;Hamiltonian&gt;</span>
+<span class="sd">            list of spin cluster operators</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qubit_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_pool</span><span class="p">(</span><span class="n">cluster_ops</span><span class="p">)</span>
+        <span class="n">terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_terms</span><span class="p">(</span><span class="n">qubit_pool</span><span class="p">)</span>
+        <span class="n">hamiltonian_pool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">len_hamiltonian_pool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The current pool is&quot;</span><span class="p">,</span> <span class="n">pool_condition</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pool_condition</span> <span class="o">==</span> <span class="s2">&quot;full&quot;</span><span class="p">:</span>
+            <span class="n">hamiltonian_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms_to_hamiltonian</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+            <span class="n">len_hamiltonian_pool</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hamiltonian_pool</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_condition</span> <span class="o">==</span> <span class="s2">&quot;full_without_Z&quot;</span><span class="p">:</span>
+            <span class="n">terms_without_z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_terms_without_z</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
+            <span class="n">hamiltonian_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms_to_hamiltonian</span><span class="p">(</span>
+                <span class="n">terms_without_z</span><span class="p">,</span> <span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span>
+            <span class="p">)</span>
+            <span class="n">len_hamiltonian_pool</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hamiltonian_pool</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_condition</span> <span class="o">==</span> <span class="s2">&quot;reduced_without_Z&quot;</span><span class="p">:</span>
+            <span class="n">hamiltonian_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_reduced_qubit_pool</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">nbqbits</span><span class="o">=</span><span class="n">nbqbits</span><span class="p">)</span>
+            <span class="n">len_hamiltonian_pool</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hamiltonian_pool</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">len_hamiltonian_pool</span><span class="p">,</span> <span class="n">hamiltonian_pool</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Mohammad HAIDAR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
