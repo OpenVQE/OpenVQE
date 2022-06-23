@@ -21,6 +21,6 @@ Example of UCC computation
 
 More information
 ------------------
-For more information, please take a look at the notebook examples in the "notebooks" folder of the github repository.
+For more information, please take a look at the notebook examples in the `notebooks <https://github.com/OpenVQE/OpenVQE/tree/main/notebooks>`_ folder of the github repository.
 
 
