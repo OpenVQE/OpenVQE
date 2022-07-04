@@ -108,55 +108,97 @@ def spin_complement_gsd(n_elec, orbital_number, transform):
         List of spin cluster operators
 
     """
-    spin_complement_single = []
-    spin_complement_double = []
+    spin_complement_gsd = []
+    for p in range(0, orbital_number):
+        pa = 2 * p
+        pb = 2 * p + 1
 
-    for p in range(0, 2*orbital_number, 2):
-        for q in range(p, 2*orbital_number, 2):
-            term_a = [
-                    Term(1, "Cc", [p, q]),
-                    Term(-1, "Cc", [q, p]),
-                    Term(1, "Cc", [p+1, q+1]),
-                    Term(-1, "Cc", [q+1, p+1]),
-                ]
-            hamiltonian = Hamiltonian(2*orbital_number, term_a)
-            spin_complement_single.append(hamiltonian)
+        for q in range(p, orbital_number):
+            qa = 2 * q
+            qb = 2 * q + 1
 
-            for r in range(p, 2*orbital_number, 2):
-                for s in range(q if r==p else r, 2*orbital_number, 2):
+            term_a = Hamiltonian(
+                2 * orbital_number,
+                [
+                    Term(1, "Cc", [pa, qa]),
+                    Term(-1, "Cc", [qa, pa]),
+                    Term(1, "Cc", [pb, qb]),
+                    Term(-1, "Cc", [qb, pb]),
+                ],
+            )
+            spin_complement_gsd.append(term_a)
 
+    pq = -1
+    for p in range(0, orbital_number):
+        pa = 2 * p
+        pb = 2 * p + 1
+
+        for q in range(p, orbital_number):
+            qa = 2 * q
+            qb = 2 * q + 1
+
+            pq += 1
+
+            rs = -1
+            for r in range(0, orbital_number):
+                ra = 2 * r
+                rb = 2 * r + 1
+
+                for s in range(r, orbital_number):
+                    sa = 2 * s
+                    sb = 2 * s + 1
+
+                    rs += 1
+
+                    if pq > rs:
+                        continue
                     term_a = [
-                        Term(1, "CcCc", [r, p, s, q]),
-                        Term(-1, "CcCc", [q, s, p, r]),
-                        Term(1, "CcCc", [r+1, p+1, s+1, q+1]),
-                        Term(-1, "CcCc", [q+1, s+1, p+1, r+1]),
+                        Term(1, "CcCc", [ra, pa, sa, qa]),
+                        Term(-1, "CcCc", [qa, sa, pa, ra]),
+                        Term(1, "CcCc", [rb, pb, sb, qb]),
+                        Term(-1, "CcCc", [qb, sb, pb, rb]),
                     ]
 
                     term_b = [
-                        Term(1, "CcCc", [r, p, s+1, q+1]),
-                        Term(-1, "CcCc", [q+1, s+1, p, r]),
-                        Term(1, "CcCc", [r+1, p+1, s, q]),
-                        Term(-1, "CcCc", [q, s, p+1, r+1]),
+                        Term(1, "CcCc", [ra, pa, sb, qb]),
+                        Term(-1, "CcCc", [qb, sb, pa, ra]),
+                        Term(1, "CcCc", [rb, pb, sa, qa]),
+                        Term(-1, "CcCc", [qa, sa, pb, rb]),
                     ]
 
                     term_c = [
-                        Term(1, "CcCc", [r, p+1, s+1, q]),
-                        Term(-1, "CcCc", [q, s+1, p+1, r]),
-                        Term(1, "CcCc", [r+1, p, s, q+1]),
-                        Term(-1, "CcCc", [q+1, s, p, r+1]),
+                        Term(1, "CcCc", [ra, pb, sb, qa]),
+                        Term(-1, "CcCc", [qa, sb, pb, ra]),
+                        Term(1, "CcCc", [rb, pa, sa, qb]),
+                        Term(-1, "CcCc", [qb, sa, pa, rb]),
                     ]
-                    
-                    for term_x in [term_a, term_b, term_c]:
-                        term_x_ordered_terms = map(order_fermionic_term, term_x)
-                        term_x = sum(term_x_ordered_terms, [])
-                        hamiltonian = Hamiltonian(2*orbital_number, terms=term_x)
-                        spin_complement_double.append(hamiltonian)
+                    #
+                    ordered_term_a = 0
+                    for t1 in term_a:
+                        t_list = order_fermionic_term(t1)
+                        ordered_term_a = ordered_term_a + Hamiltonian(
+                            2 * orbital_number, terms=[t for t in t_list]
+                        )
+                    ordered_term_b = 0
+                    for t2 in term_b:
+                        t_list = order_fermionic_term(t2)
+                        ordered_term_b = ordered_term_b + Hamiltonian(
+                            2 * orbital_number, terms=[t for t in t_list]
+                        )
+                    ordered_term_c = 0
+                    for t2 in term_c:
+                        t_list = order_fermionic_term(t2)
+                        ordered_term_c = ordered_term_c + Hamiltonian(
+                            2 * orbital_number, terms=[t for t in t_list]
+                        )
+                    spin_complement_gsd.append(ordered_term_a)
+                    spin_complement_gsd.append(ordered_term_b)
+                    spin_complement_gsd.append(ordered_term_c)
 
-    spin_complements = spin_complement_single + spin_complement_double
     if transform == "JW":
         cluster_ops = []
         cluster_ops_sp = []
-        for y in spin_complements:
+        for y in spin_complement_gsd:
             hamilt_sp = transform_to_jw_basis(y)
             if hamilt_sp.terms != []:
                 cluster_ops.append(y)
@@ -166,7 +208,7 @@ def spin_complement_gsd(n_elec, orbital_number, transform):
     if transform == "Bravyi-Kitaev":
         cluster_ops = []
         cluster_ops_sp = []
-        for y in spin_complements:
+        for y in spin_complement_gsd:
             hamilt_sp = transform_to_bk_basis(y)
             if hamilt_sp.terms != []:
                 cluster_ops.append(y)
@@ -176,7 +218,7 @@ def spin_complement_gsd(n_elec, orbital_number, transform):
     if transform == "parity_basis":
         cluster_ops = []
         cluster_ops_sp = []
-        for y in spin_complements:
+        for y in spin_complement_gsd:
             hamilt_sp = transform_to_parity_basis(y)
             if hamilt_sp.terms != []:
                 cluster_ops.append(y)
@@ -359,65 +401,105 @@ def singlet_sd(n_elec, orbital_number, transform):
 
     """
 
-    singlet_s = []
-    singlet_d = []
-
+    singlet_sd = []
     n_occ = int(np.ceil(n_elec / 2))
-    for i in range(0, 2*n_occ, 2):
-        for j in range(i, 2*n_occ, 2):
-            for a in range(2*n_occ, 2*orbital_number, 2):
-                if j == i: # only once
+    n_vir = orbital_number - n_occ
+
+    for i in range(0, n_occ):
+        ia = 2 * i
+        ib = 2 * i + 1
+
+        for a in range(0, n_vir):
+            aa = 2 * n_occ + 2 * a
+            ab = 2 * n_occ + 2 * a + 1
+
+            term_a = Hamiltonian(
+                2 * orbital_number,
+                [
+                    Term(1 / np.sqrt(2), "Cc", [aa, ia]),
+                    Term(+1 / np.sqrt(2), "Cc", [ab, ib]),
+                    Term(-1 / np.sqrt(2), "Cc", [ia, aa]),
+                    Term(-1 / np.sqrt(2), "Cc", [ib, ab]),
+                ],
+            )
+            # Normalize
+            coeff_a = 0
+            for t in term_a.terms:
+                coeff_t = t.coeff
+                coeff_a += coeff_t * coeff_t
+            term_a = term_a / np.sqrt(coeff_a)
+            singlet_sd.append(term_a)
+
+    term_a = 0
+    term_b = 0
+    for i in range(0, n_occ):
+        ia = 2 * i
+        ib = 2 * i + 1
+        for j in range(i, n_occ):
+            ja = 2 * j
+            jb = 2 * j + 1
+            for a in range(0, n_vir):
+                aa = 2 * n_occ + 2 * a
+                ab = 2 * n_occ + 2 * a + 1
+                for b in range(a, n_vir):
+                    ba = 2 * n_occ + 2 * b
+                    bb = 2 * n_occ + 2 * b + 1
                     term_a = [
-                        Term(1/2, "Cc", [a, i]),
-                        Term(1/2, "Cc", [a+1, i+1]),
-                        Term(-1/2, "Cc", [i, a]),
-                        Term(-1/2, "Cc", [i+1, a+1]),
-                    ]
-                    hamiltonian = Hamiltonian(2*orbital_number, term_a)
-                    singlet_s.append(hamiltonian)
-                for b in range(a, 2*orbital_number, 2):
-                    term_a = [
-                        Term(2 / np.sqrt(12), "CCcc", [a, b, i, j]),
-                        Term(-2 / np.sqrt(12), "CCcc", [j, i, b, a]),
-                        Term(2 / np.sqrt(12), "CCcc", [a+1, b+1, i+1, j+1]),
-                        Term(-2 / np.sqrt(12), "CCcc", [j+1, i+1, b+1, a+1]),
-                        Term(1 / np.sqrt(12), "CCcc", [a, b+1, i, j+1]),
-                        Term(-1 / np.sqrt(12), "CCcc", [j+1, i, b+1, a]),
-                        Term(1 / np.sqrt(12), "CCcc", [a+1, b, i+1, j]),
-                        Term(-1 / np.sqrt(12), "CCcc", [j, i+1, b, a+1]),
-                        Term(1 / np.sqrt(12), "CCcc", [a, b+1, i+1, j]),
-                        Term(-1 / np.sqrt(12), "CCcc", [j, i+1, b+1, a]),
-                        Term(1 / np.sqrt(12), "CCcc", [a+1, b, i, j+1]),
-                        Term(-1 / np.sqrt(12), "CCcc", [j+1, i, b, a+1]),
+                        Term(2 / np.sqrt(12), "CCcc", [aa, ba, ia, ja]),
+                        Term(-2 / np.sqrt(12), "CCcc", [ja, ia, ba, aa]),
+                        Term(2 / np.sqrt(12), "CCcc", [ab, bb, ib, jb]),
+                        Term(-2 / np.sqrt(12), "CCcc", [jb, ib, bb, ab]),
+                        Term(1 / np.sqrt(12), "CCcc", [aa, bb, ia, jb]),
+                        Term(-1 / np.sqrt(12), "CCcc", [jb, ia, bb, aa]),
+                        Term(1 / np.sqrt(12), "CCcc", [ab, ba, ib, ja]),
+                        Term(-1 / np.sqrt(12), "CCcc", [ja, ib, ba, ab]),
+                        Term(1 / np.sqrt(12), "CCcc", [aa, bb, ib, ja]),
+                        Term(-1 / np.sqrt(12), "CCcc", [ja, ib, bb, aa]),
+                        Term(1 / np.sqrt(12), "CCcc", [ab, ba, ia, jb]),
+                        Term(-1 / np.sqrt(12), "CCcc", [jb, ia, ba, ab]),
                     ]
                     term_b = [
-                        Term(1 / 2, "CCcc", [a, b+1, i, j+1]),
-                        Term(-1 / 2, "CCcc", [j+1, i, b+1, a]),
-                        Term(1 / 2, "CCcc", [a+1, b, i+1, j]),
-                        Term(-1 / 2, "CCcc", [j, i+1, b, a+1]),
-                        Term(-1 / 2, "CCcc", [a, b+1, i+1, j]),
-                        Term(1 / 2, "CCcc", [j, i+1, b+1, a]),
-                        Term(-1 / 2, "CCcc", [a+1, b, i, j+1]),
-                        Term(1 / 2, "CCcc", [j+1, i, b, a+1]),
+                        Term(1 / 2, "CCcc", [aa, bb, ia, jb]),
+                        Term(-1 / 2, "CCcc", [jb, ia, bb, aa]),
+                        Term(1 / 2, "CCcc", [ab, ba, ib, ja]),
+                        Term(-1 / 2, "CCcc", [ja, ib, ba, ab]),
+                        Term(-1 / 2, "CCcc", [aa, bb, ib, ja]),
+                        Term(1 / 2, "CCcc", [ja, ib, bb, aa]),
+                        Term(-1 / 2, "CCcc", [ab, ba, ia, jb]),
+                        Term(1 / 2, "CCcc", [jb, ia, ba, ab]),
                     ]
 
-                    for term_x in [term_a, term_b]:
-                        # order
-                        term_x_ordered_terms = map(order_fermionic_term, term_x)
-                        term_x = sum(term_x_ordered_terms, [])
-                        hamiltonian = Hamiltonian(2*orbital_number, terms=term_x)
-                        # normalize
-                        norm = sum(map(lambda term: abs(term.coeff**2), hamiltonian.terms)) ** 0.5
-                        if norm > 0:
-                            hamiltonian /= norm
-                            singlet_d.append(hamiltonian)
-
-    singlets = singlet_s + singlet_d
+                    ordered_term_a = 0
+                    for t1 in term_a:
+                        t_list = order_fermionic_term(t1)
+                        ordered_term_a = ordered_term_a + Hamiltonian(
+                            2 * orbital_number, terms=[t for t in t_list]
+                        )
+                    ordered_term_b = 0
+                    for t2 in term_b:
+                        t_list = order_fermionic_term(t2)
+                        ordered_term_b = ordered_term_b + Hamiltonian(
+                            2 * orbital_number, terms=[t for t in t_list]
+                        )
+                    coeff_a = 0
+                    coeff_b = 0
+                    for t in ordered_term_a.terms:
+                        coeff_t = t.coeff
+                        coeff_a += abs(coeff_t * coeff_t)
+                    for t1 in ordered_term_b.terms:
+                        coeff_t = t1.coeff
+                        coeff_b += abs(coeff_t * coeff_t)
+                    if coeff_a > 0:
+                        term_a = ordered_term_a / np.sqrt(coeff_a)
+                        singlet_sd.append(term_a)
+                    if coeff_b > 0:
+                        term_b = ordered_term_b / np.sqrt(coeff_b)
+                        singlet_sd.append(term_b)
 
     if transform == "JW":
         cluster_ops = []
         cluster_ops_sp = []
-        for y in singlets:
+        for y in singlet_sd:
             hamilt_sp = transform_to_jw_basis(y)
             if hamilt_sp.terms != []:
                 cluster_ops.append(y)
@@ -427,7 +509,7 @@ def singlet_sd(n_elec, orbital_number, transform):
     if transform == "Bravyi-Kitaev":
         cluster_ops = []
         cluster_ops_sp = []
-        for y in singlets:
+        for y in singlet_sd:
             hamilt_sp = transform_to_bk_basis(y)
             if hamilt_sp.terms != []:
                 cluster_ops.append(y)
@@ -437,7 +519,7 @@ def singlet_sd(n_elec, orbital_number, transform):
     if transform == "parity_basis":
         cluster_ops = []
         cluster_ops_sp = []
-        for y in singlets:
+        for y in singlet_sd:
             hamilt_sp = transform_to_parity_basis(y)
             if hamilt_sp.terms != []:
                 cluster_ops.append(y)
@@ -520,36 +602,54 @@ def singlet_upccgsd(n_orb, transform, perm):
 
     # perm: is k here
     print("Form spin-adapted UpCCGSD operators pool: ")
-    single_excitations = []
-    double_excitations = []
+    mo_excitations = list(itertools.combinations(range(0, n_orb), 2))
+    fermi_ops = []
     # Construct general singles
-    for p in range(0, 2*n_orb, 2):
-        for q in range(0, p, 2):
-            term_a = [
-                Term(1, "Cc", [q, p]),
-                Term(-1, "Cc", [p, q]),
-                Term(1, "Cc", [q+1, p+1]),
-                Term(-1, "Cc", [p+1, q+1]),
-            ]
-            hamiltonian = Hamiltonian(2*n_orb, terms=term_a)
-            hamiltonian = merge_duplicate_terms(hamiltonian)
-            single_excitations.append(hamiltonian)
-    # Construct general paired doubles
-    even_spatial_orb = list(range(0, 2*n_orb, 2))
-
-    for p, q in itertools.combinations(even_spatial_orb, 2):
-        term_b = [
-                    Term(1.0, "CcCc", [q, p, q+1, p+1]),
-                    Term(-1.0, "CcCc", [p+1, q+1, p, q])
+    for p in range(n_orb):
+        for q in range(n_orb):
+            pa = 2 * p
+            qa = 2 * q
+            pb = 2 * p + 1
+            qb = 2 * q + 1
+            if p > q:
+                term_a = [
+                    Term(1, "Cc", [qa, pa]),
+                    Term(-1, "Cc", [pa, qa]),
+                    Term(1, "Cc", [qb, pb]),
+                    Term(-1, "Cc", [pb, qb]),
                 ]
-        
-        term_b_ordered_terms = map(order_fermionic_term, term_b)
-        term_B = sum(term_b_ordered_terms, [])
-        hamiltonian = Hamiltonian(2*n_orb, terms=term_B)
-        hamiltonian = merge_duplicate_terms(hamiltonian)
-        double_excitations.append(hamiltonian)
+                #                 print(term_a)
+                ordered_term_a = 0
+                for t1 in term_a:
+                    t_list = order_fermionic_term(t1)
+                    ordered_term_a = ordered_term_a + Hamiltonian(
+                        2 * n_orb, terms=[t for t in t_list]
+                    )
+                    ordered_term_a = merge_duplicate_terms(ordered_term_a)
+                fermi_ops.append(ordered_term_a)
+    # Construct general paired doubles
+    spatial_orb = list(range(n_orb))
+    n_double_amps = len(list(itertools.combinations(spatial_orb, 2)))
+    double_excitations = []
+    for i, (p, q) in enumerate(itertools.combinations(spatial_orb, 2)):
+        pa = 2 * p
+        qa = 2 * q
+        pb = 2 * p + 1
+        qb = 2 * q + 1
+        double_excitations.append([qa, pa, qb, pb])
+    #         print("double_excitations",double_excitations)
+    for (i, j, k, l) in double_excitations:
+        i, j, k, l = int(i), int(j), int(k), int(l)
+        term_b = [Term(1.0, "CcCc", [i, j, k, l]), Term(-1.0, "CcCc", [l, k, j, i])]
+        ordered_term_b = 0
+        for t1 in term_b:
+            t_list = order_fermionic_term(t1)
+            ordered_term_b = ordered_term_b + Hamiltonian(
+                2 * n_orb, terms=[t for t in t_list]
+            )
+            ordered_term_b = merge_duplicate_terms(ordered_term_b)
 
-    fermi_ops = single_excitations + double_excitations
+        fermi_ops.append(ordered_term_b)
     if transform == "JW":
         cluster_ops = []
         cluster_ops_sp = []
@@ -621,64 +721,112 @@ def singlet_gsd(n_elec, orbital_number, transform):
 
     """
 
-    singlet_single = []
-    singlet_double = []
+    singlet_gsd = []
+    for p in range(0, orbital_number):
+        pa = 2 * p
+        pb = 2 * p + 1
 
-    for p in range(0, 2*orbital_number, 2):
-        for q in range(p, 2*orbital_number, 2):
-            term_a = [
-                    Term(1/2, "Cc", [p, q]),
-                    Term(-1/2, "Cc", [q, p]),
-                    Term(1/2, "Cc", [p+1, q+1]),
-                    Term(-1/2, "Cc", [q+1, p+1]),
-                ]
-            hamiltonian = Hamiltonian(2*orbital_number, term_a)
-            singlet_single.append(hamiltonian)
+        for q in range(p, orbital_number):
+            qa = 2 * q
+            qb = 2 * q + 1
 
-            for r in range(p, 2*orbital_number, 2):
-                for s in range(q if r==p else r, 2*orbital_number, 2):
+            term_a = openfermion.FermionOperator(((pa, 1), (qa, 0)))
+            term_a += openfermion.FermionOperator(((pb, 1), (qb, 0)))
+            term_a = Hamiltonian(
+                2 * orbital_number,
+                [
+                    Term(1, "Cc", [pa, qa]),
+                    Term(-1, "Cc", [qa, pa]),
+                    Term(1, "Cc", [pb, qb]),
+                    Term(-1, "Cc", [qb, pb]),
+                ],
+            )
+            # Normalize
+            coeff_a = 0
+            for t in term_a.terms:
+                coeff_t = t.coeff
+                coeff_a += coeff_t * coeff_t
+            if coeff_a > 0:
+                term_a = term_a / np.sqrt(coeff_a)
+                singlet_gsd.append(term_a)
+
+    term_a = 0
+    term_b = 0
+    pq = -1
+    for p in range(0, orbital_number):
+        pa = 2 * p
+        pb = 2 * p + 1
+
+        for q in range(p, orbital_number):
+            qa = 2 * q
+            qb = 2 * q + 1
+
+            pq += 1
+
+            rs = -1
+            for r in range(0, orbital_number):
+                ra = 2 * r
+                rb = 2 * r + 1
+                for s in range(r, orbital_number):
+                    sa = 2 * s
+                    sb = 2 * s + 1
+                    rs += 1
+                    if pq > rs:
+                        continue
                     term_a = [
-                        Term(2 / np.sqrt(12), "CcCc", [r, p, s, q]),
-                        Term(-2 / np.sqrt(12), "CcCc", [q, s, p, r]),
-                        Term(2 / np.sqrt(12), "CcCc", [r+1, p+1, s+1, q+1]),
-                        Term(-2 / np.sqrt(12), "CcCc", [q+1, s+1, p+1, r+1]),
-                        Term(1 / np.sqrt(12), "CcCc", [r, p, s+1, q+1]),
-                        Term(-1 / np.sqrt(12), "CcCc", [q+1, s+1, p, r]),
-                        Term(1 / np.sqrt(12), "CcCc", [r+1, p+1, s, q]),
-                        Term(-1 / np.sqrt(12), "CcCc", [q, s, p+1, r+1]),
-                        Term(1 / np.sqrt(12), "CcCc", [r, p+1, s+1, q]),
-                        Term(-1 / np.sqrt(12), "CcCc", [q, s+1, p+1, r]),
-                        Term(1 / np.sqrt(12), "CcCc", [r+1, p, s, q+1]),
-                        Term(-1 / np.sqrt(12), "CcCc", [q+1, s, p, r+1]),
+                        Term(2 / np.sqrt(12), "CcCc", [ra, pa, sa, qa]),
+                        Term(-2 / np.sqrt(12), "CcCc", [qa, sa, pa, ra]),
+                        Term(2 / np.sqrt(12), "CcCc", [rb, pb, sb, qb]),
+                        Term(-2 / np.sqrt(12), "CcCc", [qb, sb, pb, rb]),
+                        Term(1 / np.sqrt(12), "CcCc", [ra, pa, sb, qb]),
+                        Term(-1 / np.sqrt(12), "CcCc", [qb, sb, pa, ra]),
+                        Term(1 / np.sqrt(12), "CcCc", [rb, pb, sa, qa]),
+                        Term(-1 / np.sqrt(12), "CcCc", [qa, sa, pb, rb]),
+                        Term(1 / np.sqrt(12), "CcCc", [ra, pb, sb, qa]),
+                        Term(-1 / np.sqrt(12), "CcCc", [qa, sb, pb, ra]),
+                        Term(1 / np.sqrt(12), "CcCc", [rb, pa, sa, qb]),
+                        Term(-1 / np.sqrt(12), "CcCc", [qb, sa, pa, rb]),
                     ]
                     term_b = [
-                        Term(1 / 2.0, "CcCc", [r, p, s+1, q+1]),
-                        Term(-1 / 2.0, "CcCc", [q+1, s+1, p, r]),
-                        Term(1 / 2.0, "CcCc", [r+1, p+1, s, q]),
-                        Term(-1 / 2.0, "CcCc", [q, s, p+1, r+1]),
-                        Term(-1 / 2.0, "CcCc", [r, p+1, s+1, q]),
-                        Term(1 / 2.0, "CcCc", [q, s+1, p+1, r]),
-                        Term(-1 / 2.0, "CcCc", [r+1, p, s, q+1]),
-                        Term(1 / 2.0, "CcCc", [q+1, s, p, r+1]),
+                        Term(1 / 2.0, "CcCc", [ra, pa, sb, qb]),
+                        Term(-1 / 2.0, "CcCc", [qb, sb, pa, ra]),
+                        Term(1 / 2.0, "CcCc", [rb, pb, sa, qa]),
+                        Term(-1 / 2.0, "CcCc", [qa, sa, pb, rb]),
+                        Term(-1 / 2.0, "CcCc", [ra, pb, sb, qa]),
+                        Term(1 / 2.0, "CcCc", [qa, sb, pb, ra]),
+                        Term(-1 / 2.0, "CcCc", [rb, pa, sa, qb]),
+                        Term(1 / 2.0, "CcCc", [qb, sa, pa, rb]),
                     ]
-
-                    for term_x in [term_a, term_b]:
-                        # order
-                        term_x_ordered_terms = map(order_fermionic_term, term_x)
-                        term_x = sum(term_x_ordered_terms, [])
-                        hamiltonian = Hamiltonian(2*orbital_number, terms=term_x)
-                        # normalize
-                        norm = sum(map(lambda term: abs(term.coeff**2), hamiltonian.terms)) ** 0.5
-                        if norm > 0:
-                            hamiltonian /= norm
-                            singlet_double.append(hamiltonian)
-    
-    singlets = singlet_single + singlet_double
-
+                    ordered_term_a = 0
+                    for t1 in term_a:
+                        t_list = order_fermionic_term(t1)
+                        ordered_term_a = ordered_term_a + Hamiltonian(
+                            2 * orbital_number, terms=[t for t in t_list]
+                        )
+                    ordered_term_b = 0
+                    for t2 in term_b:
+                        t_list = order_fermionic_term(t2)
+                        ordered_term_b = ordered_term_b + Hamiltonian(
+                            2 * orbital_number, terms=[t for t in t_list]
+                        )
+                    coeff_a = 0
+                    coeff_b = 0
+                    for t in ordered_term_a.terms:
+                        coeff_t = t.coeff
+                        coeff_a += abs(coeff_t * coeff_t)
+                    for t1 in ordered_term_b.terms:
+                        coeff_t = t1.coeff
+                        coeff_b += abs(coeff_t * coeff_t)
+                    if coeff_a > 0:
+                        term_a = ordered_term_a / np.sqrt(coeff_a)
+                        singlet_gsd.append(term_a)
+                    if coeff_b > 0:
+                        term_b = ordered_term_b / np.sqrt(coeff_b)
+                        singlet_gsd.append(term_b)
     if transform == "JW":
         cluster_ops = []
         cluster_ops_sp = []
-        for y in singlets:
+        for y in singlet_gsd:
             hamilt_sp = transform_to_jw_basis(y)
             if hamilt_sp.terms != []:
                 cluster_ops.append(y)
@@ -688,7 +836,7 @@ def singlet_gsd(n_elec, orbital_number, transform):
     if transform == "Bravyi-Kitaev":
         cluster_ops = []
         cluster_ops_sp = []
-        for y in singlets:
+        for y in singlet_gsd:
             hamilt_sp = transform_to_bk_basis(y)
             if hamilt_sp.terms != []:
                 cluster_ops.append(y)
@@ -698,7 +846,7 @@ def singlet_gsd(n_elec, orbital_number, transform):
     if transform == "parity_basis":
         cluster_ops = []
         cluster_ops_sp = []
-        for y in singlets:
+        for y in singlet_gsd:
             hamilt_sp = transform_to_parity_basis(y)
             if hamilt_sp.terms != []:
                 cluster_ops.append(y)
