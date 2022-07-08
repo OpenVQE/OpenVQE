@@ -31,7 +31,7 @@ pip install .
 ### Install OpenVQE
 install from the sources directly :
 ```shell
-git clone https://github.com/Haidarmm/OpenVQE.git
+git clone https://github.com/OpenVQE/OpenVQE.git
 cd OpenVQE
 pip install .
 ```
