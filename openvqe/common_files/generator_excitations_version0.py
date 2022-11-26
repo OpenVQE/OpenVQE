@@ -1,9 +1,8 @@
 import itertools
 
 import numpy as np
-import openfermion
 from qat.core import Term
-from qat.fermion import Hamiltonian
+from qat.fermion import SpinHamiltonian as Hamiltonian
 from qat.fermion.chemistry.ucc_deprecated import get_cluster_ops_and_init_guess
 from qat.fermion.transforms import (
     transform_to_bk_basis,
@@ -730,8 +729,6 @@ def singlet_gsd(n_elec, orbital_number, transform):
             qa = 2 * q
             qb = 2 * q + 1
 
-            term_a = openfermion.FermionOperator(((pa, 1), (qa, 0)))
-            term_a += openfermion.FermionOperator(((pb, 1), (qb, 0)))
             term_a = Hamiltonian(
                 2 * orbital_number,
                 [

@@ -1,9 +1,8 @@
 import itertools
 
 import numpy as np
-import openfermion
 from qat.core import Term
-from qat.fermion import Hamiltonian
+from qat.fermion import SpinHamiltonian as Hamiltonian
 from qat.fermion.chemistry.ucc_deprecated import get_cluster_ops_and_init_guess
 from qat.fermion.transforms import (
     transform_to_bk_basis,

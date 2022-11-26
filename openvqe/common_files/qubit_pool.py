@@ -2,8 +2,7 @@ import numpy as np
 import itertools
 from qat.core import Term
 from qat.fermion.transforms import transform_to_jw_basis
-from qat.fermion import Hamiltonian
-
+from qat.fermion import SpinHamiltonian as Hamiltonian
 
 class QubitPool:
     """

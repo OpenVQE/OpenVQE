@@ -295,7 +295,7 @@ class MoleculeFactory:
             two_body_integrals,
             info,
         ) = perform_pyscf_computation(
-            geometry=geometry, basis=basis, spin=spin, charge=charge, verbose=False
+            geometry=geometry, basis=basis, spin=spin, charge=charge, run_fci=True
         )
         if display:
             print("Number of electrons = ", n_elec)
@@ -543,7 +543,7 @@ class MoleculeFactory:
             two_body_integrals,
             info,
         ) = perform_pyscf_computation(
-            geometry=geometry, basis=basis, spin=spin, charge=charge, verbose=True
+            geometry=geometry, basis=basis, spin=spin, charge=charge, run_fci=True
         )
 
         orbital_number = len(orbital_energies)
