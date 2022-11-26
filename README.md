@@ -17,22 +17,23 @@ Installation
 --------------
 ### Prerequisites:
 #### Install myqlm-fermion:
-You can install the fermion module with pip directly from the internet (not supported for now):
-```shell
-pip install myqlm-fermion
-```
-or install from the sources directly :
+
+install myqlm-fermion 1.7.1 from source:
+
 ```shell
 git clone https://github.com/myQLM/myqlm-fermion.git
 cd myqlm-fermion
+git checkout 1.7.1
 pip install -r requirements.txt
 pip install .
 ```
 ### Install OpenVQE
-install from the sources directly :
+
+install OpenVQE from source:
 ```shell
 git clone https://github.com/OpenVQE/OpenVQE.git
 cd OpenVQE
+pip install -r requirements.txt
 pip install .
 ```
 Move to the next section for getting started!

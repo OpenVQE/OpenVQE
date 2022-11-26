@@ -1,0 +1,2 @@
+openfermion==1.5.1 # only for generator_excitation_open_fermion.py
+pyscf==2.1.1
