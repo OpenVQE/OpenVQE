@@ -12,6 +12,28 @@ from qat.fermion.transforms import (
 
 from .fermion_util import order_fermionic_term
 
+def _apply_transforms(cluster_ops_fr, transform, perm=0):
+    if transform == "JW":
+        transform_func = transform_to_jw_basis
+    elif transform == "Bravyi-Kitaev":
+        transform_func = transform_to_bk_basis
+    elif transform == "parity_basis":
+        transform_func = transform_to_parity_basis
+    else:
+        return
+    
+    cluster_ops = []
+    cluster_ops_sp = []
+    for y in cluster_ops_fr:
+        hamilt_sp = transform_func(y)
+        if hamilt_sp.terms != []:
+            cluster_ops.append(y)
+            cluster_ops_sp.append(hamilt_sp)
+    cluster_ops += cluster_ops * perm
+    cluster_ops_sp += cluster_ops_sp * perm
+    pool_size = len(cluster_ops_sp)
+    return pool_size, cluster_ops, cluster_ops_sp
+
 
 
 def uccsd(hamiltonian, n_elec, noons_full, orb_energies_full, transform):
@@ -53,30 +75,8 @@ def uccsd(hamiltonian, n_elec, noons_full, orb_energies_full, transform):
     cluster_ops, theta_MP2, hf_init = get_cluster_ops_and_init_guess(
         n_elec, noons_full, orb_energies_full, hamiltonian.hpqrs
     )
-    if transform == "JW":
-        pool_size = len(cluster_ops)
-        cluster_ops_sp = []
-        for y in cluster_ops:
-            hamilt_sp = transform_to_jw_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops_sp.append(hamilt_sp)
-        return pool_size, cluster_ops, cluster_ops_sp, theta_MP2, hf_init
-    if transform == "Bravyi-Kitaev":
-        pool_size = len(cluster_ops)
-        cluster_ops_sp = []
-        for y in cluster_ops:
-            hamilt_sp = transform_to_bk_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops_sp.append(hamilt_sp)
-        return pool_size, cluster_ops, cluster_ops_sp, theta_MP2, hf_init
-    if transform == "parity_basis":
-        pool_size = len(cluster_ops)
-        cluster_ops_sp = []
-        for y in cluster_ops:
-            hamilt_sp = transform_to_parity_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops_sp.append(hamilt_sp)
-        return pool_size, cluster_ops, cluster_ops_sp, theta_MP2, hf_init
+    pool_size, cluster_ops, cluster_ops_sp = _apply_transforms(cluster_ops, transform)
+    return pool_size, cluster_ops, cluster_ops_sp, theta_MP2, hf_init
 
 
 def spin_complement_gsd(n_elec, orbital_number, transform):
@@ -152,36 +152,7 @@ def spin_complement_gsd(n_elec, orbital_number, transform):
                         spin_complement_double.append(hamiltonian)
 
     spin_complements = spin_complement_single + spin_complement_double
-    if transform == "JW":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in spin_complements:
-            hamilt_sp = transform_to_jw_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "Bravyi-Kitaev":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in spin_complements:
-            hamilt_sp = transform_to_bk_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "parity_basis":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in spin_complements:
-            hamilt_sp = transform_to_parity_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
+    return _apply_transforms(spin_complements, transform)
 
 # ----------------------------------------twin QLM---------------------------------------
 def spin_complement_gsd_twin(n_elec, orbital_number, transform):
@@ -296,36 +267,7 @@ def spin_complement_gsd_twin(n_elec, orbital_number, transform):
                     rs += 1
             pq += 1
 
-    if transform == "JW":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in spin_complement_gsd_twin:
-            hamilt_sp = transform_to_jw_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "Bravyi-Kitaev":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in spin_complement_gsd_twin:
-            hamilt_sp = transform_to_bk_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "parity_basis":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in spin_complement_gsd_twin:
-            hamilt_sp = transform_to_parity_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
+    return _apply_transforms(spin_complement_gsd_twin, transform)
 
 
 def singlet_sd(n_elec, orbital_number, transform):
@@ -413,36 +355,7 @@ def singlet_sd(n_elec, orbital_number, transform):
 
     singlets = singlet_s + singlet_d
 
-    if transform == "JW":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in singlets:
-            hamilt_sp = transform_to_jw_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "Bravyi-Kitaev":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in singlets:
-            hamilt_sp = transform_to_bk_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "parity_basis":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in singlets:
-            hamilt_sp = transform_to_parity_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
+    return _apply_transforms(singlets, transform)
 
 # From fermion_util.py file
 def merge_duplicate_terms(hamiltonian):
@@ -549,46 +462,7 @@ def singlet_upccgsd(n_orb, transform, perm):
         double_excitations.append(hamiltonian)
 
     fermi_ops = single_excitations + double_excitations
-    if transform == "JW":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in fermi_ops:
-            hamilt_sp = transform_to_jw_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        for i in range(1,perm+1):
-            cluster_ops+=cluster_ops
-            cluster_ops_sp+=cluster_ops_sp
-            pool_size = len(cluster_ops)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "Bravyi-Kitaev":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in fermi_ops:
-            hamilt_sp = transform_to_bk_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        for i in range(1,perm+1):
-            cluster_ops+=cluster_ops
-            cluster_ops_sp+=cluster_ops_sp
-            pool_size = len(cluster_ops)                    
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "parity_basis":
-        pool_size = len(fermi_ops)
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in fermi_ops:
-            hamilt_sp = transform_to_parity_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        for i in range(1,perm+1):
-            cluster_ops+=cluster_ops
-            cluster_ops_sp+=cluster_ops_sp
-            pool_size = len(cluster_ops)                    
-        return pool_size, cluster_ops, cluster_ops_sp
+    return _apply_transforms(fermi_ops, transform, perm=perm)
 
 def singlet_gsd(n_elec, orbital_number, transform):
     """
@@ -674,36 +548,7 @@ def singlet_gsd(n_elec, orbital_number, transform):
     
     singlets = singlet_single + singlet_double
 
-    if transform == "JW":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in singlets:
-            hamilt_sp = transform_to_jw_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "Bravyi-Kitaev":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in singlets:
-            hamilt_sp = transform_to_bk_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "parity_basis":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in singlets:
-            hamilt_sp = transform_to_parity_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
+    return _apply_transforms(singlets, transform)
 
 
 def uccgsd(n_elec, orbital_number, transform):
@@ -760,33 +605,5 @@ def uccgsd(n_elec, orbital_number, transform):
                     spin_complement_double.append(hamiltonian)
 
     spin_complements = spin_complement_single + spin_complement_double
-    if transform == "JW":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in spin_complements:
-            hamilt_sp = transform_to_jw_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "Bravyi-Kitaev":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in spin_complements:
-            hamilt_sp = transform_to_bk_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
-    if transform == "parity_basis":
-        cluster_ops = []
-        cluster_ops_sp = []
-        for y in spin_complements:
-            hamilt_sp = transform_to_parity_basis(y)
-            if hamilt_sp.terms != []:
-                cluster_ops.append(y)
-                cluster_ops_sp.append(hamilt_sp)
-        pool_size = len(cluster_ops_sp)
-        return pool_size, cluster_ops, cluster_ops_sp
+    return _apply_transforms(spin_complements, transform)
+
