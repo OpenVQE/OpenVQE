@@ -607,3 +607,248 @@ def uccgsd(n_elec, orbital_number, transform):
     spin_complements = spin_complement_single + spin_complement_double
     return _apply_transforms(spin_complements, transform)
 
+
+# It's available for the user
+def generalized_singlet_and_triplet_excitations(n_orb, transform):
+    """
+    from paper:
+    Qubit-ADAPT-VQE: An Adaptive Algorithm for Constructing
+    Hardware-Efficient Ansätze on a Quantum Processor
+    """
+    groups = {
+        "1": {"singlet": [], "triplet": []},
+        "2": {"singlet": [], "triplet": []},
+        "3": [],
+        "4": [],
+        "5": [],
+    }
+
+    # group 1, triplet
+    for p in range(0, n_orb):
+        for q in range(p + 1, n_orb):
+            for r in range(q + 1, n_orb):
+                for s in range(r + 1, n_orb):
+                    evodd = lambda s1, s2, s3, s4: [
+                        2 * p + s1,
+                        2 * q + s2,
+                        2 * r + s3,
+                        2 * s + s4,
+                    ]
+
+                    term = [
+                        Term(1.0, "CCcc", evodd(0, 0, 0, 0)),
+                        Term(0.5, "CCcc", evodd(0, 1, 0, 1)),
+                        Term(0.5, "CCcc", evodd(0, 1, 1, 0)),
+                        Term(0.5, "CCcc", evodd(1, 0, 0, 1)),
+                        Term(0.5, "CCcc", evodd(1, 0, 1, 0)),
+                        Term(1.0, "CCcc", evodd(1, 1, 1, 1)),
+                        Term(-1.0, "CCcc", evodd(0, 0, 0, 0)[::-1]),
+                        Term(-0.5, "CCcc", evodd(0, 1, 0, 1)[::-1]),
+                        Term(-0.5, "CCcc", evodd(0, 1, 1, 0)[::-1]),
+                        Term(-0.5, "CCcc", evodd(1, 0, 0, 1)[::-1]),
+                        Term(-0.5, "CCcc", evodd(1, 0, 1, 0)[::-1]),
+                        Term(-1.0, "CCcc", evodd(1, 1, 1, 1)[::-1]),
+                    ]
+                    hamiltonian = Hamiltonian(2 * n_orb, term)
+                    groups["1"]["triplet"].append(hamiltonian)
+
+    # group 1, singlet
+    for p in range(0, n_orb):
+        for q in range(p + 1, n_orb):
+            for r in range(q + 1, n_orb):
+                for s in range(r + 1, n_orb):
+                    evodd = lambda s1, s2, s3, s4: [
+                        2 * p + s1,
+                        2 * q + s2,
+                        2 * r + s3,
+                        2 * s + s4,
+                    ]
+
+                    term = [
+                        Term(0.5, "CCcc", evodd(0, 1, 0, 1)),
+                        Term(-0.5, "CCcc", evodd(0, 1, 1, 0)),
+                        Term(-0.5, "CCcc", evodd(1, 0, 0, 1)),
+                        Term(0.5, "CCcc", evodd(1, 0, 1, 0)),
+                        Term(-0.5, "CCcc", evodd(0, 1, 0, 1)[::-1]),
+                        Term(0.5, "CCcc", evodd(0, 1, 1, 0)[::-1]),
+                        Term(0.5, "CCcc", evodd(1, 0, 0, 1)[::-1]),
+                        Term(-0.5, "CCcc", evodd(1, 0, 1, 0)[::-1]),
+                    ]
+                    hamiltonian = Hamiltonian(2 * n_orb, term)
+                    groups["1"]["singlet"].append(hamiltonian)
+
+    # group 2, triplet
+    for a1 in range(0, n_orb):
+        for a2 in range(a1 + 1, n_orb):
+            for a3 in range(a2 + 1, n_orb):
+                # above are 3 unique numbers.
+                # we implement 4 cases:
+                #   p = r
+                #   q = r
+                #   p = s
+                #   q = s
+
+                evodd_case = {}
+                evodd_case["p=r"] = lambda s1, s2, s3, s4: [
+                    2 * a1 + s1,
+                    2 * a2 + s2,
+                    2 * a1 + s3,
+                    2 * a3 + s4,
+                ]
+                evodd_case["q=r"] = lambda s1, s2, s3, s4: [
+                    2 * a1 + s1,
+                    2 * a2 + s2,
+                    2 * a2 + s3,
+                    2 * a3 + s4,
+                ]
+                evodd_case["p=s"] = lambda s1, s2, s3, s4: [
+                    2 * a1 + s1,
+                    2 * a2 + s2,
+                    2 * a3 + s3,
+                    2 * a1 + s4,
+                ]
+                evodd_case["q=s"] = lambda s1, s2, s3, s4: [
+                    2 * a1 + s1,
+                    2 * a2 + s2,
+                    2 * a3 + s3,
+                    2 * a2 + s4,
+                ]
+
+                for key in evodd_case.keys():
+                    evodd = evodd_case[key]
+                    term = [
+                        Term(1.0, "CCcc", evodd(0, 0, 0, 0)),
+                        Term(0.5, "CCcc", evodd(0, 1, 0, 1)),
+                        Term(0.5, "CCcc", evodd(0, 1, 1, 0)),
+                        Term(0.5, "CCcc", evodd(1, 0, 0, 1)),
+                        Term(0.5, "CCcc", evodd(1, 0, 1, 0)),
+                        Term(1.0, "CCcc", evodd(1, 1, 1, 1)),
+                        Term(-1.0, "CCcc", evodd(0, 0, 0, 0)[::-1]),
+                        Term(-0.5, "CCcc", evodd(0, 1, 0, 1)[::-1]),
+                        Term(-0.5, "CCcc", evodd(0, 1, 1, 0)[::-1]),
+                        Term(-0.5, "CCcc", evodd(1, 0, 0, 1)[::-1]),
+                        Term(-0.5, "CCcc", evodd(1, 0, 1, 0)[::-1]),
+                        Term(-1.0, "CCcc", evodd(1, 1, 1, 1)[::-1]),
+                    ]
+                    hamiltonian = Hamiltonian(2 * n_orb, term)
+                    groups["2"]["triplet"].append(hamiltonian)
+
+    # group 2, singlet
+    for a1 in range(0, n_orb):
+        for a2 in range(a1 + 1, n_orb):
+            for a3 in range(a2 + 1, n_orb):
+                # above are 3 unique numbers.
+                # we implement 4 cases:
+                #   p = r
+                #   q = r
+                #   p = s
+                #   q = s
+
+                evodd_case = {}
+                evodd_case["p=r"] = lambda s1, s2, s3, s4: [
+                    2 * a1 + s1,
+                    2 * a2 + s2,
+                    2 * a1 + s3,
+                    2 * a3 + s4,
+                ]
+                evodd_case["q=r"] = lambda s1, s2, s3, s4: [
+                    2 * a1 + s1,
+                    2 * a2 + s2,
+                    2 * a2 + s3,
+                    2 * a3 + s4,
+                ]
+                evodd_case["p=s"] = lambda s1, s2, s3, s4: [
+                    2 * a1 + s1,
+                    2 * a2 + s2,
+                    2 * a3 + s3,
+                    2 * a1 + s4,
+                ]
+                evodd_case["q=s"] = lambda s1, s2, s3, s4: [
+                    2 * a1 + s1,
+                    2 * a2 + s2,
+                    2 * a3 + s3,
+                    2 * a2 + s4,
+                ]
+
+                for key in evodd_case.keys():
+                    evodd = evodd_case[key]
+
+                    term = [
+                        Term(0.5, "CCcc", evodd(0, 1, 0, 1)),
+                        Term(-0.5, "CCcc", evodd(0, 1, 1, 0)),
+                        Term(-0.5, "CCcc", evodd(1, 0, 0, 1)),
+                        Term(0.5, "CCcc", evodd(1, 0, 1, 0)),
+                        Term(-0.5, "CCcc", evodd(0, 1, 0, 1)[::-1]),
+                        Term(0.5, "CCcc", evodd(0, 1, 1, 0)[::-1]),
+                        Term(0.5, "CCcc", evodd(1, 0, 0, 1)[::-1]),
+                        Term(-0.5, "CCcc", evodd(1, 0, 1, 0)[::-1]),
+                    ]
+                    hamiltonian = Hamiltonian(2 * n_orb, term)
+                    groups["2"]["singlet"].append(hamiltonian)
+
+    # group 3
+    for pq in range(0, n_orb):
+        for r in range(pq + 1, n_orb):
+            for s in range(r + 1, n_orb):
+                evodd = lambda s1, s2, s3, s4: [
+                    2 * pq + s1,
+                    2 * pq + s2,
+                    2 * r + s3,
+                    2 * s + s4,
+                ]
+
+                term = [
+                    Term(1.0, "CCcc", evodd(0, 1, 0, 1)),
+                    Term(1.0, "CCcc", evodd(0, 1, 1, 0)),
+                    Term(-1.0, "CCcc", evodd(0, 1, 0, 1)[::-1]),
+                    Term(-1.0, "CCcc", evodd(0, 1, 1, 0)[::-1]),
+                ]
+                hamiltonian = Hamiltonian(2 * n_orb, term)
+                groups["3"].append(hamiltonian)
+
+    # group 4
+    for pqr in range(0, n_orb):
+        for s in range(pqr + 1, n_orb):
+            evodd = lambda s1, s2, s3, s4: [
+                2 * pqr + s1,
+                2 * pqr + s2,
+                2 * pqr + s3,
+                2 * s + s4,
+            ]
+
+            term = [
+                Term(1.0, "CCcc", evodd(1, 0, 0, 1)),
+                Term(1.0, "CCcc", evodd(0, 1, 1, 0)),
+                Term(-1.0, "CCcc", evodd(1, 0, 0, 1)[::-1]),
+                Term(-1.0, "CCcc", evodd(0, 1, 1, 0)[::-1]),
+            ]
+            hamiltonian = Hamiltonian(2 * n_orb, term)
+            groups["4"].append(hamiltonian)
+
+    # group 5
+    for pq in range(0, n_orb):
+        for rs in range(pq + 1, n_orb):
+            evodd = lambda s1, s2, s3, s4: [
+                2 * pq + s1,
+                2 * pq + s2,
+                2 * rs + s3,
+                2 * rs + s4,
+            ]
+
+            term = [
+                Term(2.0, "CCcc", evodd(0, 1, 0, 1)),
+                Term(-2.0, "CCcc", evodd(0, 1, 0, 1)[::-1]),
+            ]
+            hamiltonian = Hamiltonian(2 * n_orb, term)
+            groups["5"].append(hamiltonian)
+
+    spin_complements = (
+        groups["1"]["singlet"]
+        + groups["1"]["triplet"]
+        + groups["2"]["singlet"]
+        + groups["2"]["triplet"]
+        + groups["3"]
+        + groups["4"]
+        + groups["5"]
+    )
+    return _apply_transforms(spin_complements, transform)
