@@ -1,4 +1,5 @@
 import itertools
+from itertools import combinations
 
 import numpy as np
 from qat.core import Term
@@ -852,3 +853,102 @@ def generalized_singlet_and_triplet_excitations(n_orb, transform):
         + groups["5"]
     )
     return _apply_transforms(spin_complements, transform)
+
+
+# Triple excitations
+def get_possibilities(num, parity, minimum, maximum):
+    assert parity in ["odd", "even"], "parity must be either 'even' or 'odd'"
+    shift = int(parity == "odd")
+    lista = list(range(minimum, maximum))
+    lista = lista[(shift + minimum) % 2 :: 2]
+    return combinations(lista, num)
+
+
+def get_hamiltonian(i, j, k, a, b, c, n_orb):
+    term = [
+        Term(1, "CCCccc", [a, b, c, k, j, i]),
+        Term(-1, "CCCccc", [i, j, k, c, b, a]),
+    ]
+    hamiltonian = Hamiltonian(n_orb, term)
+    return hamiltonian
+
+
+def triple_excitation(n_spatial_orb, n_occ):
+    n_orb = 2 * n_spatial_orb
+    triple = []
+
+    # eee -> eee
+    for i, j, k in get_possibilities(3, "even", 0, n_occ):
+        for a, b, c in get_possibilities(3, "even", n_occ, n_orb):
+            triple.append(get_hamiltonian(i, j, k, a, b, c, n_orb))
+
+    # ooo -> ooo
+    for i, j, k in get_possibilities(3, "odd", 0, n_occ):
+        for a, b, c in get_possibilities(3, "odd", n_occ, n_orb):
+            triple.append(get_hamiltonian(i, j, k, a, b, c, n_orb))
+
+    # ooe -> ooe
+    for i, j in get_possibilities(2, "odd", 0, n_occ):
+        for (k,) in get_possibilities(1, "even", 0, n_occ):
+
+            for a, b in get_possibilities(2, "odd", n_occ, n_orb):
+                for (c,) in get_possibilities(1, "even", n_occ, n_orb):
+                    triple.append(get_hamiltonian(i, j, k, a, b, c, n_orb))
+
+    # eeo -> eeo
+    for i, j in get_possibilities(2, "even", 0, n_occ):
+        for (k,) in get_possibilities(1, "odd", 0, n_occ):
+
+            for a, b in get_possibilities(2, "even", n_occ, n_orb):
+                for (c,) in get_possibilities(1, "odd", n_occ, n_orb):
+                    triple.append(get_hamiltonian(i, j, k, a, b, c, n_orb))
+
+    triple = [g for g in triple if g is not None]
+    return triple
+
+# Single and Double excitations without mp2 guess
+def generate_cluster_ops_without_mp2(n_orb, n_occ):
+    n_orb = 2 * n_orb
+    single = []
+    for a in range(0, n_occ):
+        for i in range(n_occ, n_orb):
+            if i % 2 + a % 2 == 1:
+                continue
+            term = [Term(1, "Cc", [a, i]), Term(-1, "Cc", [i, a])]
+            hamiltonian = Hamiltonian(n_orb, term)
+            single.append(hamiltonian)
+
+    double = []
+    for i in range(n_occ, n_orb):
+        for j in range(i + 2, n_orb):
+            for a in range(0, n_occ):
+                for b in range(a + 2, n_occ):
+                    if i % 2 + a % 2 + j % 2 + b % 2 in [1, 2, 3]:
+                        continue
+                    term = [
+                        Term(1, "CCcc", [a, b, j, i]),
+                        Term(-1, "CCcc", [i, j, b, a]),
+                    ]
+                    hamiltonian = Hamiltonian(n_orb, term)
+                    double.append(hamiltonian)
+
+    for i in range(n_occ, n_orb):
+        if i % 2 == 1:
+            continue
+        for j in range(n_occ, n_orb):
+            if j % 2 == 0:
+                continue
+            for a in range(0, n_occ):
+                if a % 2 == 1:
+                    continue
+                for b in range(0, n_occ):
+                    if b % 2 == 0:
+                        continue
+                    term = [
+                        Term(1, "CCcc", [a, b, j, i]),
+                        Term(-1, "CCcc", [i, j, b, a]),
+                    ]
+                    hamiltonian = Hamiltonian(n_orb, term)
+                    double.append(hamiltonian)
+
+    return single + double
