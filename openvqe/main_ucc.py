@@ -10,7 +10,11 @@ energy_ucc = EnergyUCC()
 
 
 # user can type the name of molecule (H2, LIH, CO, CO2 such that their geormetries and properties are defined in MoleculeQlm())
-molecule_symbol = 'H2'
+
+
+
+:q
+molecule_symbol = ''
 # the type of generators: UCCSD, singlet_sd, singlet_gsd, spin_complement_gsd, spin_complement_gsd_twin, sUPCCGSD
 # suppose user type sUPCCGSD
 type_of_generator = 'sUPCCGSD'
