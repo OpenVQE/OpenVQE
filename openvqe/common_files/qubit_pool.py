@@ -1085,8 +1085,8 @@ class QubitPool:
         x = [i for i in range(nos_qubits)]
         ls = list(itertools.permutations(x, 4))
         for p in range(len(ls)):
-            i, j, k, l = ls[p]
-            if i < j < k < l:
+            i, j, k, L = ls[p]
+            if i < j < k < L:
                 store.append(ls[p])
         return store
 

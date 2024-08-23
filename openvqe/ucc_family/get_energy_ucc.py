@@ -38,7 +38,6 @@ class EnergyUCC:
         qpu = get_default_qpu()
         prog = Program()
         reg = prog.qalloc(hamiltonian_sp.nbqbits)
-        qrout = 0
         for n_term, (term, theta_term) in enumerate(zip(cluster_ops_sp, theta_current)):
             init = hf_init_sp if n_term == 0 else 0
             qprog = build_ucc_ansatz([term], init, n_steps=1)
@@ -77,7 +76,6 @@ class EnergyUCC:
                 the circuit that represent the trial wave function
         
         """
-        qpu = get_default_qpu()
         prog = Program()
         reg = prog.qalloc(hamiltonian_sp.nbqbits)
         for n_term, (term, theta_term) in enumerate(zip(cluster_ops_sp, parameters)):

@@ -1,11 +1,5 @@
-from qat.lang.AQASM import Program, QRoutine, RY, CNOT, RX, Z, H, RZ
-from qat.core import Observable, Term, Circuit
-from qat.lang.AQASM.gates import Gate
-import matplotlib as mpl
+from qat.lang.AQASM import RY, CNOT, H, RZ
 from math import pi
-import numpy as np
-from typing import Optional, List
-import warnings
 
 
 
@@ -191,7 +185,7 @@ def count(gate, mylist):
     instruction.
     returns: it returns number of gates.
     """
-    if type(gate) == type(str):
+    if type(gate) is str:
         gate = str(gate)
     if gate == gate.lower():
         gate = gate.upper()

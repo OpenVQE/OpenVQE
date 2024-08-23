@@ -126,7 +126,6 @@ class EnergyUCC:
         for j in cluster_ops:
             s = j.terms[0].qbits
             list_exci.append(s)
-        qpu = get_default_qpu()
         qprog = efficient_fermionic_ansatz(q, prog, list_exci, theta)
         circ = qprog.to_circ()
         curr_state = circ

@@ -629,12 +629,8 @@ def generalized_singlet_and_triplet_excitations(n_orb, transform):
         for q in range(p + 1, n_orb):
             for r in range(q + 1, n_orb):
                 for s in range(r + 1, n_orb):
-                    evodd = lambda s1, s2, s3, s4: [
-                        2 * p + s1,
-                        2 * q + s2,
-                        2 * r + s3,
-                        2 * s + s4,
-                    ]
+                    def evodd(s1, s2, s3, s4):
+                        return [2 * p + s1, 2 * q + s2, 2 * r + s3, 2 * s + s4]
 
                     term = [
                         Term(1.0, "CCcc", evodd(0, 0, 0, 0)),
@@ -658,12 +654,8 @@ def generalized_singlet_and_triplet_excitations(n_orb, transform):
         for q in range(p + 1, n_orb):
             for r in range(q + 1, n_orb):
                 for s in range(r + 1, n_orb):
-                    evodd = lambda s1, s2, s3, s4: [
-                        2 * p + s1,
-                        2 * q + s2,
-                        2 * r + s3,
-                        2 * s + s4,
-                    ]
+                    def evodd(s1, s2, s3, s4):
+                        return [2 * p + s1, 2 * q + s2, 2 * r + s3, 2 * s + s4]
 
                     term = [
                         Term(0.5, "CCcc", evodd(0, 1, 0, 1)),
@@ -791,12 +783,8 @@ def generalized_singlet_and_triplet_excitations(n_orb, transform):
     for pq in range(0, n_orb):
         for r in range(pq + 1, n_orb):
             for s in range(r + 1, n_orb):
-                evodd = lambda s1, s2, s3, s4: [
-                    2 * pq + s1,
-                    2 * pq + s2,
-                    2 * r + s3,
-                    2 * s + s4,
-                ]
+                def evodd(s1, s2, s3, s4):
+                    return [2 * pq + s1, 2 * pq + s2, 2 * r + s3, 2 * s + s4]
 
                 term = [
                     Term(1.0, "CCcc", evodd(0, 1, 0, 1)),
@@ -810,12 +798,8 @@ def generalized_singlet_and_triplet_excitations(n_orb, transform):
     # group 4
     for pqr in range(0, n_orb):
         for s in range(pqr + 1, n_orb):
-            evodd = lambda s1, s2, s3, s4: [
-                2 * pqr + s1,
-                2 * pqr + s2,
-                2 * pqr + s3,
-                2 * s + s4,
-            ]
+            def evodd(s1, s2, s3, s4):
+                return [2 * pqr + s1, 2 * pqr + s2, 2 * pqr + s3, 2 * s + s4]
 
             term = [
                 Term(1.0, "CCcc", evodd(1, 0, 0, 1)),
@@ -829,12 +813,8 @@ def generalized_singlet_and_triplet_excitations(n_orb, transform):
     # group 5
     for pq in range(0, n_orb):
         for rs in range(pq + 1, n_orb):
-            evodd = lambda s1, s2, s3, s4: [
-                2 * pq + s1,
-                2 * pq + s2,
-                2 * rs + s3,
-                2 * rs + s4,
-            ]
+            def evodd(s1, s2, s3, s4):
+                return [2 * pq + s1, 2 * pq + s2, 2 * rs + s3, 2 * rs + s4]
 
             term = [
                 Term(2.0, "CCcc", evodd(0, 1, 0, 1)),

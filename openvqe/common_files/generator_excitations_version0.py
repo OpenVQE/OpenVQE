@@ -601,7 +601,6 @@ def singlet_upccgsd(n_orb, transform, perm):
 
     # perm: is k here
     print("Form spin-adapted UpCCGSD operators pool: ")
-    mo_excitations = list(itertools.combinations(range(0, n_orb), 2))
     fermi_ops = []
     # Construct general singles
     for p in range(n_orb):
@@ -628,7 +627,6 @@ def singlet_upccgsd(n_orb, transform, perm):
                 fermi_ops.append(ordered_term_a)
     # Construct general paired doubles
     spatial_orb = list(range(n_orb))
-    n_double_amps = len(list(itertools.combinations(spatial_orb, 2)))
     double_excitations = []
     for i, (p, q) in enumerate(itertools.combinations(spatial_orb, 2)):
         pa = 2 * p
@@ -637,9 +635,9 @@ def singlet_upccgsd(n_orb, transform, perm):
         qb = 2 * q + 1
         double_excitations.append([qa, pa, qb, pb])
     #         print("double_excitations",double_excitations)
-    for (i, j, k, l) in double_excitations:
-        i, j, k, l = int(i), int(j), int(k), int(l)
-        term_b = [Term(1.0, "CcCc", [i, j, k, l]), Term(-1.0, "CcCc", [l, k, j, i])]
+    for (i, j, k, L) in double_excitations:
+        i, j, k, L = int(i), int(j), int(k), int(L)
+        term_b = [Term(1.0, "CcCc", [i, j, k, L]), Term(-1.0, "CcCc", [L, k, j, i])]
         ordered_term_b = 0
         for t1 in term_b:
             t_list = order_fermionic_term(t1)

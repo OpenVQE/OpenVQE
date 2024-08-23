@@ -528,8 +528,8 @@ def fermionic_adapt_vqe(
             result["Number_Hadamard_gates"] = n_had
             result["Number_RX_gates"] = n_rx
             print(" -----------Final ansatz----------- ")
-            print(" *final converged energy iteration is %20.12f" % opt_result.fun)
-            result["final_energy_last_iteration"] = opt_result.fun
+            print(" *final converged energy iteration is %20.12f" % opt_result.fun)  # noqa: F821
+            result["final_energy_last_iteration"] = opt_result.fun # noqa: F821
             break
         # the chosen batch of maximum gradients from the list sorted_mylist_value_without_0
         chosen_batch = sorted_mylist_value_without_0

@@ -3,9 +3,6 @@ import warnings
 import scipy.optimize
 from scipy.sparse import SparseEfficiencyWarning
 
-warnings.simplefilter("ignore", SparseEfficiencyWarning)
-import math
-
 import numpy as np
 import scipy
 from numpy import binary_repr
@@ -16,6 +13,8 @@ from scipy import sparse
 
 from ..common_files.sorted_gradient import value_without_0, index_without_0, abs_sort_desc, corresponding_index
 from ..common_files.circuit import count
+
+warnings.simplefilter("ignore", SparseEfficiencyWarning)
 
 def prepare_adapt_state(reference_state, ansatz, coefficients):
     """
@@ -99,7 +98,7 @@ def term_to_matrix_sparse(spin_operator):
     X = sparse.csr_matrix(np.array([[0, 1], [1, 0]]))
     Y = sparse.csr_matrix(np.array([[0, -1j], [1j, 0]]))
     Z = sparse.csr_matrix(np.diag([1, -1]))
-    I = sparse.csr_matrix(np.diag([1, 1]))
+    I = sparse.csr_matrix(np.diag([1, 1]))  # noqa: E741
     dic_Pauli = {"I": I, "X": X, "Y": Y, "Z": Z}
     matrix_final = 0
     nbqbits = spin_operator.nbqbits
@@ -114,7 +113,7 @@ def term_to_matrix_sparse(spin_operator):
             dic_op[qb_term[n]] = dic_Pauli[char_term[n]]
         matrix = 0
         for d in dic_op:
-            if type(matrix) == int:
+            if type(matrix) is int:
                 matrix = dic_op[d]
             else:
                 matrix = scipy.sparse.kron(matrix, dic_op[d])
@@ -505,7 +504,7 @@ def qubit_adapt_vqe(
             result_sim["indices"] = op_indices
             result_sim["len_operators"] = len(op_indices)
             result_sim["parameters"] = parameters_sim
-            result_sim["final_energy"] = opt_result_sim.fun
+            result_sim["final_energy"] = opt_result_sim.fun  # noqa: F821
 
             #             result_ana["optimizer"] = method_ana
             #             result_ana["final_norm"] = curr_norm

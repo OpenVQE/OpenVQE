@@ -68,9 +68,6 @@ fermionic_adapt_vqe(hamiltonian_sparse, cluster_ops_sparse, reference_ket, hamil
 
 
 ## active case
-from openvqe.common_files.molecule_factory_with_sparse import MoleculeFactory
-from openvqe.adapt.fermionic_adapt_vqe import fermionic_adapt_vqe
-
 # initializing the variables in the case of active 
 molecule_symbol = 'H4'
 type_of_generator = 'spin_complement_gsd' #'spin_complement_gsd_twin'

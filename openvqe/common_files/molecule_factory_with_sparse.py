@@ -310,7 +310,7 @@ class MoleculeFactory:
         # nuclear_repulsion = molbasis.nuclear_repulsion
 
         hpq, hpqrs = convert_to_h_integrals(one_body_integrals, two_body_integrals)
-        if active == False:
+        if not active:
 
             hamiltonian = ElectronicStructureHamiltonian(
                 hpq, hpqrs, constant_coeff=nuclear_repulsion
@@ -325,13 +325,13 @@ class MoleculeFactory:
                 orb_energies_full.extend([orbital_energies[ind], orbital_energies[ind]])
             hamiltonian_sp = None
             if transform == "JW":
-                trafo, code = transform_to_jw_basis, get_jw_code
+                trafo = transform_to_jw_basis
                 hamiltonian_sp = trafo(hamiltonian)
             elif transform == "Bravyi-Kitaev":
-                trafo, code = transform_to_bk_basis, get_bk_code
+                trafo= transform_to_bk_basis
                 hamiltonian_sp = trafo(hamiltonian)
             elif transform == "parity_basis":
-                trafo, code = transform_to_parity_basis, get_parity_code
+                trafo = transform_to_parity_basis
                 hamiltonian_sp = trafo(hamiltonian)
             hamiltonian_sparse = hamiltonian.get_matrix(sparse=True)
             hamiltonian_sp_sparse = hamiltonian_sp.get_matrix(sparse=True)
@@ -394,13 +394,13 @@ class MoleculeFactory:
         # print("eigen",min(eigen))
         hamiltonian_active_sp = None
         if transform == "JW":
-            trafo, code = transform_to_jw_basis, get_jw_code
+            trafo = transform_to_jw_basis
             hamiltonian_active_sp = trafo(hamiltonian_active)
         elif transform == "Bravyi-Kitaev":
-            trafo, code = transform_to_bk_basis, get_bk_code
+            trafo = transform_to_bk_basis
             hamiltonian_active_sp = trafo(hamiltonian_active)
         elif transform == "parity_basis":
-            trafo, code = transform_to_parity_basis, get_parity_code
+            trafo = transform_to_parity_basis
             hamiltonian_active_sp = trafo(hamiltonian_active)
         hamiltonian_active_sparse = hamiltonian_active.get_matrix(sparse=True)
         hamiltonian_active_sp_sparse = hamiltonian_active_sp.get_matrix(sparse=True)
@@ -442,7 +442,7 @@ class MoleculeFactory:
         hf_init: int
             the integer corresponding to the occupation of the Hartree-Fock solution
         """
-        if active == False:
+        if not active:
             (
                 hamiltonian,
                 hamiltonian_sparse,
@@ -548,7 +548,7 @@ class MoleculeFactory:
 
         orbital_number = len(orbital_energies)
 
-        if active == True:
+        if active:
             (
                 hamiltonian_active,
                 hamiltonian_active_sparse,

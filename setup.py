@@ -1,5 +1,5 @@
-import os, sys
-from setuptools import setup, find_packages, find_namespace_packages
+import sys
+from setuptools import setup, find_namespace_packages
 from setuptools.command.test import test as TestCommand
 
 class PyTest(TestCommand):

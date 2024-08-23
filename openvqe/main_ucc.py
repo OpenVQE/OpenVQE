@@ -2,7 +2,6 @@
 from openvqe.common_files.qubit_pool import QubitPool
 from openvqe.common_files.molecule_factory import MoleculeFactory
 from openvqe.ucc_family.get_energy_ucc import EnergyUCC
-from qat.fermion.transforms import (get_jw_code, recode_integer)
 
 qubit_pool = QubitPool()
 molecule_factory = MoleculeFactory()

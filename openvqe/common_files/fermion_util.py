@@ -79,16 +79,13 @@ def order_fermionic_ops(fermionic_term):
     Returns:
         ordered_fermionic_terms (list<Term>): the list of ordered fermionic terms
     """
-    coeff = fermionic_term.coeff
     pauli_op = fermionic_term.op
-    qbits = fermionic_term.qbits
-
+    
     ind_c = pauli_op.index('c')
     try:
         ind_C = pauli_op[ind_c:].index('C') + ind_c
     except ValueError:
         new_terms = [fermionic_term]
-        ordered_pauli_op = True
     else:
         new_terms = []
         for new_fermionic_term in permute_fermionic_operator(fermionic_term, ind_C - 1):
