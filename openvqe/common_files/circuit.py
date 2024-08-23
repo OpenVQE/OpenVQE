@@ -185,7 +185,7 @@ def count(gate, mylist):
     instruction.
     returns: it returns number of gates.
     """
-    if type(gate) is str:
+    if type(gate) is type(str):
         gate = str(gate)
     if gate == gate.lower():
         gate = gate.upper()
