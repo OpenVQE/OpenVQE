@@ -63,9 +63,17 @@ The code is based on the well documented code of `myqlm-fermion` framework [link
 The main functions are documented in the code base.
 For more information, please refer to our paper that wil be published soon (the link to be provided).
 
+How to cite
+-----------
+> *Mohammad Haidar, Marko J. Ranˇci´c, Thomas Ayral, Yvon Maday, and Jean-Philip Piquemal. Open source variational quantum eigensolver extension of the quantum learning machine for quantum chemistry. WIREs Computational Molecular Science, page e1664, 2023*
+
+Getting in touch
+-----------
+For any question about OpenVQE or my research, don't hesitate to get in touch: mohammadhaidar2016@outlook.com
+
 License
 -----------
-The code is published under MIT LICENSE.
+OpenVQE was created by Mohammad Haidar. It is licensed under the terms of the MIT License.
 
 References
 -----------
