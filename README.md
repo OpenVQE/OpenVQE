@@ -15,28 +15,21 @@ It consists of two main modules as follows:
 
 Installation
 --------------
-### Prerequisites:
-#### Install myqlm-fermion:
-
-install myqlm-fermion 1.7.1 from source:
-
-```shell
-git clone https://github.com/myQLM/myqlm-fermion.git
-cd myqlm-fermion
-git checkout 1.7.1
-pip install -r requirements.txt
-pip install .
-```
-### Install OpenVQE
 
 install OpenVQE from source:
 ```shell
 git clone https://github.com/OpenVQE/OpenVQE.git
 cd OpenVQE
-pip install -r requirements.txt
 pip install .
 ```
 Move to the next section for getting started!
+
+## If you want to contribute to the package
+
+Install the depencies of OpenVQE
+```shell
+pip install -r requirements.txt
+```
 
 
 Getting started
