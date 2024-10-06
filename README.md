@@ -1,7 +1,7 @@
 OpenVQE: README
 =======================
 
-`OpenVQE` is an Open Source Variational Quantum Eigensolver extension of the Quantum Learning Machine to  Quantum Chemistry. It was developed based on the tools of `myqlm-fermion` 
+`OpenVQE` is an Open Source Variational Quantum Eigensolver extension of the Quantum Learning Machine to  Quantum Chemistry. It was developed based on the tools of `myqlm-fermion` (https://github.com/myQLM/myqlm-fermion.git).
 
 
 It consists of two main modules as follows:
