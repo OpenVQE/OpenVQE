@@ -1,7 +1,7 @@
 OpenVQE: README
 =======================
 
-`OpenVQE` is an Open Source Variational Quantum Eigensolver extension of the Quantum Learning Machine to  Quantum Chemistry. It was developed based on the tools of `myqlm-fermion` 
+`OpenVQE` is an Open Source Variational Quantum Eigensolver extension of the Quantum Learning Machine to  Quantum Chemistry. It was developed based on the tools of `myqlm-fermion` (https://github.com/myQLM/myqlm-fermion.git).
 
 Check the main OpenVQE paper:
 Open Source Variational Quantum Eigensolver Extension of the Quantum Learning Machine (QLM) for Quantum Chemistry. 
@@ -19,28 +19,30 @@ It consists of two main modules as follows:
 
 Installation
 --------------
-### Prerequisites:
-#### Install myqlm-fermion:
-
-install myqlm-fermion 1.7.1 from source:
-
-```shell
-git clone https://github.com/myQLM/myqlm-fermion.git
-cd myqlm-fermion
-git checkout 1.7.1
-pip install -r requirements.txt
-pip install .
-```
-### Install OpenVQE
 
 install OpenVQE from source:
 ```shell
 git clone https://github.com/OpenVQE/OpenVQE.git
 cd OpenVQE
-pip install -r requirements.txt
+git checkout alpha
 pip install .
+pip install -r requirements.txt
 ```
 Move to the next section for getting started!
+
+## Contributing to the Package
+
+Note: OpenVQE is distributed under the MIT license. By contributing code to the package, 
+you agree that your work will be licensed under the MIT license.
+
+1. Click on the fork button.
+2. Deselect the checkbox saying "Copy the main branch only".
+3. Click on "Choose an owner" and select a github profile.
+4. Click on create fork.
+5. Push your changes to your forked repository.
+6. Open a pull request (PR) from your forked repository to the alpha branch of the OpenVQE repository.
+7. Send an email to Mohammad Haidar, including a link to your pull request, a description of your changes and a 
+confirmation that your contribution will be licensed under the MIT license.
 
 
 Getting started

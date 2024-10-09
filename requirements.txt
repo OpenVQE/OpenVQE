@@ -1,2 +1,16 @@
-openfermion==1.5.1 # only for generator_excitation_open_fermion.py
+matplotlib==3.7.5
+myqlm_clinalg==0.1.4
+myqlm_contrib==1.9.5
+myqlm_fermion==1.0.0
+myqlm_simulators==1.9.5
+numpy==1.23.5
+openfermion==1.5.1
 pyscf==2.1.1
+pytest==8.3.3
+qat_comm==1.4.7
+qat_core==1.8.5
+qat_devices==0.2.4
+qat_lang==3.0.4
+qat_variational==1.4.4
+scipy
+setuptools==45.2.0
