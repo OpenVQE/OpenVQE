@@ -20,16 +20,25 @@ install OpenVQE from source:
 ```shell
 git clone https://github.com/OpenVQE/OpenVQE.git
 cd OpenVQE
+git checkout alpha
 pip install .
+pip install -r requirements.txt
 ```
 Move to the next section for getting started!
 
-## If you want to contribute to the package
+## Contributing to the Package
 
-Install the depencies of OpenVQE
-```shell
-pip install -r requirements.txt
-```
+Note: OpenVQE is distributed under the MIT license. By contributing code to the package, 
+you agree that your work will be licensed under the MIT license.
+
+1. Click on the fork button
+2. Deselect the checkbox saying "Copy the main branch only"
+3. Click on "Choose an owner" and select a github profile
+4. Click on create fork
+5. Push your work inside the fork
+6. Create a pull request from your work to the alpha branch of the repository
+7. Send an email to Mohammad Haidar, including a link to your pull request, a description of your changes and a 
+confirmation that your contribution will be licensed under the MIT license.
 
 
 Getting started
