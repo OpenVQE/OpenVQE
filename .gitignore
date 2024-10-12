@@ -1,5 +1,5 @@
 **/__pycache__
 **/.ipynb_checkpoints
 openvqe.egg-info
+openvqe/__init__.pyc
 build
-*.pyc
