@@ -1,0 +1,10 @@
+cuda-quantum==0.6.0
+matplotlib==3.8.3
+numpy==1.23.5
+PennyLane==0.34.0
+pyscf==2.5.0
+qiskit==0.46.0
+tangelo_gc==0.4.2
+symmer==0.0.4
+
+

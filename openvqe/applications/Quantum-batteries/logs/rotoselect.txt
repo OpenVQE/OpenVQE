@@ -1,0 +1,49 @@
+
+num qubits = 2
+minimized <H> = -3685.752685690699
+num params = 2
+rel_error = 0.0006219071477427857 +- 0.0
+duration = 15.443131136894227 += 0.4792104038516241
+generators = ['Y' 'Z']
+
+num qubits = 3
+minimized <H> = -3686.029178576952
+num params = 3
+rel_error = 0.0005469371329549003 +- 1.0842021724855044e-19
+duration = 27.791387510299682 += 0.5674791390256008
+generators = ['Y' 'Y' 'Y']
+
+num qubits = 4
+minimized <H> = -3686.0369129996325
+num params = 4
+rel_error = 0.000544839900429163 +- 1.6744057294626506e-10
+duration = 58.85855326652527 += 0.47227163705900993
+generators = ['Y' 'Y' 'Y' 'Y']
+
+num qubits = 5
+minimized <H> = -3687.303437635621
+num params = 5
+rel_error = 0.00020142442189260775 +- 1.9551532121942776e-09
+duration = 95.05462017059327 += 18.016198490441745
+generators = ['X' 'Y' 'Z' 'Z' 'Y']
+
+num qubits = 6
+minimized <H> = -3687.9344613834696
+num params = 6
+rel_error = 3.0331143735762257e-05 +- 3.120059135878258e-09
+duration = 91.33904914855957 += 0.13936759394181555
+generators = ['Y' 'Y' 'Z' 'X' 'Z' 'Z']
+
+num qubits = 7
+minimized <H> = -3687.5519454900964
+num params = 7
+rel_error = 0.00016069085231439908 +- 9.693472210104152e-05
+duration = 123.26902928352357 += 2.209955604745075
+generators = ['Z' 'X' 'Y' 'Y' 'X' 'X' 'X']
+
+num qubits = 8
+minimized <H> = -3687.6739035584756
+num params = 8
+rel_error = 0.00010097461289188834 +- 4.616436358880851e-09
+duration = 155.10792288780212 += 1.4077798634383725
+generators = ['X' 'Y' 'Y' 'Y' 'Y' 'X' 'Y' 'Y']
