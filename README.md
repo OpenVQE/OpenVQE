@@ -1,7 +1,7 @@
 OpenVQE: README
 =======================
 
-`OpenVQE` is an Open Source Variational Quantum Eigensolver extension of the Quantum Learning Machine to  Quantum Chemistry. It was developed based on the tools of `myqlm-fermion` (https://github.com/myQLM/myqlm-fermion.git).
+`OpenVQE` is an Open Source Variational Quantum Eigensolver extension of the Quantum Learning Machine to Quantum Chemistry. It was developed based on the tools of `myqlm-fermion` (https://github.com/myQLM/myqlm-fermion.git).
 
 Check the main OpenVQE paper:
 Open Source Variational Quantum Eigensolver Extension of the Quantum Learning Machine (QLM) for Quantum Chemistry. 
@@ -43,6 +43,8 @@ git checkout alpha
 pip install .
 pip install -r requirements.txt
 ```
+
+If you want to explore the quantum battery application, you will need to install CUDA and you will need to have an NVIDIA GPU. For detailed installation instructions, please refer to the [NVIDIA CUDA Quantum GitHub page](https://github.com/NVIDIA/cuda-quantum).
 
 ## Contributing to the Package
 
