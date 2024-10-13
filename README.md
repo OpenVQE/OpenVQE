@@ -29,6 +29,21 @@ pip install .
 pip install -r requirements.txt
 ```
 
+## Troubleshooting
+
+If you have a problem with the installation we recommand you to use conda:
+
+```shell
+conda create --name openvqe python=3.11
+conda activate openvqe
+## Repeat the installation steps above
+git clone https://github.com/OpenVQE/OpenVQE.git
+cd OpenVQE
+git checkout alpha
+pip install .
+pip install -r requirements.txt
+```
+
 ## Contributing to the Package
 
 Note: OpenVQE is distributed under the MIT license. By contributing code to the package, 
