@@ -1,52 +1,99 @@
 OpenVQE: README
 =======================
 
-`OpenVQE` is an Open Source Variational Quantum Eigensolver extension of the Quantum Learning Machine to  Quantum Chemistry. It was developed based on the tools of `myqlm-fermion` (https://github.com/myQLM/myqlm-fermion.git).
+**OpenVQE** is an open-source extension of the Variational Quantum Eigensolver (VQE) for quantum chemistry, building on the Quantum Learning Machine (QLM) and developed using tools from [`myqlm-fermion`](https://github.com/myQLM/myqlm-fermion.git). It enhances QLM's capabilities in quantum chemistry computations.
 
-Check the main OpenVQE paper:
-Open Source Variational Quantum Eigensolver Extension of the Quantum Learning Machine (QLM) for Quantum Chemistry. 
-M. Haidar,  M. J. Rančić, T. Ayral, Y. Maday, J.-P. Piquemal, WIREs Comp. Mol. Sci., 2023, e1664 (Open Access)
-DOI: 10.1002/wcms.1664
 
-It consists of two main modules as follows:
+## Key Publication
+For a comprehensive overview, refer to the main OpenVQE paper:
 
-- UCC Family: this module consists of different classes and functions to generate the fermionic cluster operators (fermionic pool) and the  qubit pools and to get the optimized energies from VQE in the case of active and non-active orbital selections. For example, UCCSD, QUCCSD, UCCGSD, K-UpCCGSD, spin-complemented pair, singlet and doublet generalized single and double excitations, etc.
+*Open Source Variational Quantum Eigensolver Extension of the Quantum Learning Machine (QLM) for Quantum Chemistry.*  
+M. Haidar, M. J. Rančić, T. Ayral, Y. Maday, J.-P. Piquemal, *WIREs Comp. Mol. Sci.*, 2023, e1664 (Open Access)  
+DOI: [10.1002/wcms.1664](https://doi.org/10.1002/wcms.1664)
 
-- ADAPT: consists of two sub-modules which are: 
+
+## Modules
+
+
+1. **UCC Family**: this module consists of different classes and functions to generate the fermionic cluster operators (fermionic pool) and the  qubit pools and to get the optimized energies from VQE in the case of active and non-active orbital selections. For example, UCCSD, QUCCSD, UCCGSD, K-UpCCGSD, spin-complemented pair, singlet and doublet generalized single and double excitations, etc.
+
+2. **ADAPT**: Contains two sub-modules:
     - Fermionic-ADAPT: it contains functions that performs the fermionic ADAPT-VQE algorthmic steps  in the active and non-active space selections.
     - Qubit-ADAPT: it  contains functions that perform the Qubit ADAPT-VQE algorithmic steps calculation in the active and non-active space orbital selections.
+
+3. **Applications**: Includes practical quantum computing applications, such as calculating the ground state energy of battery materials.
 
 
 Installation
 --------------
 
-install OpenVQE from source:
-```shell
+To install OpenVQE from source:
+
+```bash
 git clone https://github.com/OpenVQE/OpenVQE.git
 cd OpenVQE
 git checkout alpha
 pip install .
 pip install -r requirements.txt
 ```
-Move to the next section for getting started!
+
+## Troubleshooting
+
+If you have a problem with the installation we recommand using `conda`:
+
+```shell
+conda create --name openvqe python=3.11
+conda activate openvqe
+# Repeat the installation steps above
+git clone https://github.com/OpenVQE/OpenVQE.git
+cd OpenVQE
+git checkout alpha
+pip install .
+pip install -r requirements.txt
+```
+
+To explore the quantum battery application, you will need to install CUDA and have an NVIDIA GPU. For detailed instructions, refer to the    [NVIDIA CUDA Quantum GitHub page](https://github.com/NVIDIA/cuda-quantum).
 
 ## Contributing to the Package
 
-Note: OpenVQE is distributed under the MIT license. By contributing code to the package, 
-you agree that your work will be licensed under the MIT license.
+OpenVQE is distributed under the MIT license. By contributing, you agree to license your work under MIT. Here's how to contribute:
 
-1. Click on the fork button.
-2. Deselect the checkbox saying "Copy the main branch only".
-3. Click on "Choose an owner" and select a github profile.
-4. Click on create fork.
-5. Push your changes to your forked repository.
-6. Open a pull request (PR) from your forked repository to the alpha branch of the OpenVQE repository.
-7. Send an email to Mohammad Haidar, including a link to your pull request, a description of your changes and a 
-confirmation that your contribution will be licensed under the MIT license.
+- Go to the OpenVQE main page and click the fork button.
 
+![alt text](images/image-6.png)
+- Deselect "Copy the main branch only".
+- Click on "Choose an owner" and select a github profile.
+- Click on create fork.
+- Open a terminal.
+- Follow the installation protocol above.
+- Create a new branch for development: 
+```shell
+git branch my_amazing_application origin/master`
+git checkout my_amazing_application`
+```
+- Add your new amazing functionnalities and push your changes: 
+```shell
+git push origin HEAD
+```
+- Open a pull request (PR) to the alpha branch of the OpenVQE repository.
+    - Go to your github fork.
+    - Click on the contribute button.
+
+    ![alt text](images/image.png)
+    - Click on open pull request.
+
+    ![alt text](images/image-2.png)
+    - Open a pull request (PR) from your forked repository to the alpha branch of the OpenVQE repository.
+
+    ![alt text](images/image-3.png)
+    - Click on create pull request.
+
+    ![alt text](images/image-4.png)
+- Finally, send an email to Mohammad Haidar (mohammadhaidar2016@outlook.com) with Nathan Vaneberg (nathanvaneberg@gmail.com) cc'd. Include a link to your PR, a description of your changes, and confirm your contribution will be licensed under MIT.
 
 Getting started
 ----------------
+
 ### Notebooks
 
 Jupyter notebooks are available in the "notebooks" folder.
@@ -63,7 +110,10 @@ Documentation
 ---------------
 The code is based on the well documented code of `myqlm-fermion` framework [link](https://myqlm.github.io/).
 The main functions are documented in the code base.
-For more information, please refer to our paper that wil be published soon (the link to be provided).
+For more information, please refer to our paper: 
+> *Open Source Variational Quantum Eigensolver Extension of the Quantum Learning Machine (QLM) for Quantum Chemistry. 
+M. Haidar,  M. J. Rančić, T. Ayral, Y. Maday, J.-P. Piquemal, WIREs Comp. Mol. Sci., 2023, e1664 (Open Access)
+DOI: 10.1002/wcms.1664*
 
 How to cite
 -----------
@@ -71,11 +121,16 @@ How to cite
 
 Getting in touch
 -----------
-For any question about OpenVQE or my research, don't hesitate to get in touch: mohammadhaidar2016@outlook.com
+For any questions regarding OpenVQE or related research, contact: mohammadhaidar2016@outlook.com.
 
 License
 -----------
-OpenVQE was created by Mohammad Haidar. It is licensed under the terms of the MIT License.
+OpenVQE is created by Mohammad Haidar and licensed under the MIT License.
+
+Thanks
+-----------
+
+Special thanks to Gopal Dahale, a Master's student in Quantum Science at EPFL, for integrating the lithium battery application into the repository. Check out his [GitHub](https://github.com/Gopal-Dahale).
 
 References
 -----------

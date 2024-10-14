@@ -1,0 +1,15 @@
+num qubits = 7
+num electrons = 6
+Total number of excitations = 3
+minimized <H> = -3687.933938864535
+num params = 1
+rel_error = 3.07258379324663e-05 +- 4.891451946801623e-07
+duration = 0.29247909784317017 += 0.14773768329269152
+
+num qubits = 8
+num electrons = 6
+Total number of excitations = 15
+minimized <H> = -3687.9339854072505
+num params = 2
+rel_error = 3.077080408749317e-05 +- 3.090367112650077e-07
+duration = 1.218956708908081 += 0.06472412547952634
