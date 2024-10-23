@@ -59,7 +59,7 @@ To explore the quantum battery application, you will need to install CUDA and ha
 
 ## Contributing to the Package
 
-Please read the CONTRIBUTING.MD file.
+Please read the CONTRIBUTING.md file.
 
 Getting started
 ----------------
