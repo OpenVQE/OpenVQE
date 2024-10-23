@@ -1,7 +1,7 @@
 matplotlib==3.7.5
 myqlm_clinalg==0.1.4
 myqlm_contrib==1.9.5
-myqlm_fermion==1.0.0
+myqlm_fermion==1.1.4
 myqlm_simulators==1.9.5
 numpy==1.23.5
 openfermion==1.6.1
