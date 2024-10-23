@@ -1,7 +1,7 @@
 OpenVQE: README
 =======================
 
-[![License](https://img.shields.io/github/license/OpenVQE/openvqe.svg)]
+[![License](https://img.shields.io/github/license/OpenVQE/openvqe.svg)](https://opensource.org/licenses/MIT)
 [![Current Release](https://img.shields.io/github/v/release/OpenVQE/openvqe.svg)](https://github.com/OpenVQE/openvqe/releases)
 
 **OpenVQE** is an open-source extension of the Variational Quantum Eigensolver (VQE) for quantum chemistry, building on the Quantum Learning Machine (QLM) and developed using tools from [`myqlm-fermion`](https://github.com/myQLM/myqlm-fermion.git). It enhances QLM's capabilities in quantum chemistry computations. This repository produce quantum computing applications. Please follows us as there will be more and more applications to coming.
