@@ -1,8 +1,10 @@
 OpenVQE: README
 =======================
 
-**OpenVQE** is an open-source extension of the Variational Quantum Eigensolver (VQE) for quantum chemistry, building on the Quantum Learning Machine (QLM) and developed using tools from [`myqlm-fermion`](https://github.com/myQLM/myqlm-fermion.git). It enhances QLM's capabilities in quantum chemistry computations.
+[![License](https://img.shields.io/github/license/OpenVQE/openvqe.svg)](https://opensource.org/licenses/MIT)
+[![Current Release](https://img.shields.io/github/v/release/OpenVQE/openvqe.svg)](https://github.com/OpenVQE/openvqe/releases)
 
+**OpenVQE** is an open-source extension of the Variational Quantum Eigensolver (VQE) for quantum chemistry, building on the Quantum Learning Machine (QLM) and developed using tools from [`myqlm-fermion`](https://github.com/myQLM/myqlm-fermion.git). It enhances QLM's capabilities in quantum chemistry computations. This repository produce quantum computing applications. Please follows us as there will be more and more applications to coming.
 
 ## Key Publication
 For a comprehensive overview, refer to the main OpenVQE paper:
@@ -21,7 +23,8 @@ DOI: [10.1002/wcms.1664](https://doi.org/10.1002/wcms.1664)
     - Fermionic-ADAPT: it contains functions that performs the fermionic ADAPT-VQE algorthmic steps  in the active and non-active space selections.
     - Qubit-ADAPT: it  contains functions that perform the Qubit ADAPT-VQE algorithmic steps calculation in the active and non-active space orbital selections.
 
-3. **Applications**: Includes practical quantum computing applications, such as calculating the ground state energy of battery materials.
+3. **Applications**: Contains practical quantum computing applications:
+    - simulation of lithium batteries using quantum computing produced by Gopal Dahale, a Master's student in Quantum Science at EPFL, for integrating the lithium battery application into the repository. Check out his [GitHub](https://github.com/Gopal-Dahale).
 
 
 Installation
@@ -56,55 +59,18 @@ To explore the quantum battery application, you will need to install CUDA and ha
 
 ## Contributing to the Package
 
-OpenVQE is distributed under the MIT license. By contributing, you agree to license your work under MIT. Here's how to contribute:
-
-- Go to the OpenVQE main page and click the fork button.
-
-![alt text](images/image-6.png)
-- Deselect "Copy the main branch only".
-- Click on "Choose an owner" and select a github profile.
-- Click on create fork.
-- Open a terminal.
-- Follow the installation protocol above.
-- Create a new branch for development: 
-```shell
-git branch my_amazing_application origin/master`
-git checkout my_amazing_application`
-```
-- Add your new amazing functionnalities and push your changes: 
-```shell
-git push origin HEAD
-```
-- Open a pull request (PR) to the alpha branch of the OpenVQE repository.
-    - Go to your github fork.
-    - Click on the contribute button.
-
-    ![alt text](images/image.png)
-    - Click on open pull request.
-
-    ![alt text](images/image-2.png)
-    - Open a pull request (PR) from your forked repository to the alpha branch of the OpenVQE repository.
-
-    ![alt text](images/image-3.png)
-    - Click on create pull request.
-
-    ![alt text](images/image-4.png)
-- Finally, send an email to Mohammad Haidar (mohammadhaidar2016@outlook.com) with Nathan Vaneberg (nathanvaneberg@gmail.com) cc'd. Include a link to your PR, a description of your changes, and confirm your contribution will be licensed under MIT.
+Please read the CONTRIBUTING.md file.
 
 Getting started
 ----------------
 
-### Notebooks
+## Video tutorial
 
-Jupyter notebooks are available in the "notebooks" folder.
+Please checkout the lecture of Dr. Mohammad Haidar on how to use openVQE: https://www.youtube.com/watch?v=NkRFcn4LuNs. 
 
-### Hello world example
+## Notebook 
 
-
-```shell
-from openvqe.ucc import ...
-
-```
+Tutorials are stored inside jupyter notebooks in the "notebooks" folder. These notebooks contains examples of code using openVQE that you can run locally. The lithium battery application also has an dedicated notebooks. 
 
 Documentation
 ---------------
@@ -126,11 +92,6 @@ For any questions regarding OpenVQE or related research, contact: mohammadhaidar
 License
 -----------
 OpenVQE is created by Mohammad Haidar and licensed under the MIT License.
-
-Thanks
------------
-
-Special thanks to Gopal Dahale, a Master's student in Quantum Science at EPFL, for integrating the lithium battery application into the repository. Check out his [GitHub](https://github.com/Gopal-Dahale).
 
 References
 -----------
