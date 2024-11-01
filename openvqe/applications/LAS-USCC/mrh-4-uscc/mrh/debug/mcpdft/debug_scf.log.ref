@@ -1,0 +1,1084 @@
+#INFO: **** input file is /home/herme068/gits/mrh/tests/mcpdft/debug_scf.py ****
+import numpy as np
+from scipy import linalg
+from pyscf import gto, scf, lib, mcscf
+from pyscf.tools import molden
+from pyscf.fci.direct_spin1 import _unpack_nelec
+from mrh.my_pyscf import mcpdft
+from mrh.my_pyscf.fci import csf_solver
+import unittest
+
+lib.logger.TIMER_LEVEL = lib.logger.INFO
+mol = gto.M (atom = 'N 0 0 0; N 1.2 0 0', basis='cc-pvdz', verbose=lib.logger.INFO, output='debug_scf.log')
+mf = scf.RHF (mol).run ()
+mc_ecas = mcpdft.CASSCF (mf, 'tLDA,VWN3', 6, 6, ci_min='ecas').run ()
+molden.from_mcscf (mc_ecas, 'debug_scf.molden')
+casci_epdft = mcpdft.CASCI (mf, 'tLDA,VWN3', 6, 6, ci_min='epdft').set (mo_coeff=mc_ecas.mo_coeff).run ()
+mc_epdft = mcpdft.CASSCF (mf, 'tLDA,VWN3', 6, 6, ci_min='epdft').set (mo_coeff=mc_ecas.mo_coeff, ci=casci_epdft.ci).run ()
+
+#rnn = np.arange (0.8, 4.81, 0.125)
+#epdft = np.zeros_like (rnn)
+#epdft_var = np.zeros_like (rnn)
+#ci0_casscf = np.zeros_like (rnn)
+#ci0_pdft_var = np.zeros_like (rnn)
+#tab = np.vstack ((rnn, epdft, epdft_var, ci0_casscf, ci0_pdft_var)).T
+#
+#for row in tab:
+#    mol = gto.M (atom = 'N 0 0 0; N {} 0 0'.format (row[0]), basis='cc-pvdz', verbose=lib.logger.INFO, output='debug_scf.log')
+#    mf = scf.RHF (mol).run ()
+#    mc_ecas = mcpdft.CASSCF (mf, 'tLDA,VWN3', 6, 6, ci_min='ecas').run ()
+#    molden.from_mcscf (mc_ecas, 'debug_scf.molden')
+#    mc_epdft = mcpdft.CASCI (mf, 'tLDA,VWN3', 6, 6, ci_min='epdft').set (mo_coeff=mc_ecas.mo_coeff).run ()
+#    row[1] = mc_ecas.e_tot
+#    row[2] = mc_epdft.e_tot
+#    row[3] = mc_ecas.ci[0,0]**2
+#    row[4] = mc_epdft.ci[0,0]**2
+#    print (" {:>5.3f} {:>15.10f} {:>15.10f} {:>15.10f} {:>15.10f}".format (*row))
+#
+#print ("{:>6s} {:>15s} {:>15s} {:>19s} {:>21s}".format ("dr", "E(CASSCF)", "E(PDFT-SCF)", "|ci[0,0]|^2(CASSCF)", "|ci[0,0]|^2(PDFT-SCF)"))
+#for row in tab:
+#    print (" {:>5.3f} {:>15.10f} {:>15.10f} {:>19.10f} {:>21.10f}".format (*row))
+
+
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='herme068', release='4.19.0-16-amd64', version='#1 SMP Debian 4.19.181-1 (2021-03-19)', machine='x86_64', processor='')  Threads 8
+Python 3.7.3 (default, Mar 27 2019, 22:11:17) 
+[GCC 7.3.0]
+numpy 1.16.2  scipy 1.2.1
+Date: Sun Apr  4 14:37:05 2021
+PySCF version 1.7.6a1
+PySCF path  /home/herme068/anaconda3/envs/pyscf/lib/python3.7/site-packages/pyscf
+GIT ORIG_HEAD 3ef0f7c12d71276bac6c5aa9925a975def38c6ba
+GIT HEAD      ref: refs/heads/sacasscf_grad_convention
+GIT sacasscf_grad_convention branch  3ef0f7c12d71276bac6c5aa9925a975def38c6ba
+
+[ENV] PYSCF_TMPDIR /home/herme068/pyscf_workdir
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 2
+[INPUT] num. electrons = 14
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT]  1 N      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr
+[INPUT]  2 N      1.200000000000   0.000000000000   0.000000000000 AA    2.267671349478   0.000000000000   0.000000000000 Bohr
+
+nuclear repulsion = 21.6080694459
+number of shells = 10
+number of NR pGTOs = 52
+number of NR cGTOs = 28
+basis = cc-pvdz
+ecp = {}
+CPU time:         0.22
+
+
+******** <class 'pyscf.scf.hf.RHF'> ********
+method = RHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /home/herme068/pyscf_workdir/tmpexmh1dmu
+max_memory 4000 MB (current use 77 MB)
+Set gradient conv threshold to 3.16228e-05
+init E= -108.66592453301
+    CPU time for initialize scf      0.24 sec, wall time      0.04 sec
+  HOMO = -0.362319032947145  LUMO = 0.0332103891978509
+cycle= 1 E= -108.891321627058  delta_E= -0.225  |g|= 0.304  |ddm|= 1.69
+    CPU time for cycle= 1      0.03 sec, wall time      0.00 sec
+  HOMO = -0.614908525636462  LUMO = 0.0817082857779558
+cycle= 2 E= -108.912607725097  delta_E= -0.0213  |g|= 0.0711  |ddm|= 0.268
+    CPU time for cycle= 2      0.02 sec, wall time      0.00 sec
+  HOMO = -0.564780066399265  LUMO = 0.127429374616618
+cycle= 3 E= -108.913961733218  delta_E= -0.00135  |g|= 0.0153  |ddm|= 0.0586
+    CPU time for cycle= 3      0.02 sec, wall time      0.00 sec
+  HOMO = -0.568815120801096  LUMO = 0.124363234445159
+cycle= 4 E= -108.914051730914  delta_E= -9e-05  |g|= 0.000948  |ddm|= 0.0226
+    CPU time for cycle= 4      0.02 sec, wall time      0.00 sec
+  HOMO = -0.568349521589312  LUMO = 0.124840750018997
+cycle= 5 E= -108.914051971126  delta_E= -2.4e-07  |g|= 0.000108  |ddm|= 0.00102
+    CPU time for cycle= 5      0.02 sec, wall time      0.00 sec
+  HOMO = -0.568349741566256  LUMO = 0.124836315935472
+cycle= 6 E= -108.914051974998  delta_E= -3.87e-09  |g|= 1.12e-05  |ddm|= 0.000136
+    CPU time for cycle= 6      0.02 sec, wall time      0.00 sec
+  HOMO = -0.568345210845302  LUMO = 0.12484041091882
+cycle= 7 E= -108.914051975051  delta_E= -5.27e-11  |g|= 1.49e-06  |ddm|= 2.99e-05
+    CPU time for cycle= 7      0.03 sec, wall time      0.00 sec
+  HOMO = -0.568344951713546  LUMO = 0.124840503813143
+Extra cycle  E= -108.914051975052  delta_E= -9.66e-13  |g|= 4.35e-07  |ddm|= 2.84e-06
+    CPU time for scf_cycle      0.44 sec, wall time      0.06 sec
+    CPU time for SCF      0.44 sec, wall time      0.07 sec
+converged SCF energy = -108.914051975052
+Building tLDA,VWN3 functional
+Building tLDA,VWN3 functional
+
+******** <class 'mrh.my_pyscf.mcpdft.mcpdft.get_mcpdft_child_class.<locals>.PDFT'> ********
+CAS (3e+3e, 6o), ncore = 4, nvir = 18
+max_cycle_macro = 50
+max_cycle_micro = 4
+conv_tol = 1e-07
+conv_tol_grad = None
+orbital rotation max_stepsize = 0.02
+augmented hessian ah_max_cycle = 30
+augmented hessian ah_conv_tol = 1e-12
+augmented hessian ah_linear dependence = 1e-14
+augmented hessian ah_level shift = 0
+augmented hessian ah_start_tol = 2.5
+augmented hessian ah_start_cycle = 3
+augmented hessian ah_grad_trust_region = 3
+kf_trust_region = 3
+kf_interval = 4
+ci_response_space = 4
+ci_grad_trust_region = 3
+with_dep4 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+ao2mo_level = 2
+chkfile = /home/herme068/pyscf_workdir/tmpexmh1dmu
+max_memory 4000 MB (current use 94 MB)
+internal_rotation = False
+******** <class 'pyscf.fci.direct_spin1.FCISolver'> ********
+max. cycles = 50
+conv_tol = 1e-08
+davidson only = False
+linear dependence = 1e-10
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 1
+pspace_size = 400
+spin = None
+on-top pair density exchange-correlation functional: tLDA,VWN3
+    CPU time for integral transformation to CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for effective h1e in CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for FCI solver      0.51 sec, wall time      0.06 sec
+CASCI E = -109.00468049804  S^2 = 0.0000000
+Set conv_tol_grad to 0.000316228
+    CPU time for Initializing 1-step CASSCF      0.64 sec, wall time      0.08 sec
+    CPU time for CAS DM      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 4 inner iters      0.09 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.14 sec, wall time      0.02 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 8 inner iters      0.06 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.10 sec, wall time      0.01 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 2      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 12 inner iters      0.07 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.11 sec, wall time      0.01 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 3      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 16 inner iters      0.07 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.12 sec, wall time      0.01 sec
+    CPU time for update eri      0.06 sec, wall time      0.01 sec
+    CPU time for integral transformation to CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for effective h1e in CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for FCI solver      0.68 sec, wall time      0.09 sec
+macro iter 1 (21 JK  4 micro), CASSCF E = -109.037169009989  dE = -0.032488512  S^2 = 0.0000000
+               |grad[o]|=0.0849  |grad[c]|= 0.04093023865304657  |ddm|=0.021
+    CPU time for CASCI solver      0.74 sec, wall time      0.09 sec
+    CPU time for macro iter 1      1.45 sec, wall time      0.18 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 4 inner iters      0.09 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.16 sec, wall time      0.02 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 8 inner iters      0.06 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.11 sec, wall time      0.01 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 2      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 12 inner iters      0.07 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.11 sec, wall time      0.01 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 3      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 16 inner iters      0.07 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.12 sec, wall time      0.01 sec
+    CPU time for update eri      0.06 sec, wall time      0.01 sec
+    CPU time for integral transformation to CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for effective h1e in CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for FCI solver      0.68 sec, wall time      0.09 sec
+macro iter 2 (21 JK  4 micro), CASSCF E = -109.063751411524  dE = -0.026582402  S^2 = 0.0000000
+               |grad[o]|=0.0595  |grad[c]|= 0.04672565146134173  |ddm|=0.0107
+    CPU time for CASCI solver      0.74 sec, wall time      0.09 sec
+    CPU time for macro iter 2      1.49 sec, wall time      0.19 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 4 inner iters      0.09 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.16 sec, wall time      0.02 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 8 inner iters      0.06 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.11 sec, wall time      0.01 sec
+    CPU time for update CAS DM      0.07 sec, wall time      0.01 sec
+    CPU time for micro iter 2      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 12 inner iters      0.07 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.11 sec, wall time      0.01 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 3      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 14 inner iters      0.04 sec, wall time      0.00 sec
+    CPU time for orbital rotation      0.08 sec, wall time      0.01 sec
+    CPU time for update eri      0.06 sec, wall time      0.01 sec
+    CPU time for integral transformation to CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for effective h1e in CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for FCI solver      0.69 sec, wall time      0.09 sec
+macro iter 3 (19 JK  4 micro), CASSCF E = -109.074910945909  dE = -0.011159534  S^2 = 0.0000000
+               |grad[o]|=0.0383  |grad[c]|= 0.040476872059696974  |ddm|=0.0103
+    CPU time for CASCI solver      0.75 sec, wall time      0.09 sec
+    CPU time for macro iter 3      1.48 sec, wall time      0.19 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 1 inner iters      0.05 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.12 sec, wall time      0.02 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 3 inner iters      0.03 sec, wall time      0.00 sec
+    CPU time for orbital rotation      0.08 sec, wall time      0.01 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 2      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 4 inner iters      0.02 sec, wall time      0.00 sec
+    CPU time for orbital rotation      0.07 sec, wall time      0.01 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 3      0.00 sec, wall time      0.00 sec
+    CPU time for update eri      0.06 sec, wall time      0.01 sec
+    CPU time for integral transformation to CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for effective h1e in CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for FCI solver      0.52 sec, wall time      0.06 sec
+macro iter 4 (8 JK  3 micro), CASSCF E = -109.075063701339  dE = -0.00015275543  S^2 = 0.0000000
+               |grad[o]|=0.0199  |grad[c]|= 0.00015978459025087652  |ddm|=0.00205
+    CPU time for CASCI solver      0.57 sec, wall time      0.07 sec
+    CPU time for macro iter 4      1.09 sec, wall time      0.14 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.12 sec, wall time      0.01 sec
+    CPU time for update CAS DM      0.06 sec, wall time      0.01 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for update eri      0.06 sec, wall time      0.01 sec
+    CPU time for integral transformation to CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for effective h1e in CAS space      0.00 sec, wall time      0.00 sec
+    CPU time for FCI solver      0.52 sec, wall time      0.06 sec
+macro iter 5 (3 JK  1 micro), CASSCF E = -109.075063731675  dE = -3.0335997e-08  S^2 = 0.0000000
+               |grad[o]|=0.000103  |grad[c]|= 5.43157025841989e-05  |ddm|=1.32e-05
+    CPU time for CASCI solver      0.57 sec, wall time      0.07 sec
+    CPU time for macro iter 5      0.81 sec, wall time      0.10 sec
+1-step CASSCF converged in 5 macro (72 JK 16 micro) steps
+CASSCF canonicalization
+Density matrix diagonal elements [1.97435779 1.92051147 1.92051147 0.07937205 0.07937205 0.02587517]
+    CPU time for 1-step CASSCF      7.03 sec, wall time      0.88 sec
+CASSCF energy = -109.075063731675
+CASCI E = -109.075063731675  E(CI) = -12.7687146364969  S^2 = 0.0000000
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+tot grids = 28092
+    CPU time for untransformed density      0.13 sec, wall time      0.02 sec
+    CPU time for otpd ao2mo      0.03 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.13 sec, wall time      0.02 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.37 sec, wall time      0.05 sec
+Building tLDA,VWN3 functional
+
+******** CASCI flags ********
+CAS (3e+3e, 6o), ncore = 4, nvir = 18
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+max_memory 4000 (MB)
+******** <class 'pyscf.fci.direct_spin1.FCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = False
+linear dependence = 1e-10
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 1
+pspace_size = 400
+spin = None
+on-top pair density exchange-correlation functional: tLDA,VWN3
+    CPU time for integral transformation to CAS space      0.01 sec, wall time      0.00 sec
+    CPU time for effective h1e in CAS space      0.01 sec, wall time      0.00 sec
+tot grids = 28092
+    CPU time for untransformed densities (core and total)      0.17 sec, wall time      0.02 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.09 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.14 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.62 sec, wall time      0.08 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.09 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.26 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 0 ECAS = -1.089108e+02, EPDFT = -1.088963e+02, |grad| = 1.596033e-02, dEPDFT = -1.088963e+02, d<c.Hpdft.c> = -1.195080e+01
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.14 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.57 sec, wall time      0.07 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 1 ECAS = -1.089915e+02, EPDFT = -1.089109e+02, |grad| = 2.062002e-06, dEPDFT = -1.461517e-02, d<c.Hpdft.c> = 4.553659e-02
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 2 ECAS = -1.089921e+02, EPDFT = -1.089109e+02, |grad| = 1.113839e-10, dEPDFT = -1.794418e-06, d<c.Hpdft.c> = 4.418980e-04
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.14 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 3 ECAS = -1.089921e+02, EPDFT = -1.089109e+02, |grad| = 4.250337e-12, dEPDFT = -8.330403e-11, d<c.Hpdft.c> = 2.886017e-06
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.57 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 4 ECAS = -1.089921e+02, EPDFT = -1.089109e+02, |grad| = 4.250337e-12, dEPDFT = 0.000000e+00, d<c.Hpdft.c> = -1.776357e-15
+    CPU time for MC-PDFT CI fp iteration      6.70 sec, wall time      0.84 sec
+Density matrix diagonal elements [1.99607673 1.98467166 1.98467166 0.0153637  0.0153637  0.00385253]
+CASCI converged
+MC-PDFT E = -108.91090654825  E(CASCI) = -12.6857695331642  S^2 = 0.0000000
+Building tLDA,VWN3 functional
+Building tLDA,VWN3 functional
+
+******** <class 'mrh.my_pyscf.mcpdft.mcpdft.get_mcpdft_child_class.<locals>.PDFT'> ********
+CAS (3e+3e, 6o), ncore = 4, nvir = 18
+max_cycle_macro = 50
+max_cycle_micro = 4
+conv_tol = 1e-07
+conv_tol_grad = None
+orbital rotation max_stepsize = 0.02
+augmented hessian ah_max_cycle = 30
+augmented hessian ah_conv_tol = 1e-12
+augmented hessian ah_linear dependence = 1e-14
+augmented hessian ah_level shift = 0
+augmented hessian ah_start_tol = 2.5
+augmented hessian ah_start_cycle = 3
+augmented hessian ah_grad_trust_region = 3
+kf_trust_region = 3
+kf_interval = 4
+ci_response_space = 4
+ci_grad_trust_region = 3
+with_dep4 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+ao2mo_level = 2
+chkfile = /home/herme068/pyscf_workdir/tmpexmh1dmu
+max_memory 4000 MB (current use 205 MB)
+internal_rotation = False
+******** <class 'pyscf.fci.direct_spin1.FCISolver'> ********
+max. cycles = 50
+conv_tol = 1e-08
+davidson only = False
+linear dependence = 1e-10
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 1
+pspace_size = 400
+spin = None
+on-top pair density exchange-correlation functional: tLDA,VWN3
+tot grids = 28092
+    CPU time for untransformed densities (core and total)      0.13 sec, wall time      0.02 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.60 sec, wall time      0.07 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 0 ECAS = -1.089921e+02, EPDFT = -1.089109e+02, |grad| = 4.250337e-12, dEPDFT = -1.089109e+02, d<c.Hpdft.c> = -1.191927e+01
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.57 sec, wall time      0.07 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 1 ECAS = -1.089921e+02, EPDFT = -1.089109e+02, |grad| = 4.250337e-12, dEPDFT = 0.000000e+00, d<c.Hpdft.c> = 7.105427e-15
+    CPU time for MC-PDFT CI fp iteration      2.25 sec, wall time      0.28 sec
+MC-PDFT E = -108.91090654825  S^2 = 0.0000000  CASCI E = -108.992118628343
+Set conv_tol_grad to 0.000316228
+    CPU time for Initializing 1-step CASSCF      2.38 sec, wall time      0.30 sec
+    CPU time for CAS DM      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 4 inner iters      0.09 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.14 sec, wall time      0.02 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.62 sec, wall time      0.08 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 8 inner iters      0.07 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.12 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.62 sec, wall time      0.08 sec
+    CPU time for micro iter 2      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 12 inner iters      0.07 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.12 sec, wall time      0.02 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.62 sec, wall time      0.08 sec
+    CPU time for micro iter 3      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 16 inner iters      0.08 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.13 sec, wall time      0.02 sec
+    CPU time for update eri      0.06 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.57 sec, wall time      0.07 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 0 ECAS = -1.089932e+02, EPDFT = -1.089044e+02, |grad| = 5.367207e-06, dEPDFT = -1.089044e+02, d<c.Hpdft.c> = -1.210048e+01
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 1 ECAS = -1.089923e+02, EPDFT = -1.089045e+02, |grad| = 3.192581e-10, dEPDFT = -2.919515e-05, d<c.Hpdft.c> = -9.693904e-04
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.57 sec, wall time      0.07 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 2 ECAS = -1.089923e+02, EPDFT = -1.089045e+02, |grad| = 1.772779e-11, dEPDFT = -2.444822e-07, d<c.Hpdft.c> = -4.952022e-06
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.57 sec, wall time      0.07 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 3 ECAS = -1.089923e+02, EPDFT = -1.089045e+02, |grad| = 1.772779e-11, dEPDFT = 0.000000e+00, d<c.Hpdft.c> = 1.243450e-14
+    CPU time for MC-PDFT CI fp iteration      5.09 sec, wall time      0.64 sec
+macro iter 1 (21 JK  4 micro), MC-PDFT E = -108.904471516355  dE = 0.087647112  S^2 = 0.0000000  CASCI E = -108.992290273175
+               |grad[o]|=0.0649  |grad[c]|= 0.0012151929733196878  |ddm|=0.00289
+    CPU time for CASCI solver      5.15 sec, wall time      0.64 sec
+    CPU time for macro iter 1      7.58 sec, wall time      0.95 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 4 inner iters      0.09 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.17 sec, wall time      0.02 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.61 sec, wall time      0.08 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 7 inner iters      0.05 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.10 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.61 sec, wall time      0.08 sec
+    CPU time for micro iter 2      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 10 inner iters      0.05 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.10 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.62 sec, wall time      0.08 sec
+    CPU time for micro iter 3      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 13 inner iters      0.05 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.11 sec, wall time      0.01 sec
+    CPU time for update eri      0.06 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.57 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 0 ECAS = -1.089918e+02, EPDFT = -1.089038e+02, |grad| = 1.711678e-06, dEPDFT = -1.089038e+02, d<c.Hpdft.c> = -1.212255e+01
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 1 ECAS = -1.089919e+02, EPDFT = -1.089038e+02, |grad| = 7.253125e-11, dEPDFT = 1.201918e-05, d<c.Hpdft.c> = 6.797963e-05
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for rdms      0.01 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.11 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 2 ECAS = -1.089919e+02, EPDFT = -1.089038e+02, |grad| = 7.253125e-11, dEPDFT = 4.263256e-14, d<c.Hpdft.c> = -1.421085e-14
+    CPU time for MC-PDFT CI fp iteration      3.77 sec, wall time      0.47 sec
+macro iter 2 (18 JK  4 micro), MC-PDFT E = -108.903799891908  dE = 0.088490381  S^2 = 0.0000000  CASCI E = -108.991918656531
+               |grad[o]|=0.00786  |grad[c]|= 0.0013511963340828758  |ddm|=0.000647
+    CPU time for CASCI solver      3.83 sec, wall time      0.48 sec
+    CPU time for macro iter 2      6.21 sec, wall time      0.78 sec
+    CPU time for gen h_op      0.06 sec, wall time      0.01 sec
+    CPU time for aug_hess in 4 inner iters      0.09 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.17 sec, wall time      0.02 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.62 sec, wall time      0.08 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 8 inner iters      0.07 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.12 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.62 sec, wall time      0.08 sec
+    CPU time for micro iter 2      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.07 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.62 sec, wall time      0.08 sec
+    CPU time for micro iter 3      0.00 sec, wall time      0.00 sec
+    CPU time for update eri      0.06 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 0 ECAS = -1.089919e+02, EPDFT = -1.089035e+02, |grad| = 9.967908e-11, dEPDFT = -1.089035e+02, d<c.Hpdft.c> = -1.216089e+01
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 1 ECAS = -1.089919e+02, EPDFT = -1.089035e+02, |grad| = 9.967908e-11, dEPDFT = 8.782308e-12, d<c.Hpdft.c> = -8.508927e-11
+    CPU time for MC-PDFT CI fp iteration      2.27 sec, wall time      0.28 sec
+macro iter 3 (13 JK  3 micro), MC-PDFT E = -108.90346185035  dE = 0.088456806  S^2 = 0.0000000  CASCI E = -108.991858830161
+               |grad[o]|=0.0032  |grad[c]|= 0.0001250704377504521  |ddm|=0.000105
+    CPU time for CASCI solver      2.33 sec, wall time      0.29 sec
+    CPU time for macro iter 3      4.61 sec, wall time      0.58 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 5 inner iters      0.11 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.19 sec, wall time      0.02 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.15 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.62 sec, wall time      0.08 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for aug_hess in 10 inner iters      0.08 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.14 sec, wall time      0.02 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.62 sec, wall time      0.08 sec
+    CPU time for micro iter 2      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.07 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.62 sec, wall time      0.08 sec
+    CPU time for micro iter 3      0.00 sec, wall time      0.00 sec
+    CPU time for update eri      0.07 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 0 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 3.184688e-10, dEPDFT = -1.089033e+02, d<c.Hpdft.c> = -1.217589e+01
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 1 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 3.328031e-11, dEPDFT = -2.867654e-08, d<c.Hpdft.c> = -4.732129e-06
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 2 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 3.328031e-11, dEPDFT = 0.000000e+00, d<c.Hpdft.c> = -1.776357e-15
+    CPU time for MC-PDFT CI fp iteration      3.71 sec, wall time      0.46 sec
+macro iter 4 (15 JK  3 micro), MC-PDFT E = -108.90331777267  dE = 0.088541057  S^2 = 0.0000000  CASCI E = -108.991807064101
+               |grad[o]|=0.00122  |grad[c]|= 5.891098356879323e-05  |ddm|=3.8e-05
+    CPU time for CASCI solver      3.77 sec, wall time      0.47 sec
+    CPU time for macro iter 4      6.10 sec, wall time      0.76 sec
+    CPU time for gen h_op      0.06 sec, wall time      0.01 sec
+    CPU time for aug_hess in 4 inner iters      0.09 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.18 sec, wall time      0.02 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.63 sec, wall time      0.08 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for gen h_op      0.05 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.07 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.60 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.63 sec, wall time      0.08 sec
+    CPU time for micro iter 2      0.00 sec, wall time      0.00 sec
+    CPU time for update eri      0.07 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.27 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 0 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 2.457342e-12, dEPDFT = -1.089033e+02, d<c.Hpdft.c> = -1.217800e+01
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 1 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 2.457342e-12, dEPDFT = -1.904255e-12, d<c.Hpdft.c> = 1.842082e-11
+    CPU time for MC-PDFT CI fp iteration      2.30 sec, wall time      0.29 sec
+macro iter 5 (8 JK  2 micro), MC-PDFT E = -108.903295618057  dE = 0.088511446  S^2 = 0.0000000  CASCI E = -108.991800161954
+               |grad[o]|=0.000174  |grad[c]|= 1.6079867888129273e-05  |ddm|=5.34e-06
+    CPU time for CASCI solver      2.36 sec, wall time      0.30 sec
+    CPU time for macro iter 5      3.94 sec, wall time      0.49 sec
+    CPU time for gen h_op      0.06 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.08 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.63 sec, wall time      0.08 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for update eri      0.06 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 0 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 2.782881e-11, dEPDFT = -1.089033e+02, d<c.Hpdft.c> = -1.217800e+01
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.58 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 1 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 2.782881e-11, dEPDFT = -1.421085e-14, d<c.Hpdft.c> = 8.881784e-15
+    CPU time for MC-PDFT CI fp iteration      2.29 sec, wall time      0.29 sec
+macro iter 6 (1 JK  1 micro), MC-PDFT E = -108.903295614733  dE = 0.088504547  S^2 = 0.0000000  CASCI E = -108.991800616126
+               |grad[o]|=8.81e-06  |grad[c]|= 1.5675911008907726e-06  |ddm|=4.76e-07
+    CPU time for CASCI solver      2.36 sec, wall time      0.30 sec
+    CPU time for macro iter 6      3.13 sec, wall time      0.39 sec
+    CPU time for gen h_op      0.06 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.08 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for update CAS DM      0.63 sec, wall time      0.08 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for update eri      0.06 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 0 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 2.172578e-12, dEPDFT = -1.089033e+02, d<c.Hpdft.c> = -1.217800e+01
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 1 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 2.172578e-12, dEPDFT = -1.278977e-13, d<c.Hpdft.c> = 1.369571e-12
+    CPU time for MC-PDFT CI fp iteration      2.30 sec, wall time      0.29 sec
+macro iter 7 (1 JK  1 micro), MC-PDFT E = -108.903295617977  dE = 0.088504998  S^2 = 0.0000000  CASCI E = -108.991799916792
+               |grad[o]|=8.51e-06  |grad[c]|= 5.275302324020812e-06  |ddm|=6.77e-07
+    CPU time for CASCI solver      2.37 sec, wall time      0.30 sec
+    CPU time for macro iter 7      3.14 sec, wall time      0.39 sec
+    CPU time for gen h_op      0.06 sec, wall time      0.01 sec
+    CPU time for orbital rotation      0.08 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.60 sec, wall time      0.08 sec
+    CPU time for update CAS DM      0.63 sec, wall time      0.08 sec
+    CPU time for micro iter 1      0.00 sec, wall time      0.00 sec
+    CPU time for update eri      0.07 sec, wall time      0.01 sec
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.02 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.17 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.59 sec, wall time      0.07 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.28 sec, wall time      0.03 sec
+MC-PDFT CI fp iter 0 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 2.358825e-13, dEPDFT = -1.089033e+02, d<c.Hpdft.c> = -1.217800e+01
+    CPU time for untransformed densities (core and total)      0.11 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.11 sec, wall time      0.01 sec
+    CPU time for effective potential kernel calculation      0.16 sec, wall time      0.02 sec
+    CPU time for 1-body effective potential calculation      0.03 sec, wall time      0.00 sec
+    CPU time for 2-body effective potential calculation      0.18 sec, wall time      0.02 sec
+    CPU time for Finalizing 2-body effective potential calculation      0.00 sec, wall time      0.00 sec
+    CPU time for get_pdft_veff      0.60 sec, wall time      0.08 sec
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.06 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.02 sec
+    CPU time for E_ot      0.28 sec, wall time      0.04 sec
+MC-PDFT CI fp iter 1 ECAS = -1.089918e+02, EPDFT = -1.089033e+02, |grad| = 2.358825e-13, dEPDFT = -2.415845e-13, d<c.Hpdft.c> = 1.964651e-12
+    CPU time for MC-PDFT CI fp iteration      2.33 sec, wall time      0.29 sec
+macro iter 8 (1 JK  1 micro), MC-PDFT E = -108.903295622058  dE = 0.088504295  S^2 = 0.0000000  CASCI E = -108.991799823449
+               |grad[o]|=8.97e-06  |grad[c]|= 1.4739667980446033e-06  |ddm|=1.73e-07
+    CPU time for CASCI solver      2.39 sec, wall time      0.30 sec
+    CPU time for macro iter 8      3.18 sec, wall time      0.40 sec
+1-step CASSCF converged in 8 macro (78 JK 19 micro) steps
+CASSCF canonicalization
+Density matrix diagonal elements [1.99619957 1.98707919 1.98707919 0.01296527 0.01296527 0.0037115 ]
+    CPU time for 1-step CASSCF     40.34 sec, wall time      5.06 sec
+CASSCF energy = -108.991799823449
+CASCI E = -108.991799823449  E(CI) = -13.3007143165596  S^2 = 0.0000000
+    CPU time for rdms      0.02 sec, wall time      0.00 sec
+    CPU time for MC wfn energy      0.01 sec, wall time      0.00 sec
+    CPU time for untransformed density      0.09 sec, wall time      0.01 sec
+    CPU time for otpd ao2mo      0.01 sec, wall time      0.00 sec
+    CPU time for on-top pair density calculation      0.10 sec, wall time      0.01 sec
+    CPU time for on-top exchange-correlation energy calculation      0.12 sec, wall time      0.01 sec
+    CPU time for E_ot      0.31 sec, wall time      0.04 sec

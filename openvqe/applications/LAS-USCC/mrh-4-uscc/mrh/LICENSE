@@ -1,0 +1,38 @@
+mrh: MRH's personal research code.
+Copyright (C) 2018 Matthew R Hermes
+Contains modified versions of 
+
+QC-DMET: a python implementation of density matrix embedding theory for ab initio quantum chemistry
+Copyright (C) 2015 Sebastian Wouters
+
+and
+
+casdmet: The modified QC-DMET to use with CASSCF solver (CASDMET)
+Copyright (C) 2018 Hung Pham
+
+which were forked on 04/01/2018 and continuously modified beginning then
+
+Additionally contains code copied from
+
+PySCF: the Python‐based simulations of chemistry framework
+https://github.com/sunqm/pyscf
+
+and
+
+OpenMolcas
+https://gitlab.com/Molcas/OpenMolcas
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+

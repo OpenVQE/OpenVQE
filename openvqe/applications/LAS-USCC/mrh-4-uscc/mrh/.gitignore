@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+*.dylib
+
+# Compilation
+lib/build/
+CMakeCache.txt
+CMakeFiles
+Makefile
+
+# Example file outputs
+*.molden
+*.npy
+*.log
+*.dat
+*.out
+*.err
+*.swp
+*.chk
+

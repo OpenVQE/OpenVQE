@@ -1,0 +1,6 @@
+fcidump*
+*.log
+*.out
+*.png
+.DS_store
+__pycache__/
