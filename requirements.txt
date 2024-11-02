@@ -14,7 +14,7 @@ qat_devices==0.2.4
 qat_lang==3.0.4
 qat_variational==1.4.4
 scipy==1.9.3
-setuptools==45.2.0
+setuptools==75.3.0
 symmer==0.0.7
 tangelo_gc==0.4.3
 cuda-quantum==0.6.0
