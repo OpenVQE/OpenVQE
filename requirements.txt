@@ -5,7 +5,7 @@ myqlm_fermion==1.1.4
 myqlm_simulators==1.9.5
 numpy==1.23.5
 openfermion==1.6.1
-PennyLane==0.32.0
+PennyLane==0.34.0
 pyscf==2.7.0
 pytest==7.4.4
 qat_comm==1.4.7
