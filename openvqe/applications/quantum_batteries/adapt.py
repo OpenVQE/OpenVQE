@@ -5,9 +5,10 @@ CS-ADAPT-VQE: Extension to CS-VQE using ADAPT-VQE as contextual subspace solver
 import cudaq
 import pickle
 from time import time
-from utils import get_ham_from_dict, rel_err
+from .utils import get_ham_from_dict, rel_err
 import matplotlib.pyplot as plt
 import numpy as np
+import pathlib
 
 np.random.seed(42)
 cudaq.set_target("nvidia")
@@ -210,7 +211,8 @@ if __name__ == "__main__":
     ccsd_energy = -3688.046308050882  # Reference classical energy
 
     # Load the contextuals hamiltonians and hartree fock states
-    with open("CS_hams.pickle", "rb") as handle:
+    pickle_path = f'{str(pathlib.Path(__file__).parent.resolve())}/CS_hams.pickle'
+    with open(pickle_path, "rb") as handle:
         hams = pickle.load(handle)
 
     hamiltonians = []
