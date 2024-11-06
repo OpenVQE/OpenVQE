@@ -4,13 +4,15 @@
 OpenVQE is distributed under the MIT license. By contributing, you agree to license your work under MIT. 
 To be part of our community, you can join our discord server([link here](https://discord.gg/fBr5MQ34)) or you can contact Dr. Mohammad( email: mohammadhaidar2016@outlook.com).
 
-## Contribution checklist
+## Code Integration Checklist
 
-Before adding your code to the OpenVQE here is a checklist that you must follow. If you have questions and/or you need help, you can contact nathan (nathanvaneberg@gmail.com) that will help you integrate your code.  
+Before adding your code to OpenVQE, please follow this checklist. If you have any questions or need help, feel free to reach out to Nathan at [nathanvaneberg@gmail.com](mailto:nathanvaneberg@gmail.com) for assistance with integrating your code.
 
-- [ ] The file `requirements.txt`([link here](https://github.com/OpenVQE/OpenVQE/blob/alpha/requirements.txt)) contains all package to needed and their version to run all the codes inside OpenVQE. You must be able to run all of your python files using this `requirements.txt`. If you want to change update the `requirements.txt` file, please indicate which package you want to add and which you want to change version. 
-- [ ] Inside of you code there must be a notebook explaining how your package works and how to play with it.
-- [ ] Apart if you asked to please put your code inside a nice folder in the application folder. For exemple if you want to code from a repo called `my_amazing_application` into OpenVQE, you must save your code inside the package at the path `openvqe/applications/my_amazing_application`.
+- [ ] The file `requirements.txt`([link here](https://github.com/OpenVQE/OpenVQE/blob/alpha/requirements.txt)) contains all package to needed and their version to run all the codes inside OpenVQE. You should be able to run all the code you want to integrate using this `requirements.txt`. If you need to update `requirements.txt`, please specify which packages you want to add or which versions you want to modify. 
+
+- [ ] Include a Jupyter notebook in your code that explains how your code works and provides examples of how to use it.
+
+- [ ] Unless otherwise specified, place your code in a designated folder within the `applications` directory. For example, if you are adding code from a repository called `my_amazing_application`, save it under `openvqe/applications/my_amazing_application`.
 
 ## How to contribute:
 
