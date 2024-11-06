@@ -4,9 +4,9 @@
 OpenVQE is distributed under the MIT license. By contributing, you agree to license your work under MIT. 
 To be part of our community, you can join our discord server([link here](https://discord.gg/fBr5MQ34)) or you can contact Dr. Mohammad( email: mohammadhaidar2016@outlook.com).
 
-## Contribution checkist
+## Contribution checklist
 
-Before adding your code to the OpenVQE here is a check list that you must follow. If you have questions and/or you need help, you can contact nathan (nathanvaneberg@gmail.com) that will help you integrate your code.  
+Before adding your code to the OpenVQE here is a checklist that you must follow. If you have questions and/or you need help, you can contact nathan (nathanvaneberg@gmail.com) that will help you integrate your code.  
 
 - [ ] The file `requirements.txt`([link here](https://github.com/OpenVQE/OpenVQE/blob/alpha/requirements.txt)) contains all package to needed and their version to run all the codes inside OpenVQE. You must be able to run all of your python files using this `requirements.txt`. If you want to change update the `requirements.txt` file, please indicate which package you want to add and which you want to change version. 
 - [ ] Inside of you code there must be a notebook explaining how your package works and how to play with it.
