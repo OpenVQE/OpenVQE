@@ -1,18 +1,19 @@
 
 ## Introduction
 
-OpenVQE is distributed under the MIT license. By contributing, you agree to license your work under MIT. 
-To be part of our community, you can join our discord server([link here](https://discord.gg/fBr5MQ34)) or you can contact Dr. Mohammad( email: mohammadhaidar2016@outlook.com).
+OpenVQE is open-source software licensed under the MIT license. By contributing, you agree to license your work under MIT. To join our community, you can contact Dr. Mohammad Haidar directly at [mohammadhaidar2016@outlook.com](mailto:mohammadhaidar2016@outlook.com) or nathan at [nathanvaneberg@gmail.com](mailto:nathanvaneberg@gmail.com).
 
 ## Code Integration Checklist
 
-Before adding your code to OpenVQE, please follow this checklist. If you have any questions or need help, feel free to reach out to Nathan at [nathanvaneberg@gmail.com](mailto:nathanvaneberg@gmail.com) for assistance with integrating your code.
+Before contributing, we recommend installing the OpenVQE package (see instructions below), exploring the example notebooks, reviewing the documentation and understanding the dependencies required to run the program.
 
-- [ ] The file `requirements.txt`([link here](https://github.com/OpenVQE/OpenVQE/blob/alpha/requirements.txt)) contains all package to needed and their version to run all the codes inside OpenVQE. You should be able to run all the code you want to integrate using this `requirements.txt`. If you need to update `requirements.txt`, please specify which packages you want to add or which versions you want to modify. 
+Once you're familiar with OpenVQE, follow this checklist to make integrating your code as smooth as possible. For assistance, feel free to reach out to Nathan Vaneberg at [nathanvaneberg@gmail.com](mailto:nathanvaneberg@gmail.com).
 
-- [ ] Include a Jupyter notebook in your code that explains how your code works and provides examples of how to use it.
+- [ ] **Requirements File**: The `requirements.txt` file([link here](https://github.com/OpenVQE/OpenVQE/blob/alpha/requirements.txt)) includes all package to needed and their version to run all the codes inside OpenVQE. You should be able to run all the code you want to integrate using this `requirements.txt`. If you need to update `requirements.txt`, please specify which packages you want to add or which versions you want to modify. 
 
-- [ ] Unless otherwise specified, place your code in a designated folder within the `applications` directory. For example, if you are adding code from a repository called `my_amazing_application`, save it under `openvqe/applications/my_amazing_application`.
+- [ ] **Documentation Notebook**: Include a Jupyter notebook in your code that explains how your code works and provides examples of how to use it.
+
+- [ ] **Code Placement**: Unless otherwise specified, place your code in a designated folder within the `applications` directory. For example, if you are adding code from a repository called `my_amazing_application`, save it under `openvqe/applications/my_amazing_application`.
 
 ## How to contribute:
 
