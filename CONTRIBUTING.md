@@ -11,7 +11,7 @@ Once you're familiar with OpenVQE, follow this checklist to make integrating you
 
 - [ ] **Requirements File**: The `requirements.txt` file([link here](https://github.com/OpenVQE/OpenVQE/blob/alpha/requirements.txt)) includes all package to needed and their version to run all the codes inside OpenVQE. You should be able to run all the code you want to integrate using this `requirements.txt`. If you need to update `requirements.txt`, please specify which packages you want to add or which versions you want to modify. 
 
-- [ ] **Documentation Notebook**: Include a Jupyter notebook in your code that explains how your code works and provides examples of how to use it.
+- [ ] **Documentation Notebook**: Include a Jupyter notebook to your application that explains how your code works and provides examples of how to use it.
 
 - [ ] **Code Placement**: Unless otherwise specified, place your code in a designated folder within the `applications` directory. For example, if you are adding code from a repository called `my_amazing_application`, save it under `openvqe/applications/my_amazing_application`.
 
