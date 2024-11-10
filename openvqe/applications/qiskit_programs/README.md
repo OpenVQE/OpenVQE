@@ -1,2 +1,3 @@
-In this repository, you will find the quantum_maxcut.ipynb notebook. The notebook shows a quantum annealing algorithm based on quantum gates to compute the maxcut of a graph list.
-We would like to thank Don Isaac for this notebook. Please checkout his [github page](https://github.com/darkmatter2000)
+This repository contains the `quantum_maxcut.ipynb` notebook, which demonstrates a quantum annealing algorithm using quantum gates to calculate the maxcut of a graph.
+
+Special thanks to Don Isaac for contributing this notebook. Be sure to check out his [GitHub page](https://github.com/darkmatter2000)!
