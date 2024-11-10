@@ -18,3 +18,6 @@ setuptools==75.3.0
 symmer==0.0.7
 tangelo_gc==0.4.3
 cuda-quantum==0.6.0
+networkx==3.4.2
+qiskit-ibm-runtime==0.33.1
+pylatexenc==2.10
