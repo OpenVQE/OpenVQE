@@ -59,6 +59,14 @@ pip install .
 pip install -r requirements.txt
 ```
 
+To explore the quantum battery application, you will need to install CUDA and have an NVIDIA GPU. For detailed instructions, refer to the    [NVIDIA CUDA Quantum GitHub page](https://github.com/NVIDIA/cuda-quantum). If you want to install it on linux do:
+```shell
+sudo apt update && sudo apt upgrade -y
+sudo apt install cuda-11-8 -y
+```
+
+If you have the error: `Qiskit is installed in an invalid environment that has both Qiskit >=1.0 and an earlier version.`. Run the command: `pip uninstall qiskit-terra` inside your terminal. 
+
 ## Contributing to the Package
 
 Please read the CONTRIBUTING.md file.
