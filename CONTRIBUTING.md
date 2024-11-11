@@ -14,6 +14,10 @@ Once you're familiar with OpenVQE, follow this checklist to make integrating you
 - [ ] **Documentation Notebook**: Include a Jupyter notebook to your application that explains how your code works and provides examples of how to use it.
 
 - [ ] **Code Placement**: Unless otherwise specified, place your code in a designated folder within the `applications` directory. For example, if you are adding code from a repository called `my_amazing_application`, save it under `openvqe/applications/my_amazing_application`.
+    
+- [ ] **Agree to MIT License**: Send an email to Mohammad Haidar (<mohammadhaidar2016@outlook.com>), with Nathan Vaneberg (<nathanvaneberg@gmail.com>) cc'd. Include a link to your pull request, a description of your changes, and a statement confirming that your contribution will be licensed under MIT.
+
+- [ ] **Add a description of your work inside the documentation**: You can add a description of your work and an introduction of yourself in our documentation (coming soon). Please contact <huybinhfr4120@gmail.com> for instructions on how to integrate your code into the documentation.
 
 ## How to contribute:
 
