@@ -24,8 +24,10 @@ DOI: [10.1002/wcms.1664](https://doi.org/10.1002/wcms.1664)
     - Qubit-ADAPT: it  contains functions that perform the Qubit ADAPT-VQE algorithmic steps calculation in the active and non-active space orbital selections.
 
 3. **Applications**: Contains practical quantum computing applications:
-    - simulation of lithium batteries using quantum computing produced by Gopal Dahale, a Master's student in Quantum Science at EPFL, for integrating the lithium battery application into the repository. Check out his [GitHub](https://github.com/Gopal-Dahale).
-
+    - **quantum_batteries**: simulation of lithium batteries using quantum computing produced by Gopal Dahale, a Master's student in Quantum Science at EPFL, for integrating the lithium battery application into the repository. Check out his [GitHub](https://github.com/Gopal-Dahale).
+4. **Applications/Algorithms**: Regroup promising quantum computing algorithms.
+    - **QAOA**: Application of Quantum Approximate Optimization Algorithm (QAOA) dedicated to minimum vertex cover problem. 
+    - **quantum_maxcut**: Quantum annealing computing to solve maxcut problem.
 
 Installation
 --------------
