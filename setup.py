@@ -31,8 +31,8 @@ def get_description():
     """
     with open("README.md", "r") as readme:
         return readme.read()
-    
-    
+
+
 setup(
     name="openvqe",
     version="0.0.1",
