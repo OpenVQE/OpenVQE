@@ -9,9 +9,11 @@ molecule_factory = MoleculeFactory()
 energy_ucc = EnergyUCC()
 
 
-# user can type the name of molecule (H2, LIH, CO, CO2 such that their geormetries and properties are defined in MoleculeQlm())
+# user can type the name of molecule
+# (H2, LIH, CO, CO2 such that their geometries and properties are defined in MoleculeQlm())
 molecule_symbol = 'H2'
-# the type of generators: UCCSD, singlet_sd, singlet_gsd, spin_complement_gsd, spin_complement_gsd_twin, sUPCCGSD
+# the type of generators:
+# UCCSD, singlet_sd, singlet_gsd, spin_complement_gsd, spin_complement_gsd_twin, sUPCCGSD
 # suppose user type sUPCCGSD
 type_of_generator = 'sUPCCGSD'
 # user can type any of the following three transformations: JW,  Bravyi-Kitaev and Parity-basis

@@ -30,8 +30,14 @@ from .generator_excitations import (
     uccsd,
 )
 
+class MoleculeNotFound(ValueError):
+    pass
 
 class MoleculeFactory:
+    """
+    the information for each available molecule_symbol
+    """
+
     def get_parameters(self, molecule_symbol):
         """This method will be used to multiply two numbers
         :param string molecule_symbol: The symbol of the molecule
@@ -297,6 +303,8 @@ class MoleculeFactory:
             basis = "sto-3g"
             spin = 0
             charge = 1
+        else:
+            raise MoleculeNotFound(molecule_symbol)
         return r, geometry, charge, spin, basis
 
     def generate_hamiltonian(
