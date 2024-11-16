@@ -17,7 +17,7 @@ Once you're familiar with OpenVQE, follow this checklist to make integrating you
     
 - [ ] **Agree to MIT License**: Send an email to Mohammad Haidar (<mohammadhaidar2016@outlook.com>), with Nathan Vaneberg (<nathanvaneberg@gmail.com>) cc'd. Include a link to your pull request, a description of your changes, and a statement confirming that your contribution will be licensed under MIT.
 
-- [ ] **Add a description of your work inside the documentation**: You can add a description of your work and an introduction of yourself in our documentation (coming soon). Please contact <huybinhfr4120@gmail.com> for instructions on how to integrate your code into the documentation.
+- [ ] **Add a description of your work inside the documentation**: You can add a description of your work and an introduction of yourself in our documentation (coming soon). Please contact <huybinhfr4120@gmail.com> for instructions on how to contrbute to the documentation.
 
 ## How to contribute:
 
