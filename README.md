@@ -22,10 +22,12 @@ DOI: [10.1002/wcms.1664](https://doi.org/10.1002/wcms.1664)
 2. **ADAPT**: Contains two sub-modules:
     - Fermionic-ADAPT: it contains functions that performs the fermionic ADAPT-VQE algorthmic steps  in the active and non-active space selections.
     - Qubit-ADAPT: it  contains functions that perform the Qubit ADAPT-VQE algorithmic steps calculation in the active and non-active space orbital selections.
-
 3. **Applications**: Contains practical quantum computing applications:
-    - simulation of lithium batteries using quantum computing produced by Gopal Dahale, a Master's student in Quantum Science at EPFL, for integrating the lithium battery application into the repository. Check out his [GitHub](https://github.com/Gopal-Dahale).
-
+    - **quantum_batteries**: Simulation of lithium-ion batteries on quantum computer.
+4. **Applications/qiskit**: Regroup small applications using qiskit.
+    - **QAOA**: Application of Quantum Approximate Optimization Algorithm (QAOA) dedicated to minimum vertex cover problem.
+5. **Applications/pennylane**: Regroup  small applications using pennylane.
+    - **quantum_maxcut**: Quantum annealing computing to solve maxcut problem.
 
 Installation
 --------------
