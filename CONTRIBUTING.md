@@ -19,8 +19,6 @@ Once you're familiar with OpenVQE, follow this checklist to make integrating you
 
 - [ ] **Add a description of your work inside the documentation**: You can add a description of your work and an introduction of yourself in our documentation (coming soon). Please contact <huybinhfr4120@gmail.com> for instructions on how to integrate your code into the documentation.
 
-- [ ] **Reference your application inside the README.md**: Go inside the module chapter of README. There, all the applications are introduced briefly and arranged by folder name. Introduce in one line your application at the right emplacement. 
-
 ## How to contribute:
 
 - Go to the OpenVQE main page and click the fork button.
