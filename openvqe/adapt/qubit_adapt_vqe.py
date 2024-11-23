@@ -19,7 +19,8 @@ from ..common_files.circuit import count
 
 def prepare_adapt_state(reference_state, ansatz, coefficients):
     """
-    Computes the action of the matrix exponential of qubit sparse operators ("ansatz") on
+    Computes the action of the matrix exponential
+    of qubit sparse operators ("ansatz") on
     the state initiated by "reference_state".
 
     Parameters
@@ -160,8 +161,8 @@ def prepare_state_ansatz(cluster_ops_sp, hf_init_sp, parameters):
         list of spin cluster operators
     
     hf_init_sp: int
-        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
-        "qat.fermion.transforms.record_integer".
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation)
+        obtained by using "qat.fermion.transforms.record_integer".
     
     parameters: List<float>
         the Parameters for the trial wave function to be constructed
@@ -218,8 +219,8 @@ def prepare_hf_state(hf_init_sp, cluster_ops_sp):
     ----------
 
     hf_init_sp: int
-        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
-        "qat.fermion.transforms.record_integer".
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation)
+        obtained by using "qat.fermion.transforms.record_integer".
 
     cluster_ops_sp: list[Hamiltonian]
         list of spin cluster operators
@@ -270,9 +271,12 @@ def hf_energy(hf_state, hamiltonian_sp):
 
 def ucc_action(hamiltonian_sp, cluster_ops_sp, hf_init_sp, theta_current):
     """
-    It maps the exponential of cluster operators ("cluster_ops_sp") associated by their parameters ("theta_current")
-    using the CNOTS-staircase method, which is done by "build_ucc_ansatz" which creates the circuit on the top of
-    the HF-state ("hf_init_sp"). Then, this function also calculates the expected value of the hamiltonian ("hamiltonian_sp").
+    It maps the exponential of cluster operators ("cluster_ops_sp")
+    associated by their parameters ("theta_current")
+    using the CNOTS-staircase method,
+    which is done by "build_ucc_ansatz" which creates the circuit on the top of
+    the HF-state ("hf_init_sp").
+    Then, this function also calculates the expected value of the hamiltonian ("hamiltonian_sp").
 
     Parameters
     ----------
@@ -283,8 +287,8 @@ def ucc_action(hamiltonian_sp, cluster_ops_sp, hf_init_sp, theta_current):
         list of spin cluster operators
     
     hf_init_sp: int
-        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
-        "qat.fermion.transforms.record_integer".
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation)
+        obtained by using "qat.fermion.transforms.record_integer".
     
     theta_current: List<float>
         the Parameters of the cluster operators
@@ -330,10 +334,12 @@ def qubit_adapt_vqe(
     method_sim
 
     Runs the loop of making qubit adapt vqe found in this reference in section "Results"
-    Grimsley HR, Economou SE, Barnes E, Mayhall NJ. An adaptive variational algorithm for exact molecular simulations
-    on a quantum computer. Nature communications 2019; 10(1): 1-9.
+    Grimsley HR, Economou SE, Barnes E, Mayhall NJ.
+    An adaptive variational algorithm for exact molecular simulations on a quantum computer.
+    Nature communications 2019; 10(1): 1-9.
 
-    Note: the analytical calculation for the "exact_adapt_energy" are still under developement so that we later can compare
+    Note: the analytical calculation for the "exact_adapt_energy"
+    are still under developement so that we later can compare
     the results obtained by the qlm simulator and the "exact_adapt_energy" 
 
     Parameters
@@ -355,8 +361,8 @@ def qubit_adapt_vqe(
         list of qubit cluster operators
     
     hf_init_sp: int
-        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
-        "qat.fermion.transforms.record_integer".
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation)
+        obtained by using "qat.fermion.transforms.record_integer".
     
     fci: float
         the full configuration interaction energy

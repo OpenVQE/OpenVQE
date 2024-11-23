@@ -1,3 +1,11 @@
+"""
+script to run fermionic_adapt_vqe both non active and active case
+both with
+molecule_symbol = 'H4'
+type_of_generator = 'spin_complement_gsd'
+transform = 'JW'
+"""
+
 from openvqe.common_files.molecule_factory_with_sparse import MoleculeFactory
 from openvqe.adapt.fermionic_adapt_vqe import fermionic_adapt_vqe
 molecule_factory = MoleculeFactory()
@@ -131,9 +139,3 @@ fermionic_adapt_vqe(hamiltonian_active_sparse, cluster_ops_sparse, reference_ket
         type_conver = type_conver,
         threshold_needed = threshold_needed,
         max_external_iterations = max_external_iterations)
-
-
-
-
-
-

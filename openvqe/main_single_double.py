@@ -1,3 +1,7 @@
+"""
+script to ...
+"""
+
 from openvqe.common_files.generator_excitations import (
     _apply_transforms,
     generate_cluster_ops_without_mp2,

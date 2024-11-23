@@ -1,3 +1,7 @@
+"""
+script to ...
+"""
+
 from openvqe.common_files.generator_excitations import (
     triple_excitation,
     _apply_transforms,
@@ -12,14 +16,14 @@ def generate(
     apply_HF_sym,
     apply_transform,
 ):
-    ops = triple_excitation(n_spatial_orb, n_occ)
+    generated_ops = triple_excitation(n_spatial_orb, n_occ)
 
     if apply_HF_sym:
-        ops = HF_sym(molecule, n_occ, ops)
+        generated_ops = HF_sym(molecule, n_occ, generated_ops)
 
     if apply_transform:
-        ops = _apply_transforms(ops, "JW")[-1]
-    return ops
+        generated_ops = _apply_transforms(generated_ops, "JW")[-1]
+    return generated_ops
 
 
 ops = generate(
