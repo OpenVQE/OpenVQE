@@ -1,5 +1,9 @@
-import os, sys
-from setuptools import setup, find_packages, find_namespace_packages
+"""
+use setuptools
+"""
+
+import sys
+from setuptools import setup, find_namespace_packages
 from setuptools.command.test import test as TestCommand
 
 class PyTest(TestCommand):
@@ -15,9 +19,11 @@ class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
         self.test_args = []
+        #pylint:disable=attribute-defined-outside-init
         self.test_suite = True
 
     def run_tests(self):
+        #pylint:disable=import-outside-toplevel
         import pytest
         errno = pytest.main([".", "-vv"])
         sys.exit(errno)
@@ -29,6 +35,7 @@ def get_description():
     Returns:
         str
     """
+    #pylint:disable=unspecified-encoding
     with open("README.md", "r") as readme:
         return readme.read()
 

@@ -1,3 +1,11 @@
+"""
+script to run get_energies
+
+molecule_symbol = 'H4'
+type_of_generator = 'QUCCSD'
+transform = 'JW'
+active = True
+"""
 
 from qat.fermion.transforms import (get_jw_code, recode_integer)
 from openvqe.ucc_family.get_energy_qucc import EnergyUCC
@@ -28,7 +36,10 @@ print("                                                          ")
 print(" --------------------------------------------------------------------------")
 print("                                                          ")
 
-hamiltonian, hamiltonian_sp, n_elec, noons_full, orb_energies_full, info = molecule_factory.generate_hamiltonian(molecule_symbol, active=active, transform=transform)
+hamiltonian, hamiltonian_sp,\
+    n_elec, noons_full, orb_energies_full, info = \
+        molecule_factory.generate_hamiltonian(molecule_symbol,
+                                              active=active, transform=transform)
 
 print(" --------------------------------------------------------------------------")
 print("                                                          ")
@@ -37,7 +48,10 @@ print("                                                          ")
 print(" --------------------------------------------------------------------------")
 print("                                                          ")
 
-pool_size, cluster_ops, cluster_ops_sp, theta_MP2, hf_init =molecule_factory.generate_cluster_ops(molecule_symbol, type_of_generator=type_of_generator, transform=transform, active=active)
+pool_size, cluster_ops, cluster_ops_sp, \
+    theta_MP2, hf_init =molecule_factory.generate_cluster_ops(
+        molecule_symbol, type_of_generator=type_of_generator,
+        transform=transform, active=active)
 hf_init_sp = recode_integer(hf_init, get_jw_code(hamiltonian_sp.nbqbits))
 
 
@@ -66,11 +80,7 @@ theta_current2 = []
 for i in range(len(cluster_ops)):
     theta_current2.append(0.01)
 
-iterations, result = energy_ucc.get_energies(hamiltonian_sp,cluster_ops,hf_init_sp,theta_current1,theta_current2,FCI)
+iterations, result = energy_ucc.get_energies(hamiltonian_sp,cluster_ops,hf_init_sp,
+                                             theta_current1,theta_current2,FCI)
 print("iterations are:", iterations)
 print("results are:", result)
-
-
-
-
-
