@@ -34,7 +34,10 @@ def prepare_adapt_state(reference_ket, spmat_ops, parameters):
     """
     new_state = reference_ket * 1.0
     for k in range(len(parameters)):
-        new_state = scipy.sparse.linalg.expm_multiply((parameters[k] * spmat_ops[k]), new_state)
+        new_state = \
+            scipy.sparse.linalg.expm_multiply(
+                (parameters[k] * spmat_ops[k]),
+                new_state)
     return new_state
 
 
@@ -106,7 +109,7 @@ def return_gradient_list(cluster_ops_sparse, hamiltonian_sparse, curr_state
         the index of the operator with maximum gradient
 
     """
-    
+
     list_grad = []
     curr_norm = 0
     next_deriv = 0
@@ -125,9 +128,12 @@ def return_gradient_list(cluster_ops_sparse, hamiltonian_sparse, curr_state
 # create the function related to myADAPT-VQE:
 def ucc_action(hamiltonian_sp, cluster_ops_sp, hf_init_sp, theta_current):
     """
-    It maps the exponential of cluster operators ("cluster_ops_sp") associated by their parameters ("theta_current")
-    using the CNOTS-staircase method, which is done by "build_ucc_ansatz" which creates the circuit on the top of
-    the HF-state ("hf_init_sp"). Then, this function also calculates the expected value of the hamiltonian ("hamiltonian_sp").
+    It maps the exponential of cluster operators ("cluster_ops_sp")
+    associated by their parameters ("theta_current")
+    using the CNOTS-staircase method,
+    which is done by "build_ucc_ansatz" which creates the circuit on the top of
+    the HF-state ("hf_init_sp").
+    Then, this function also calculates the expected value of the hamiltonian ("hamiltonian_sp").
 
     Parameters
     ----------
@@ -138,8 +144,8 @@ def ucc_action(hamiltonian_sp, cluster_ops_sp, hf_init_sp, theta_current):
         list of spin cluster operators
     
     hf_init_sp: int
-        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
-        "qat.fermion.transforms.record_integer".
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation)
+        obtained by using "qat.fermion.transforms.record_integer".
     
     theta_current: List<float>
         the Parameters of the cluster operators
@@ -188,8 +194,8 @@ def prepare_hf_state(hf_init_sp, cluster_ops_sp):
     ----------
 
     hf_init_sp: int
-        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
-        "qat.fermion.transforms.record_integer".
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation)
+        obtained by using "qat.fermion.transforms.record_integer".
 
     cluster_ops_sp: list[Hamiltonian]
         list of spin cluster operators
@@ -280,8 +286,8 @@ def prepare_state_ansatz(cluster_ops_sp, hf_init_sp, parameters):
         list of spin cluster operators
     
     hf_init_sp: int
-        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
-        "qat.fermion.transforms.record_integer".
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation)
+        obtained by using "qat.fermion.transforms.record_integer".
     
     parameters: List<float>
         the Parameters for the trial wave function to be constructed
@@ -383,11 +389,12 @@ def fermionic_adapt_vqe(
     threshold_needed,
     max_external_iterations=30,
 ):
-    
+
     """
     Runs the loop of making fermionic adapt vqe found in this reference in section "Results"
-    Grimsley HR, Economou SE, Barnes E, Mayhall NJ. An adaptive variational algorithm for exact molecular simulations
-    on a quantum computer. Nature communications 2019; 10(1): 1-9.
+    Grimsley HR, Economou SE, Barnes E, Mayhall NJ.
+    An adaptive variational algorithm for exact molecular simulations on a quantum computer.
+    Nature communications 2019; 10(1): 1-9.
 
     Parameters
     ----------
@@ -408,8 +415,8 @@ def fermionic_adapt_vqe(
         list of spin cluster operators
     
     hf_init_sp: int
-        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation) obtained by using
-        "qat.fermion.transforms.record_integer".
+        the integer corresponds to the hf_init (The Hartree-Fock state in integer representation)
+        obtained by using "qat.fermion.transforms.record_integer".
     
     n_max_grads: int
         the number of maximum gradients chosen per internal iteration
@@ -438,11 +445,26 @@ def fermionic_adapt_vqe(
 
     iterations: Dict
         the following properties of the simulation: 
-        energies, energies_substracted_from_FCI, norms, Max_gradients, fidelity, CNOTs, Hadamard, RY, and RX.
+        - energies
+        - energies_substracted_from_FCI
+        - norms
+        - Max_gradients
+        - fidelity
+        - CNOTs
+        - Hadamard
+        - RY
+        - RX
 
     result: Dict
         the following properties after convergence:
-        indices, Number_operators, final_norm, parameters, Number_CNOT_gates, Number_Hadamard_gates, Number_RX_gates, final_energy_last_iteration,
+        - indices
+        - Number_operators
+        - final_norm
+        - parameters
+        - Number_CNOT_gates
+        - Number_Hadamard_gates
+        - Number_RX_gates
+        - final_energy_last_iteration
 
     """
     iterations = {
