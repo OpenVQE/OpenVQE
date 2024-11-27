@@ -32,6 +32,8 @@ DOI: [10.1002/wcms.1664](https://doi.org/10.1002/wcms.1664)
 Installation
 --------------
 
+OpenVQE can only be installed on a linux distribution because of its depencies with pyscf and cuda-quantum. If you are on windows or mac, use docker, wsl or a virtual machine to create a linux environment.
+
 To install OpenVQE from source:
 
 ```bash
@@ -41,6 +43,8 @@ git checkout alpha
 pip install .
 pip install -r requirements.txt
 ```
+
+To explore the quantum battery application, you will need to install CUDA and have an NVIDIA GPU. For detailed instructions, refer to the    [NVIDIA CUDA Quantum GitHub page](https://github.com/NVIDIA/cuda-quantum).
 
 ## Troubleshooting
 
