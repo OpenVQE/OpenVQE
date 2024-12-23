@@ -427,7 +427,7 @@ def qubit_adapt_vqe(
     print("reference_energy from the simulator:", ref_energy)
     print("reference_energy from the analytical calculations:", ref_energy_ana)
     curr_state_open_f = prepare_adapt_state(
-        reference_ket, ansatz_ops, parameters_ana, nqubits
+        reference_ket, ansatz_ops, parameters_ana
     )
     print(" --------------------------------------------------------------------------")
     print("                                                          ")
@@ -569,7 +569,7 @@ def qubit_adapt_vqe(
         #             parameters_ana.append(xlist_ana[si])
         #         print(" Energy reached from the analytical calculations: %20.20f" %opt_result_ana.fun)
 
-        #         curr_state_open_f = prepare_adapt_state(reference_ket,ansatz_ops,parameters_ana,nqubits)
+        #         curr_state_open_f = prepare_adapt_state(reference_ket,ansatz_ops,parameters_ana)
 
         print(" ----------- ansatz from the simulator----------- ")
         print(" %s\t %s\t\t %s" % ("#", "Coeff", "Term"))
@@ -580,7 +580,7 @@ def qubit_adapt_vqe(
         print(" Energy reached from the simulator: %20.20f" % opt_result_sim.fun)
         curr_state = prepare_state_ansatz(ansatz_ops, hf_init_sp, parameters_sim)
         curr_state_open_f = prepare_adapt_state(
-            reference_ket, ansatz_ops, parameters_sim, nqubits
+            reference_ket, ansatz_ops, parameters_sim
         )
 
         prev_norm = curr_norm

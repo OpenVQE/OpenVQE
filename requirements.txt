@@ -21,3 +21,4 @@ cuda-quantum==0.6.0
 networkx==3.4.2
 qiskit-ibm-runtime==0.33.1
 pylatexenc==2.10
+pytest-mock==3.14.0

@@ -35,17 +35,20 @@ def generate(
         ops = _apply_transforms(ops, "JW")[-1]
     return ops
 
+def main():
+    ops = generate(
+        molecule="LiH",
+        n_occ=4,
+        n_spatial_orb=6,
+        apply_HF_sym=True,
+        apply_ccsd_check=True,
+        use_mp2=True,
+        CCSD_THRESH=1e-8,
+        MP2_THRESH=1e-8,
+        apply_transform=True,
+    )
 
-ops = generate(
-    molecule="LiH",
-    n_occ=4,
-    n_spatial_orb=6,
-    apply_HF_sym=True,
-    apply_ccsd_check=True,
-    use_mp2=True,
-    CCSD_THRESH=1e-8,
-    MP2_THRESH=1e-8,
-    apply_transform=True,
-)
+    print(len(ops))
 
-print(len(ops))
+if __name__ == "__main__":
+    main()
