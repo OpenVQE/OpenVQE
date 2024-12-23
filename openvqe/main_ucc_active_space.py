@@ -5,20 +5,13 @@ from openvqe.common_files.molecule_factory import MoleculeFactory
 from openvqe.ucc_family.get_energy_ucc import EnergyUCC
 
 def main():
+    # Here user is obliged to check the thresholds epsilon_1 and epsilon_2  inserted in "MoleculeFactory" to select: the active electorns and active orbitals
+    execute('H4', 'sUPCCGSD', 'JW', True)
+    
+def execute(molecule_symbol, type_of_generator, transform, active):
     qubitpool = QubitPool()
     molecule_factory = MoleculeFactory()
     energy_ucc = EnergyUCC()
-
-
-    molecule_symbol = 'H4'
-    type_of_generator = 'sUPCCGSD'
-    transform = 'JW'
-    # the user type "active = True" the active space selection case
-    # Here user is obliged to check the thresholds epsilon_1 and epsilon_2  inserted in "MoleculeFactory" to select: the active electorns and active orbitals
-    active = True
-
-    # 
-
 
     r, geometry, charge, spin, basis = molecule_factory.get_parameters(molecule_symbol)
     print(" --------------------------------------------------------------------------")

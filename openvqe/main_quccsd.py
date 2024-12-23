@@ -6,13 +6,11 @@ from openvqe.common_files.molecule_factory import MoleculeFactory
 from qat.fermion.transforms import (get_jw_code, recode_integer)
 
 def main():
+    execute('H4', 'QUCCSD', 'JW', False)
+    
+def execute(molecule_symbol, type_of_generator, transform, active):
     molecule_factory = MoleculeFactory()
     energy_ucc = EnergyUCC()
-
-    molecule_symbol = 'H4'
-    type_of_generator = 'QUCCSD'
-    transform = 'JW'
-    active = False
 
     r, geometry, charge, spin, basis = molecule_factory.get_parameters(molecule_symbol)
     print(" --------------------------------------------------------------------------")

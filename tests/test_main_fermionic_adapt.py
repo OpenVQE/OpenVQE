@@ -15,3 +15,4 @@ def test_main_output(mocker, capsys):
     assert "Pool size:  69" in captured.out
     assert "length of the cluster OP:  69" in captured.out
     assert "length of the cluster OPS:  69" in captured.out
+    assert mock_fermionic_adapt_vqe.call_count == 2

@@ -5,21 +5,17 @@ from openvqe.ucc_family.get_energy_ucc import EnergyUCC
 from qat.fermion.transforms import (get_jw_code, recode_integer)
 
 def main():
+    # user can type the name of molecule (H2, LIH, CO, CO2 such that their geormetries and properties are defined in MoleculeQlm())
+    # the type of generators: UCCSD, singlet_sd, singlet_gsd, spin_complement_gsd, spin_complement_gsd_twin, sUPCCGSD
+    # suppose user type sUPCCGSD
+    # user can type any of the following three transformations: JW,  Bravyi-Kitaev and Parity-basis
+    # the non_active space selection
+    execute('H2', 'sUPCCGSD', 'JW', False)
+    
+def execute(molecule_symbol, type_of_generator, transform, active):
     qubit_pool = QubitPool()
     molecule_factory = MoleculeFactory()
     energy_ucc = EnergyUCC()
-
-
-    # user can type the name of molecule (H2, LIH, CO, CO2 such that their geormetries and properties are defined in MoleculeQlm())
-    molecule_symbol = 'H2'
-    # the type of generators: UCCSD, singlet_sd, singlet_gsd, spin_complement_gsd, spin_complement_gsd_twin, sUPCCGSD
-    # suppose user type sUPCCGSD
-    type_of_generator = 'sUPCCGSD'
-    # user can type any of the following three transformations: JW,  Bravyi-Kitaev and Parity-basis
-    transform = 'JW'
-    # the non_active space selection
-    active = False
-
 
     r, geometry, charge, spin, basis = molecule_factory.get_parameters(molecule_symbol)
     print(" --------------------------------------------------------------------------")

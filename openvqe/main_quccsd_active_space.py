@@ -4,13 +4,11 @@ from openvqe.ucc_family.get_energy_qucc import EnergyUCC
 from openvqe.common_files.molecule_factory import MoleculeFactory
 
 def main():
+    execute('H4', 'QUCCSD', 'JW', True)
+
+def execute(molecule_symbol, type_of_generator, transform, active):
     molecule_factory = MoleculeFactory()
     energy_ucc = EnergyUCC()
-
-    molecule_symbol = 'H4'
-    type_of_generator = 'QUCCSD'
-    transform = 'JW'
-    active = True
 
     r, geometry, charge, spin, basis = molecule_factory.get_parameters(molecule_symbol)
     print(" --------------------------------------------------------------------------")

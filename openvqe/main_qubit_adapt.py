@@ -4,14 +4,11 @@ from openvqe.common_files.qubit_pool import QubitPool
 from openvqe.common_files.molecule_factory_with_sparse import MoleculeFactory
 
 def main():
+    execute('H2', 'singlet_gsd', 'JW', False)
+    
+def execute(molecule_symbol, type_of_generator, transform, active):
     qubitpool = QubitPool()
     molecule_factory = MoleculeFactory()
-
-    molecule_symbol = 'H2'
-    # In qubit ADAPT-VQE normally we choose the generalized single and double excitations
-    type_of_generator = 'singlet_gsd'
-    transform = 'JW'
-    active = False
 
 
     r, geometry, charge, spin, basis = molecule_factory.get_parameters(molecule_symbol)
