@@ -19,7 +19,10 @@ def execute(molecule_symbol, type_of_generator, transform, active):
 
     r, geometry, charge, spin, basis = molecule_factory.get_parameters(molecule_symbol)
     print(" --------------------------------------------------------------------------")
-    print("Running in the non active case: ")
+    if active:
+        print("Running in the active case: ")
+    else:
+        print("Running in the non active case: ")
     print("                     molecule symbol: %s " %(molecule_symbol))
     print("                     molecule basis: %s " %(basis))
     print("                     type of generator: %s " %(type_of_generator))
