@@ -1,8 +1,7 @@
-
-from openvqe.main_quccsd import execute
+from openvqe.vqe import VQE
 
 def main():
-    execute('H4', 'QUCCSD', 'JW', True)
+    VQE('quccsd', 'H4', 'QUCCSD', 'JW', True).execute()
 
 if __name__ == '__main__':
     main()
