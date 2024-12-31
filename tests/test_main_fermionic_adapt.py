@@ -1,6 +1,6 @@
 def side_effect(*args, **kwargs):
     print("Mock fermionic_adapt_vqe called")
-    return (10, 10, -1.137, -1.137)
+    return (10, -1.137)
 
 def test_main_output(mocker, capsys):
     mock_fermionic_adapt_vqe = mocker.patch('openvqe.adapt.fermionic_adapt_vqe.fermionic_adapt_vqe', side_effect=side_effect)
