@@ -20,19 +20,39 @@ def generate_pool_without_cluster(cluster_ops, nbqbits, molecule_symbol):
                                                                             molecule_symbol=molecule_symbol)
     return len_returned_pool, returned_pool
 
-def execute(molecule_symbol, type_of_generator, transform, active):
+def execute(molecule_symbol, type_of_generator, transform, active, opts={}):
+    """
+    Executes the ADAPT-VQE algorithm for a given molecule.
+    
+    The ADAPT-VQE (Adaptive Derivative-Assembled Pseudo-Trotter Variational Quantum Eigensolver) algorithm adaptively 
+    builds the quantum circuit by iteratively adding operators that most significantly reduce the energy, leading to 
+    efficient and accurate ground state energy estimation.
+    
+    This implementation uses qubit operators directly to construct the ansatz, potentially simplifying the implementation 
+    and making it more efficient for certain quantum hardware.
+
+    Args:
+        molecule_symbol (str): The chemical symbol of the molecule.
+        type_of_generator (str): The type of generator to use for the algorithm.
+        transform (str): The type of transformation to apply.
+        active (list): List of active orbitals.
+    Returns:
+        None: The function prints the number of iterations and the resulting energies.
+    """
     
     # Parameters for the ADAPT-VQE algorithm
-    n_max_grads = 1
-    optimizer = 'BFGS'                
-    tolerance = 10**(-9)            
-    type_conver = 'norm'
-    threshold_needed = 1e-7
-    max_external_iterations = 29
+    opts = {
+        'n_max_grads': 1,
+        'optimizer': 'BFGS',
+        'tolerance': 1e-9,
+        'type_conver': 'norm',
+        'threshold_needed': 1e-7,
+        'max_external_iterations': 29
+    } | opts
     
     molecule_factory = MoleculeFactory()
 
-    tools.presentation(molecule_symbol, type_of_generator, transform, active)
+    tools.presentation(molecule_symbol, type_of_generator, transform, active, opts)
     hamiltonian, hamiltonian_sparse, hamiltonian_sp, hamiltonian_sp_sparse, n_elec, noons_full, orb_energies_full, info = tools.generate_hamiltonian(molecule_factory, molecule_symbol, type_of_generator, transform, active)
     pool_size, cluster_ops, cluster_ops_sp, cluster_ops_sparse = tools.generate_cluster_ops(molecule_factory, molecule_symbol, type_of_generator, transform, active)
     nbqbits = hamiltonian_sp.nbqbits
@@ -50,12 +70,14 @@ def execute(molecule_symbol, type_of_generator, transform, active):
         pool_mix, 
         hf_init_sp, 
         info['FCI'],
-        n_max_grads     = n_max_grads,
-        adapt_conver    = type_conver,
-        adapt_thresh    = threshold_needed,
-        adapt_maxiter   = max_external_iterations,
-        tolerance_sim   = tolerance,
-        method_sim      = optimizer
+        n_max_grads     = opts['n_max_grads'],
+        adapt_conver    = opts['type_conver'],
+        adapt_thresh    = opts['threshold_needed'],
+        adapt_maxiter   = opts['max_external_iterations'],
+        tolerance_sim   = opts['tolerance'],
+        method_sim      = opts['optimizer']
     )
     print("iterations are:",iterations_sim)    
     print("results are:",result_sim)
+    
+    return iterations_sim, result_sim

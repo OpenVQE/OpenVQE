@@ -1,7 +1,7 @@
 from openvqe.common_files.molecule_factory import MoleculeFactory
 from openvqe.common_files.molecule_factory_with_sparse import MoleculeFactory as SparseMoleculeFactory
 
-def presentation(molecule_symbol, type_of_generator, transform, active):
+def presentation(molecule_symbol, type_of_generator, transform, active, options):
     molecule_factory = MoleculeFactory()
 
     r, geometry, charge, spin, basis = molecule_factory.get_parameters(molecule_symbol)
@@ -10,10 +10,11 @@ def presentation(molecule_symbol, type_of_generator, transform, active):
         print("Running in the active case: ")
     else:
         print("Running in the non active case: ")
-    print("                     molecule symbol: %s " %(molecule_symbol))
-    print("                     molecule basis: %s " %(basis))
-    print("                     type of generator: %s " %(type_of_generator))
-    print("                     transform: %s " %(transform))
+    print("molecule symbol: %s " %(molecule_symbol))
+    print("molecule basis: %s " %(basis))
+    print("type of generator: %s " %(type_of_generator))
+    print("transform: %s " %(transform))
+    print("options: %s " %(options))
     print(" --------------------------------------------------------------------------")
 
 def generate_hamiltonian(molecule_factory, molecule_symbol, type_of_generator, transform, active):

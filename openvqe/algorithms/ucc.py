@@ -32,11 +32,25 @@ def get_ansatz(cluster_ops_sp, returned_pool):
         
     return ansatz_ops, ansatz_q_ops
 
-def execute(molecule_symbol, type_of_generator, transform, active):
+def execute(molecule_symbol, type_of_generator, transform, active, opts={}):
+    """
+    Executes the UCC (Unitary Coupled Cluster) algorithm for a given molecule.
+        molecule_symbol (str): The chemical symbol of the molecule.
+        type_of_generator (str): The type of generator to use for the UCC algorithm.
+        transform (str): The type of transformation to apply (e.g., Jordan-Wigner, Bravyi-Kitaev).
+        active (list): List of active orbitals to consider in the calculation.
+    Returns:
+        None: The function prints the number of iterations and the resulting energies.
+    """
+    # Parameters for the UCC algorithm
+    opts = {
+        'step': 0.01
+    } | opts
+    
     molecule_factory = MoleculeFactory()
     energy_ucc = EnergyUCC()
 
-    tools.presentation(molecule_symbol, type_of_generator, transform, active)
+    tools.presentation(molecule_symbol, type_of_generator, transform, active, opts)
     hamiltonian, hamiltonian_sp, n_elec, noons_full, orb_energies_full, info = tools.generate_hamiltonian(molecule_factory, molecule_symbol, type_of_generator, transform, active)
     _, cluster_ops, cluster_ops_sp = tools.generate_cluster_ops(molecule_factory, molecule_symbol, type_of_generator, transform, active)
     _, returned_pool = generate_pool_from_cluster(cluster_ops, hamiltonian_sp.nbqbits)
@@ -46,7 +60,7 @@ def execute(molecule_symbol, type_of_generator, transform, active):
     # when UCCSD is not used then one can make theta_current1 same as theta_current2     
     theta_current = []
     for i in range(len(returned_pool)):
-        theta_current.append(0.01)
+        theta_current.append(opts['step'])
     
     # now we can run EnergyUCC.get_energies to get to get the energies and properties (CNOT counts, )
     # 1.  from  UCC-family (with ansatz_ops and theta-current1) 
@@ -64,3 +78,5 @@ def execute(molecule_symbol, type_of_generator, transform, active):
     print("iterations are:", iterations)
     print("results are:", result)
     print(iterations, result)
+    
+    return iterations, result

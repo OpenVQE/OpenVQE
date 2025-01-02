@@ -12,7 +12,7 @@ class VQE:
         'quccsd': quccsd
     }
     
-    def __init__(self, algo_name, molecule_symbol, type_of_generator, transform, active):
+    def __init__(self, algo_name, molecule_symbol, type_of_generator, transform, active, opts=None):
         """Initialize the VQE calculation with the chosen algorithm and molecular configuration.
 
         Args:
@@ -47,8 +47,9 @@ class VQE:
         self.type_of_generator = type_of_generator
         self.transform = transform
         self.algorithm = self.algorithms[algo_name]
+        self.opts = opts
         if self.algorithm is None:
             raise Exception(f'Algorithm not found. Please choose from the following: {self.algorithms.keys()}')
 
     def execute(self):
-        self.algorithm.execute(self.molecule_symbol, self.type_of_generator, self.transform, self.active)
+        self.iterations, self.results = self.algorithm.execute(self.molecule_symbol, self.type_of_generator, self.transform, self.active, self.opts)
