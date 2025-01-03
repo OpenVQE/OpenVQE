@@ -5,7 +5,7 @@ from qat.qpus import get_default_qpu
 from ..common_files.circuit import count
 
 class EnergyUCC:
-    def ucc_action(self, theta_current, hamiltonian_sp, cluster_ops_sp, hf_init_sp):
+    def ucc_action(self, theta_current, hamiltonian_sp, cluster_ops_sp, hf_init_sp, energies=[]):
         """
         It maps the exponential of cluster operators ("cluster_ops_sp") associated by their parameters ("theta_current")
         using the CNOTS-staircase method, which is done by "build_ucc_ansatz" which creates the circuit on the top of
@@ -46,6 +46,7 @@ class EnergyUCC:
         circ = prog.to_circ()
         job = circ.to_job(job_type="OBS", observable=hamiltonian_sp)
         res = qpu.submit(job)
+        energies.append(res.value)
         return res.value
 
     def prepare_state_ansatz(
@@ -151,10 +152,12 @@ class EnergyUCC:
 
         theta_optimized_result1 = []
         theta_optimized_result2 = []
+        energies_1 = []
+        energies_2 = []
 
         opt_result1 = scipy.optimize.minimize(
             lambda theta: self.ucc_action(
-                theta, hamiltonian_sp, cluster_ops_sp, hf_init_sp
+                theta, hamiltonian_sp, cluster_ops_sp, hf_init_sp, energies_1
             ),
             x0=theta_current1,
             method=method,
@@ -163,7 +166,7 @@ class EnergyUCC:
         )
         opt_result2 = scipy.optimize.minimize(
             lambda theta: self.ucc_action(
-                theta, hamiltonian_sp, pool_generator, hf_init_sp
+                theta, hamiltonian_sp, pool_generator, hf_init_sp, energies_2
             ),
             x0=theta_current2,
             method=method,
@@ -198,4 +201,6 @@ class EnergyUCC:
         result["len_op2"] = len(theta_optimized_result2)
         result["energies1_substracted_from_FCI"] = abs(opt_result1.fun - fci)
         result["energies2_substracted_from_FCI"] = abs(opt_result2.fun - fci)
+        result['energies_1'] = energies_1
+        result['energies_2'] = energies_2
         return iterations, result
