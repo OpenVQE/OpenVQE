@@ -7,7 +7,7 @@ def main():
     # suppose user type sUPCCGSD
     # user can type any of the following three transformations: JW,  Bravyi-Kitaev and Parity-basis
     # the non_active space selection
-    VQE('ucc', 'H2', 'sUPCCGSD', 'JW', False).execute()
+    VQE.algorithm('ucc', 'H2', 'sUPCCGSD', 'JW', False).execute()
 
 if __name__ == "__main__":
     main()
