@@ -2,12 +2,6 @@ from openvqe.algorithms.ucc import UCC
 from openvqe.algorithms.fermionic_adapt import FermionicAdapt
 from openvqe.algorithms.qubit_adapt import QubitAdapt
 from openvqe.algorithms.quccsd import QUCCSD
-from openvqe.algorithms import algorithm
-from openvqe.common_files.molecule_factory import MoleculeFactory
-from openvqe.common_files.molecule_factory_with_sparse import MoleculeFactory as SparseMoleculeFactory
-
-import matplotlib.pyplot as plt
-import numpy as np
 
 class VQE:
     

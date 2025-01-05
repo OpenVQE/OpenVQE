@@ -84,5 +84,3 @@ class UCC(Algorithm):
         print(iterations, result)
         self.iterations = iterations
         self.result = result
-        
-        return iterations, result

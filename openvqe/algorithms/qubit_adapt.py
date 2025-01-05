@@ -86,5 +86,3 @@ class QubitAdapt(Algorithm):
         print("results are:",result_sim)
         self.iterations = iterations_sim
         self.result = result_sim
-        
-        return iterations_sim, result_sim

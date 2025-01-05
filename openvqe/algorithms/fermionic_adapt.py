@@ -73,5 +73,3 @@ class FermionicAdapt(Algorithm):
         print("results are:",result)
         self.iterations = iterations
         self.result = result
-        
-        return iterations, result
