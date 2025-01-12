@@ -35,6 +35,9 @@ class MoleculeFactory:
     """
     A class used to represent the molecule  which consists of several main methods: get_parameters, generate_hamiltonian, calculate_uccsd, generate_cluster_ops.
     """
+    
+    def sparse(self):
+        return True
 
     def get_parameters(self, molecule_symbol):
         """

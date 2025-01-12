@@ -47,7 +47,7 @@ setup(
         "Source code": "https://github.com/Haidarmm/OpenVQE/tree/update-ferm",
     },
     packages=find_namespace_packages(
-        include=["openvqe.*", "openvqe.ucc_family.*", "openvqe.common_files.*", "openvqe.adapt.*", "openvqe.applications.*"]
+        include=["openvqe", "openvqe.*", "openvqe.ucc_family.*", "openvqe.common_files.*", "openvqe.adapt.*", "openvqe.applications.*"]
     ),
     install_requires=["myqlm-fermion"],
     tests_require=["pytest"],

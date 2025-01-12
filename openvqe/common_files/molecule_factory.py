@@ -32,6 +32,10 @@ from .generator_excitations import (
 
 
 class MoleculeFactory:
+    
+    def sparse(self):
+        return False
+    
     def get_parameters(self, molecule_symbol):
         """This method will be used to multiply two numbers
         :param string molecule_symbol: The symbol of the molecule
