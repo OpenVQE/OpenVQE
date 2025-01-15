@@ -24,10 +24,13 @@ DOI: [10.1002/wcms.1664](https://doi.org/10.1002/wcms.1664)
     - Qubit-ADAPT: it  contains functions that perform the Qubit ADAPT-VQE algorithmic steps calculation in the active and non-active space orbital selections.
 3. **Applications**: Contains practical quantum computing applications:
     - **quantum_batteries**: Simulation of lithium-ion batteries on quantum computer.
-4. **Applications/qiskit**: Regroup small applications using qiskit.
-    - **QAOA**: Application of Quantum Approximate Optimization Algorithm (QAOA) dedicated to minimum vertex cover problem.
-5. **Applications/pennylane**: Regroup  small applications using pennylane.
-    - **quantum_maxcut**: Quantum annealing computing to solve maxcut problem.
+4. **Algorithms**: Wrapper to compute use VQE on selected molecules using selected method. Available methods are: 
+    - **Fermionic adapt**: Implements the fermionic ADAPT-VQE algorithm.
+    - **Qubit adapt**: Implements the qubit ADAPT-VQE algorithm.
+    - **QUCCSD**: Implements the qubit unitary coupled cluster with single and double excitations algorithm.
+    - **UCC**: Implements the unitary coupled cluster algorithm.
+
+5. **ucc_family**: This module compute the energy of the UCC or QUCC circuit.
 
 Installation
 --------------
