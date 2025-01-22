@@ -1,0 +1,31 @@
+&GATEWAY
+coord
+  2
+Angstrom
+  N   0.0 0.0 0.0
+  N   1.0 0.0 0.0
+basis=cc-pVDZ
+NOCD
+group = nosym
+
+
+&SEWARD
+NODEleted
+grid input
+grid=ultrafine
+end of grid input
+End of input
+
+
+  &RASSCF &END
+  nActEl
+  6
+  INACTIVE
+  4
+  RAS2
+  6
+
+  &MCPDFT &END
+  KSDFT=TLSDA
+  End of input
+

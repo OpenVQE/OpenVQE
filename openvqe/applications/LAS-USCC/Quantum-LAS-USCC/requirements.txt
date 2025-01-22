@@ -1,0 +1,13 @@
+Python 3.8.5
+
+Package                       Version
+----------------------------- -------------------
+numpy                         1.23.5
+scipy                         1.10.1
+pyscf                         2.3.0
+pyscf-forge                   1.0.0
+qiskit                        0.44.3
+qiskit-nature                 0.6.2
+
+pyscf commit 14d88828cd1f18f1e5358da1445355bde55322a1
+mrh commit b3185fe9baaa42493d91c1f7108511dc9d1e41ca
