@@ -1,67 +1,100 @@
 OpenVQE: README
 =======================
 
-`OpenVQE` is an Open Source Variational Quantum Eigensolver extension of the Quantum Learning Machine to  Quantum Chemistry. It was developed based on the tools of `myqlm-fermion` 
+[![License](https://img.shields.io/github/license/OpenVQE/openvqe.svg)](https://opensource.org/licenses/MIT)
+[![Current Release](https://img.shields.io/github/v/release/OpenVQE/openvqe.svg)](https://github.com/OpenVQE/openvqe/releases)
 
-Check the main OpenVQE paper:
-Open Source Variational Quantum Eigensolver Extension of the Quantum Learning Machine (QLM) for Quantum Chemistry. 
-M. Haidar,  M. J. Rančić, T. Ayral, Y. Maday, J.-P. Piquemal, WIREs Comp. Mol. Sci., 2023, e1664 (Open Access)
-DOI: 10.1002/wcms.1664
+**OpenVQE** is an open-source extension of the Variational Quantum Eigensolver (VQE) for quantum chemistry, building on the Quantum Learning Machine (QLM) and developed using tools from [`myqlm-fermion`](https://github.com/myQLM/myqlm-fermion.git). It enhances QLM's capabilities in quantum chemistry computations. This repository produce quantum computing applications. Please follows us as there will be more and more applications to coming.
 
-It consists of two main modules as follows:
+## Key Publication
+For a comprehensive overview, refer to the main OpenVQE paper:
 
-- UCC Family: this module consists of different classes and functions to generate the fermionic cluster operators (fermionic pool) and the  qubit pools and to get the optimized energies from VQE in the case of active and non-active orbital selections. For example, UCCSD, QUCCSD, UCCGSD, K-UpCCGSD, spin-complemented pair, singlet and doublet generalized single and double excitations, etc.
+*Open Source Variational Quantum Eigensolver Extension of the Quantum Learning Machine (QLM) for Quantum Chemistry.*  
+M. Haidar, M. J. Rančić, T. Ayral, Y. Maday, J.-P. Piquemal, *WIREs Comp. Mol. Sci.*, 2023, e1664 (Open Access)  
+DOI: [10.1002/wcms.1664](https://doi.org/10.1002/wcms.1664)
 
-- ADAPT: consists of two sub-modules which are: 
+
+## Modules
+
+
+1. **UCC Family**: this module consists of different classes and functions to generate the fermionic cluster operators (fermionic pool) and the  qubit pools and to get the optimized energies from VQE in the case of active and non-active orbital selections. For example, UCCSD, QUCCSD, UCCGSD, K-UpCCGSD, spin-complemented pair, singlet and doublet generalized single and double excitations, etc.
+
+2. **ADAPT**: Contains two sub-modules:
     - Fermionic-ADAPT: it contains functions that performs the fermionic ADAPT-VQE algorthmic steps  in the active and non-active space selections.
     - Qubit-ADAPT: it  contains functions that perform the Qubit ADAPT-VQE algorithmic steps calculation in the active and non-active space orbital selections.
+3. **Applications**: Contains practical quantum computing applications:
+    - **quantum_batteries**: Simulation of lithium-ion batteries on quantum computer.
+4. **Algorithms**: Wrapper to compute use VQE on selected molecules using selected method. Available methods are: 
+    - **Fermionic adapt**: Implements the fermionic ADAPT-VQE algorithm.
+    - **Qubit adapt**: Implements the qubit ADAPT-VQE algorithm.
+    - **QUCCSD**: Implements the qubit unitary coupled cluster with single and double excitations algorithm.
+    - **UCC**: Implements the unitary coupled cluster algorithm.
 
+5. **ucc_family**: This module compute the energy of the UCC or QUCC circuit.
 
 Installation
 --------------
-### Prerequisites:
-#### Install myqlm-fermion:
 
-install myqlm-fermion 1.7.1 from source:
+OpenVQE can only be installed on a linux distribution because of its depencies with pyscf and cuda-quantum. If you are on windows or mac, use docker, wsl or a virtual machine to create a linux environment.
 
-```shell
-git clone https://github.com/myQLM/myqlm-fermion.git
-cd myqlm-fermion
-git checkout 1.7.1
-pip install -r requirements.txt
-pip install .
-```
-### Install OpenVQE
+To install OpenVQE from source:
 
-install OpenVQE from source:
-```shell
+```bash
 git clone https://github.com/OpenVQE/OpenVQE.git
 cd OpenVQE
-pip install -r requirements.txt
+git checkout alpha
 pip install .
+pip install -r requirements.txt
 ```
-Move to the next section for getting started!
 
+To explore the quantum battery application, you will need to install CUDA and have an NVIDIA GPU. For detailed instructions, refer to the    [NVIDIA CUDA Quantum GitHub page](https://github.com/NVIDIA/cuda-quantum).
+
+## Troubleshooting
+
+If you have a problem with the installation we recommand using `conda`:
+
+```shell
+conda create --name openvqe python=3.11
+conda activate openvqe
+# Repeat the installation steps above
+git clone https://github.com/OpenVQE/OpenVQE.git
+cd OpenVQE
+git checkout alpha
+pip install .
+pip install -r requirements.txt
+```
+
+To explore the quantum battery application, you will need to install CUDA and have an NVIDIA GPU. For detailed instructions, refer to the    [NVIDIA CUDA Quantum GitHub page](https://github.com/NVIDIA/cuda-quantum). If you want to install it on linux do:
+```shell
+sudo apt update && sudo apt upgrade -y
+sudo apt install cuda-11-8 -y
+```
+
+If you have the error: `Qiskit is installed in an invalid environment that has both Qiskit >=1.0 and an earlier version.`. Run the command: `pip uninstall qiskit-terra` inside your terminal. 
+
+## Contributing to the Package
+
+Please read the CONTRIBUTING.md file.
 
 Getting started
 ----------------
-### Notebooks
 
-Jupyter notebooks are available in the "notebooks" folder.
+## Video tutorial
 
-### Hello world example
+Please checkout the lecture of Dr. Mohammad Haidar on how to use openVQE: https://www.youtube.com/watch?v=NkRFcn4LuNs. 
 
+## Notebook 
 
-```shell
-from openvqe.ucc import ...
-
-```
+Tutorials are stored inside jupyter notebooks in the "notebooks" folder. These notebooks contains examples of code using openVQE that you can run locally. The lithium battery application also has an dedicated notebooks. 
 
 Documentation
 ---------------
 The code is based on the well documented code of `myqlm-fermion` framework [link](https://myqlm.github.io/).
 The main functions are documented in the code base.
-For more information, please refer to our paper that wil be published soon (the link to be provided).
+For more information, please refer to our paper: 
+> *Open Source Variational Quantum Eigensolver Extension of the Quantum Learning Machine (QLM) for Quantum Chemistry. 
+M. Haidar,  M. J. Rančić, T. Ayral, Y. Maday, J.-P. Piquemal, WIREs Comp. Mol. Sci., 2023, e1664 (Open Access)
+DOI: 10.1002/wcms.1664*
 
 How to cite
 -----------
@@ -69,11 +102,11 @@ How to cite
 
 Getting in touch
 -----------
-For any question about OpenVQE or my research, don't hesitate to get in touch: mohammadhaidar2016@outlook.com
+For any questions regarding OpenVQE or related research, contact: mohammadhaidar2016@outlook.com.
 
 License
 -----------
-OpenVQE was created by Mohammad Haidar. It is licensed under the terms of the MIT License.
+OpenVQE is created by Mohammad Haidar and licensed under the MIT License.
 
 References
 -----------

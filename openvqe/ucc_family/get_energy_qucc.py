@@ -8,7 +8,7 @@ from ..common_files.circuit import efficient_fermionic_ansatz, count
 
 
 class EnergyUCC:
-    def action_quccsd(self, theta_0, hamiltonian_sp, cluster_ops, hf_init_sp):
+    def action_quccsd(self, theta_0, hamiltonian_sp, cluster_ops, hf_init_sp, energies=[]):
         """
         It returns the energy from the qubit coupled cluster ansatz which are obtained from common_files.circuit
 
@@ -52,6 +52,7 @@ class EnergyUCC:
         circ = qprog.to_circ()
         job = circ.to_job(job_type="OBS", observable=hamiltonian_sp)
         res = qpu.submit(job)
+        energies.append(res.value)
         return res.value
 
     def prepare_hf_state(self, hf_init_sp, cluster_ops_sp):
@@ -190,9 +191,11 @@ class EnergyUCC:
         print("method= ", method)
         theta_optimized_result1 = []
         theta_optimized_result2 = []
+        energies1 = []
+        energies2 = []
         opt_result1 = scipy.optimize.minimize(
             lambda theta: self.action_quccsd(
-                theta, hamiltonian_sp, cluster_ops, hf_init_sp
+                theta, hamiltonian_sp, cluster_ops, hf_init_sp, energies1
             ),
             x0=theta_current1,
             method=method,
@@ -201,7 +204,7 @@ class EnergyUCC:
         )
         opt_result2 = scipy.optimize.minimize(
             lambda theta: self.action_quccsd(
-                theta, hamiltonian_sp, cluster_ops, hf_init_sp
+                theta, hamiltonian_sp, cluster_ops, hf_init_sp, energies2
             ),
             x0=theta_current2,
             method=method,
@@ -234,6 +237,8 @@ class EnergyUCC:
         result["CNOT2"] = CNOT2
         result["len_op1"] = len(theta_optimized_result1)
         result["len_op2"] = len(theta_optimized_result2)
+        result['energies_1'] = energies1
+        result['energies_2'] = energies2
         result["energies1_substracted_from_FCI"] = abs(opt_result1.fun - FCI)
         result["energies2_substracted_from_FCI"] = abs(opt_result2.fun - FCI)
         return iterations, result
