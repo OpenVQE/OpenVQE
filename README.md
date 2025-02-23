@@ -42,7 +42,6 @@ To install OpenVQE from source:
 ```bash
 git clone https://github.com/OpenVQE/OpenVQE.git
 cd OpenVQE
-git checkout alpha
 pip install .
 pip install -r requirements.txt
 ```
@@ -59,7 +58,6 @@ conda activate openvqe
 # Repeat the installation steps above
 git clone https://github.com/OpenVQE/OpenVQE.git
 cd OpenVQE
-git checkout alpha
 pip install .
 pip install -r requirements.txt
 ```
